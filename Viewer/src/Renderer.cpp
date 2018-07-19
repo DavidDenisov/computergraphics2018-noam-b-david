@@ -45,14 +45,42 @@ void Renderer::createBuffers(int w, int h)
 
 void Renderer::printLine()
 {
+	float p1 = 0, q1 = 0; // point 1
+	float p2 = width - 1, q2 = height - 30; // point 2
+	// y = mx + c
+	int y, x;
+	int m, c;
+
+
+	//for 0 <= m < 1
+
+
+
+
+
+}
+
+void Renderer::printLineNaive()
+{
+	float m = 0.7f, b = 10.0f; //slope
+	int x,y;
 	int r = 5;
-	glm::vec4 magenta = glm::vec4(1, 0, 1, 1);
-	for (int i = 0; i<width; i++)
+	glm::vec4 green = glm::vec4(0, 1, 0, 1);
+	
+	for (int x = 0; x < width; x++) // x goes from left corner to right corner
 	{
-		for (int r0 = 0; r0 < r; r0++)
+		y = m * x + b;
+		
+		
+
+		for (int r0 = 0; r0 < r; r0++) //so it wouldn't be thin
 		{
-			putPixel(i, (height / 2) + r0, magenta);
-			putPixel(i, (height / 2) - r0, magenta);
+			if (!((int)y < height && (int)y >= 0)) //if y is out of bounds, stop drawing
+				break;
+			if(x + r0 < width && x + r0 >= 0)
+				putPixel(x + r0, (int)y, green);
+			if (x + r0 < width && x - r0 >= 0)
+				putPixel(x - r0, (int)y, green);
 		}
 
 	}

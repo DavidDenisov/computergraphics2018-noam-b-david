@@ -20,5 +20,6 @@ void Scene::Draw()
 void Scene::DrawDemo()
 {
 	renderer->SetDemoBuffer();
+	renderer->printLineNaive(); //Naive draw line
 	renderer->SwapBuffers();
 }
