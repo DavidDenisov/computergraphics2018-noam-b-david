@@ -4,6 +4,7 @@
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
+
 Renderer::Renderer() : width(1280), height(720)
 {
 	initOpenGLRendering();
@@ -45,15 +46,57 @@ void Renderer::createBuffers(int w, int h)
 
 void Renderer::printLine()
 {
-	float p1 = 0, q1 = 0; // point 1
-	float p2 = width - 1, q2 = height - 30; // point 2
-	// y = mx + c
-	int y, x;
-	int m, c;
+	glm::vec4 green = glm::vec4(0, 1, 0, 1);
+	float p1 = 400.0f, q1 = 100.0f; // point 1 parameter
+	float p2 = width/2, q2 = height/2; // point 2 parameter
+	float y, x, m, c;
+	int replaced = 0;
 
+	//for measuring distance between the line's y and the approximation's y
+	int e; 
 
 	//for 0 <= m < 1
+	
+	m = (q2 - q1) / (p2 - p1);
 
+	int tmp;
+	if (m > 1.0f) // if m>1 replace x & y for both points
+	{
+		//switch(p1,q1)
+		tmp = p1;
+		p1 = q1;
+		q1 = tmp;
+
+		//switch(p2,q2)
+		tmp = p2;
+		p2 = q2;
+		q2 = tmp;
+
+		replaced = 1;
+	}
+
+	// y = mx + c
+	m = (q2 - q1) / (p2 - p1);
+	c = q1 - m * p1;
+	x = p1, y = q1, e = -1 * (p2 - p1);
+
+
+	
+	while (x <= p2)
+	{
+		//e = m*x*(dp) + c*dp - y*dp - dp; //measuring distance
+		if (e > 0)
+		{
+			y = y + 1;
+			e = e - 2*(p2 - p1);
+		}
+		if (replaced == 0)
+			putPixel(x, y, green);
+		else
+			putPixel(y, x, green);
+		x = x + 1; //for next point
+		e = e + 2 * (q2 - q1); //line's y got bigger by m*dp
+	}
 
 
 
