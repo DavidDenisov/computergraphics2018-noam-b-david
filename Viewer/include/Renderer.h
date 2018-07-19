@@ -68,4 +68,7 @@ public:
 
 	// Draw wide vertical and horizontal lines on the screen
 	void SetDemoBuffer();
+
+	//new function for home work
+	void printLine();
 };

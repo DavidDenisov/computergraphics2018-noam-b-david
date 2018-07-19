@@ -43,6 +43,20 @@ void Renderer::createBuffers(int w, int h)
 	}
 }
 
+void Renderer::printLine()
+{
+	int r = 5;
+	glm::vec4 magenta = glm::vec4(1, 0, 1, 1);
+	for (int i = 0; i<width; i++)
+	{
+		for (int r0 = 0; r0 < r; r0++)
+		{
+			putPixel(i, (height / 2) + r0, magenta);
+			putPixel(i, (height / 2) - r0, magenta);
+		}
+
+	}
+}
 void Renderer::SetDemoBuffer()
 {
 	int r = 5;

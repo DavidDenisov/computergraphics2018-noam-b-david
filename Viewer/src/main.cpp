@@ -150,6 +150,7 @@ void RenderFrame(GLFWwindow* window, Renderer* renderer)
 	// #######################################
 	renderer->Viewport(displayW, displayH);
 	renderer->ClearColorBuffer(GetClearColor());
+	renderer->printLine();
 	// #######################################
 	
 	// Actual rendering of ImGui. ImGui only creates buffers and textures, 
