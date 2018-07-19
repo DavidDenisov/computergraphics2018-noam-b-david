@@ -4,6 +4,7 @@
 
 Camera::Camera()
 {
+	
 }
 
 

@@ -43,23 +43,138 @@ void Renderer::createBuffers(int w, int h)
 	}
 }
 
-void Renderer::printLine()
+void Renderer::drawline(int i, int j, int i2, int j2)
 {
-	int r = 5;
+	int r = 10;
 	glm::vec4 magenta = glm::vec4(1, 0, 1, 1);
-	for (int i = 0; i<width; i++)
+	if (i2 == i)
 	{
-		for (int r0 = 0; r0 < r; r0++)
+		// Wide red vertical line
+		for (int k = j; k<j2; k++)
 		{
-			putPixel(i, (height / 2) + r0, magenta);
-			putPixel(i, (height / 2) - r0, magenta);
+			for (int r0 = 0; r0 < r; r0++)
+			{
+				putPixel(i+r0 , k, magenta);
+				putPixel(i-r0 , k, magenta);
+				
+			}
 		}
-
+		return;
 	}
+	double dp = i2 - i;
+	double dq = j2 - j;
+	double a = dq/dp;
+	if (a < 1)
+	{
+		if (a >= -1)
+		{
+			if (a == 0)
+			{
+				for (int k = i; k < i2; k++)
+				{
+					for (int r0 = 0; r0 < r; r0++)
+					{	
+						putPixel( k, j + r0, magenta);
+						putPixel( k , j - r0, magenta);
+					}
+				}
+			}
+			else
+			{
+				if (a > 0)
+				{
+					double c = j + a * i;
+					double x = i, y = j, e = -dp;
+					while (x <= i2)
+					{
+						e = 2 * x*dq + 2 * dp*c - 2 * dp*y - dp;
+						if (e > 0)
+						{
+							y = y + 1;
+							e = e - 2 * dp;
+						}
+						for (int r0 = 0; r0 < r; r0++)
+						{
+							putPixel(x, y + r0, magenta);
+							putPixel(x, y - r0, magenta);
+						}
+						x = x + 1;
+						e = e + 2 * dp;
+					}
+				}
+				else
+				{
+					double c = j + a * i;
+					double x = i, y = j, e = -dp;
+					while (x <= i2)
+					{
+						e = 2 * x*dq + 2 * dp*c - 2 * dp*y - dp;
+						if (e < 0)
+						{
+							y = y - 1;
+							e = e - 2 * dp;
+						}
+						for (int r0 = 0; r0 < r; r0++)
+						{
+							putPixel(x, y + r0, magenta);
+							putPixel(x, y - r0, magenta);
+						}
+						x = x + 1;
+						e = e + 2 * dq;
+					}
+				}
+			}
+		}
+		else{
+			double c = j - a * i;
+			double x = i, y = j, e = dp;
+			while (y > j2)
+			{
+				e = 2 * y*dp - 2 * dp*c - 2 * dq*x - dp;
+				if (e < 0)
+					{
+					x = x + 1;
+					e = e - 2 * dq;
+					}
+				for (int r0 = 0; r0 < r; r0++)
+					{
+					putPixel(x + r0, y, magenta);
+					putPixel(x - r0, y, magenta);
+					}
+				y = y - 1;
+				e = e + 2 * dq;
+				}
+			}
+	}
+	else
+	{
+		double c = j-a*i;
+		double x = i, y = j, e = dp;
+		while (y <= j2)
+		{
+			e = 2*y*dp - 2 * dp*c - 2 * dq*x -dp;
+			if (e > 0)
+			{
+				x = x + 1;
+				e = e - 2 * dq;
+			}
+			for (int r0 = 0; r0 < r; r0++)
+			{
+				putPixel(x+r0, y, magenta);
+				putPixel(x-r0, y, magenta);
+			}
+			y = y + 1;
+			e = e + 2 * dq;
+		}
+	}
+	
+	
+	
 }
+
 void Renderer::SetDemoBuffer()
 {
-	int r = 5;
+	int r = 10;
 	// Wide red vertical line
 	glm::vec4 red = glm::vec4(1, 0, 0, 1);
 	for (int i = 0; i<height; i++)
@@ -82,6 +197,8 @@ void Renderer::SetDemoBuffer()
 
 	}
 }
+
+
 
 //##############################
 //##OpenGL stuff. Don't touch.##

@@ -22,3 +22,9 @@ void Scene::DrawDemo()
 	renderer->SetDemoBuffer();
 	renderer->SwapBuffers();
 }
+
+void Scene::drawline(int i, int j, int i2, int j2)
+{
+	renderer->drawline(i, j, i2, j2);
+	renderer->SwapBuffers();
+}
