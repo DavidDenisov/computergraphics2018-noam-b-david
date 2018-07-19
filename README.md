@@ -1,7 +1,7 @@
 # Computer Graphics 203.3710, Summer 2018
 ## Students Team data
 
-Name: Noam Blagovsky 
+Name: Noam Blagovsky  
 Student Number: 322795964
 
 Name: 'Your real name'  
