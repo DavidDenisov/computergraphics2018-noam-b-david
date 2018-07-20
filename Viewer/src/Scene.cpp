@@ -20,11 +20,8 @@ void Scene::Draw()
 void Scene::DrawDemo()
 {
 	renderer->SetDemoBuffer();
+	//renderer->printLineNaive(); //Naive draw line
+	renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
 	renderer->SwapBuffers();
 }
 
-void Scene::drawline(int i, int j, int i2, int j2)
-{
-	renderer->drawline(i, j, i2, j2);
-	renderer->SwapBuffers();
-}

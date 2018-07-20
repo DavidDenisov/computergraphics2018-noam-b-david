@@ -4,6 +4,7 @@
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
+
 Renderer::Renderer() : width(1280), height(720)
 {
 	initOpenGLRendering();
@@ -43,138 +44,166 @@ void Renderer::createBuffers(int w, int h)
 	}
 }
 
-void Renderer::drawline(int i, int j, int i2, int j2)
+void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
 {
-	int r = 10;
-	glm::vec4 magenta = glm::vec4(1, 0, 1, 1);
-	if (i2 == i)
+	glm::vec4 green = glm::vec4(0, 1, 0, 1);
+	
+	int p1 = point1.x, q1 = point1.y; // point1 parameters
+	int p2 = point2.x, q2 = point2.y; // point2 parameters
+	int y, x;
+	float m;
+	int c;
+
+	int replaced = 0;
+
+	//for measuring distance between the line's y and the approximation's y
+	int e; 
+	int tmp;
+	
+	m = float(q2 - q1) / float(p2 - p1);
+	
+	if (m >= 0.0f) //m>=0
 	{
-		// Wide red vertical line
-		for (int k = j; k<j2; k++)
+
+
+		if (m > 1.0f) // if m>1 replace x & y for both points
 		{
-			for (int r0 = 0; r0 < r; r0++)
-			{
-				putPixel(i+r0 , k, magenta);
-				putPixel(i-r0 , k, magenta);
-				
-			}
+			//switch(p1,q1)
+			tmp = p1;
+			p1 = q1;
+			q1 = tmp;
+
+			//switch(p2,q2)
+			tmp = p2;
+			p2 = q2;
+			q2 = tmp;
+
+			replaced = 1;
 		}
-		return;
-	}
-	double dp = i2 - i;
-	double dq = j2 - j;
-	double a = dq/dp;
-	if (a < 1)
-	{
-		if (a >= -1)
+
+		// y = mx + c
+		m = (q2 - q1) / (p2 - p1);
+		c = q1 - m * p1;
+		x = p1, y = q1, e = -1 * (p2 - p1);
+
+
+
+		while (x <= p2)
 		{
-			if (a == 0)
-			{
-				for (int k = i; k < i2; k++)
-				{
-					for (int r0 = 0; r0 < r; r0++)
-					{	
-						putPixel( k, j + r0, magenta);
-						putPixel( k , j - r0, magenta);
-					}
-				}
-			}
-			else
-			{
-				if (a > 0)
-				{
-					double c = j + a * i;
-					double x = i, y = j, e = -dp;
-					while (x <= i2)
-					{
-						e = 2 * x*dq + 2 * dp*c - 2 * dp*y - dp;
-						if (e > 0)
-						{
-							y = y + 1;
-							e = e - 2 * dp;
-						}
-						for (int r0 = 0; r0 < r; r0++)
-						{
-							putPixel(x, y + r0, magenta);
-							putPixel(x, y - r0, magenta);
-						}
-						x = x + 1;
-						e = e + 2 * dp;
-					}
-				}
-				else
-				{
-					double c = j + a * i;
-					double x = i, y = j, e = -dp;
-					while (x <= i2)
-					{
-						e = 2 * x*dq + 2 * dp*c - 2 * dp*y - dp;
-						if (e < 0)
-						{
-							y = y - 1;
-							e = e - 2 * dp;
-						}
-						for (int r0 = 0; r0 < r; r0++)
-						{
-							putPixel(x, y + r0, magenta);
-							putPixel(x, y - r0, magenta);
-						}
-						x = x + 1;
-						e = e + 2 * dq;
-					}
-				}
-			}
-		}
-		else{
-			double c = j - a * i;
-			double x = i, y = j, e = dp;
-			while (y > j2)
-			{
-				e = 2 * y*dp - 2 * dp*c - 2 * dq*x - dp;
-				if (e < 0)
-					{
-					x = x + 1;
-					e = e - 2 * dq;
-					}
-				for (int r0 = 0; r0 < r; r0++)
-					{
-					putPixel(x + r0, y, magenta);
-					putPixel(x - r0, y, magenta);
-					}
-				y = y - 1;
-				e = e + 2 * dq;
-				}
-			}
-	}
-	else
-	{
-		double c = j-a*i;
-		double x = i, y = j, e = dp;
-		while (y <= j2)
-		{
-			e = 2*y*dp - 2 * dp*c - 2 * dq*x -dp;
+			//e = m*x*(dp) + c*dp - y*dp - dp; //measuring distance
 			if (e > 0)
 			{
-				x = x + 1;
-				e = e - 2 * dq;
+				y = y + 1;
+				e = e - 2 * (p2 - p1);
 			}
-			for (int r0 = 0; r0 < r; r0++)
-			{
-				putPixel(x+r0, y, magenta);
-				putPixel(x-r0, y, magenta);
-			}
-			y = y + 1;
-			e = e + 2 * dq;
+			if (replaced == 0)
+				putPixel(x, y, green);
+			else
+				putPixel(y, x, green);
+			x = x + 1; //for next point
+			e = e + 2 * (q2 - q1); //line's y got bigger by m*dp
 		}
 	}
+
+
+	//m < 0 - similar to m>0 but it's less readable if we would try to combine
+	else
+	{
+		
+		
+		
+		//if m<-1 should swap(x,y) for both points
+		// and also swap the two points between themselves
+		/*
+		   1*           2*
+			 \            -----
+			  \     =>          -------
+			  2*                         ---1*
+			
+			***now 2* is before 1* and -1 < m < 0
+		*/
+		if (m < -1.0f)
+		{
+			//switch(p1,q1)
+			tmp = p1;
+			p1 = q1;
+			q1 = tmp;
+
+			//switch(p2,q2)
+			tmp = p2;
+			p2 = q2;
+			q2 = tmp;
+			
+
+			//***now switch(point1, point2):
+			  //switch(p1,p2)
+			tmp = p1;
+			p1 = p2;
+			p2 = tmp;
+
+			  //switch(q1,q2)
+			tmp = q1;
+			q1 = q2;
+			q2 = tmp;
+
+			replaced = 1;
+		}
+
+
+		// y = mx + c
+		m = (q2 - q1) / (p2 - p1);
+		c = q1 - m * p1;
+		x = p1; y = q1; e = p2 - p1;
+
+		while (x <= p2)
+		{
+			//e = m * x + c - y;
+			
+			if (e < 0)
+			{
+				y = y - 1; e = e + 2 * (p2-p1);
+			}
+			if (replaced == 0)
+				putPixel(x, y, green);
+			else
+				putPixel(y, x, green);
+			
+			x = x + 1; e = e + 2*(q2 - q1);
+		}
+
+	}
+
+
+}
+
+void Renderer::printLineNaive()
+{
+	float m = 0.7f, b = 10.0f; //slope
+	int x,y;
+	int r = 5;
+	glm::vec4 green = glm::vec4(0, 1, 0, 1);
 	
-	
-	
+	for (int x = 0; x < width; x++) // x goes from left corner to right corner
+	{
+		y = m * x + b;
+		
+		
+
+		for (int r0 = 0; r0 < r; r0++) //so it wouldn't be thin
+		{
+			if (!((int)y < height && (int)y >= 0)) //if y is out of bounds, stop drawing
+				break;
+			if(x + r0 < width && x + r0 >= 0)
+				putPixel(x + r0, (int)y, green);
+			if (x + r0 < width && x - r0 >= 0)
+				putPixel(x - r0, (int)y, green);
+    }
+  }
 }
 
 void Renderer::SetDemoBuffer()
 {
-	int r = 10;
+	int r = 5;
 	// Wide red vertical line
 	glm::vec4 red = glm::vec4(1, 0, 0, 1);
 	for (int i = 0; i<height; i++)

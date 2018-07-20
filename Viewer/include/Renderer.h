@@ -21,7 +21,7 @@ private:
 	// Screen dimensions
 	int width, height;
 
-	// Draw's a pixel in location p with color color
+	// Draws a pixel in location p with color color
 	void putPixel(int i, int j, const glm::vec3& color);
 	// creates float array of dimension [3,w,h]
 	void createBuffers(int w, int h);
@@ -71,8 +71,10 @@ public:
 
 	// Draw wide vertical and horizontal lines on the screen
 	void SetDemoBuffer();
+  
 	//new function for home work
-	void drawline(int i, int j, int i2, int j2);
-	//new function for home work
-	void newfunc();
+	void drawLine(glm::vec2 point1, glm::vec2 point2);
+
+	//Task1, naive solution to draw a line
+	void printLineNaive();
 };
