@@ -25,4 +25,3 @@ void Scene::DrawDemo()
 	renderer->SwapBuffers();
 }
 
-

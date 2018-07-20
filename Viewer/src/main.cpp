@@ -51,7 +51,8 @@ int main(int argc, char **argv)
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
 		// draw scene here
-		scene.DrawDemo();
+		scene.drawline(180, 400, 200, 200);
+
         // Start the ImGui frame
 		StartFrame();
 		// imgui stuff here
@@ -148,9 +149,10 @@ void RenderFrame(GLFWwindow* window, Renderer* renderer)
 	
 	// put renderer code here
 	// #######################################
-	renderer->Viewport(displayW, displayH);
+	//renderer->printLine();
+
+	//renderer->Viewport(displayW-100, displayH-100);
 	renderer->ClearColorBuffer(GetClearColor());
-	//   renderer->printLine(); -- david's code
 	// #######################################
 	
 	// Actual rendering of ImGui. ImGui only creates buffers and textures, 

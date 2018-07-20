@@ -33,6 +33,9 @@ private:
 	void createOpenGLBuffer();
 	void initOpenGLRendering();
 	//##############################
+	void horizontal(int i, int i2, int j, int r);
+	void vertical(int j, int j2, int i, int r);
+	void Bresenham(int i, int j, int i2, int j2,int r);
 public:
 	Renderer();
 	Renderer(int w, int h);
@@ -68,11 +71,10 @@ public:
 
 	// Draw wide vertical and horizontal lines on the screen
 	void SetDemoBuffer();
-
+  
 	//new function for home work
 	void drawLine(glm::vec2 point1, glm::vec2 point2);
 
 	//Task1, naive solution to draw a line
 	void printLineNaive();
-
 };

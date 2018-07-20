@@ -197,10 +197,10 @@ void Renderer::printLineNaive()
 				putPixel(x + r0, (int)y, green);
 			if (x + r0 < width && x - r0 >= 0)
 				putPixel(x - r0, (int)y, green);
-		}
-
-	}
+    }
+  }
 }
+
 void Renderer::SetDemoBuffer()
 {
 	int r = 5;
@@ -226,6 +226,8 @@ void Renderer::SetDemoBuffer()
 
 	}
 }
+
+
 
 //##############################
 //##OpenGL stuff. Don't touch.##
