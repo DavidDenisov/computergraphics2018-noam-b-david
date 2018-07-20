@@ -44,19 +44,23 @@ void Renderer::createBuffers(int w, int h)
 	}
 }
 
-void Renderer::printLine()
+void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
 {
 	glm::vec4 green = glm::vec4(0, 1, 0, 1);
-	float p1 = 0.0f, q1 = height - 1; // point 1 parameter
-	float p2 = width / 4, q2 = 0.0f; // point 2 parameter
-	float y, x, m, c;
+	
+	int p1 = point1.x, q1 = point1.y; // point1 parameters
+	int p2 = point2.x, q2 = point2.y; // point2 parameters
+	int y, x;
+	float m;
+	int c;
+
 	int replaced = 0;
 
 	//for measuring distance between the line's y and the approximation's y
 	int e; 
 	int tmp;
 	
-	m = (q2 - q1) / (p2 - p1);
+	m = float(q2 - q1) / float(p2 - p1);
 	
 	if (m >= 0.0f) //m>=0
 	{

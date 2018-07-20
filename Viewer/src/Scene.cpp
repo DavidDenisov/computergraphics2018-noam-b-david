@@ -21,6 +21,8 @@ void Scene::DrawDemo()
 {
 	renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
-	renderer->printLine(); //Bresenham algorithm
+	renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
 	renderer->SwapBuffers();
 }
+
+

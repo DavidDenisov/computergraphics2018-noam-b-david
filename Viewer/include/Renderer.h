@@ -70,7 +70,7 @@ public:
 	void SetDemoBuffer();
 
 	//new function for home work
-	void printLine();
+	void drawLine(glm::vec2 point1, glm::vec2 point2);
 
 	//Task1, naive solution to draw a line
 	void printLineNaive();
