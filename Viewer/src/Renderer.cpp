@@ -136,7 +136,6 @@ void Renderer::printLine()
 			tmp = p1;
 			p1 = p2;
 			p2 = tmp;
-			replaced = 1;
 
 			  //switch(q1,q2)
 			tmp = q1;
