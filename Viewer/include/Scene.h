@@ -32,11 +32,8 @@ public:
 	// Draws an example.
 	void DrawDemo();
 
-	//new function for home work on , please work
-	void newfunc();
+
 	
-	//new function for home work on , please work
-	void drawline(int i, int j, int i2, int j2);
 
 	int ActiveModel;
 	int ActiveLight;
