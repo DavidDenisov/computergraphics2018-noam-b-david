@@ -33,7 +33,7 @@ struct FaceIdx
 			v[i] = vn[i] = vt[i] = 0;
 
 		char c;
-		for(int i = 0; i < FACE_ELEMENTS; i++)
+		for(int i = 0; i < FACE_ELEMENTS; i++) // v0/vn0/vt0 v1/vn1/vt1  
 		{
 			issLine >> std::ws >> v[i] >> std::ws;
 			if (issLine.peek() != '/')
@@ -76,6 +76,70 @@ glm::vec2 vec2fFromStream(std::istream& issLine)
 MeshModel::MeshModel(const string& fileName)
 {
 	LoadFile(fileName);
+}
+
+MeshModel::MeshModel() //primitive MeshModel - task2
+{
+	//let's build a primitive MeshModel, a cube!
+
+	/*
+	the (0,0,0) point is in the center of the cube.
+
+	  
+	   a'_______  b'
+	d'/|_____c'/|
+	  ||      | |
+	  ||a_____|_|b
+	  |/______|/
+	  d       c
+	*/
+
+	glm::vec4 a(-0.5f, -0.5f, -0.5f, 0.0f), b(0.5f, -0.5f, -0.5f, 0.0f),
+		c(0.5f, -0.5f, 0.5f, 0.0f), d(-0.5f, -0.5f, 0.5f, 0.0f);
+	
+	glm::vec4 aUp(-0.5f, 0.5f, -0.5f, 0.0f), bUp(0.5f, 0.5f, -0.5f, 0.0f),
+		cUp(0.5f, 0.5f, 0.5f, 0.0f), dUp(-0.5f, 0.5f, 0.5f, 0.0f);
+
+	glm::vec4 vertexPosi[] =
+	{
+		// *a b c d*
+		a, b, d,
+		b, c ,d,
+		// *aUp bUp cUp dUp*
+		aUp, bUp, dUp,
+		bUp, cUp, dUp,
+		// *c d dUp cUp*
+		d, c, cUp,
+		d, dUp, cUp,
+		// *a d dUp aUp*
+		a, d, dUp,
+		a, aUp, dUp,
+		// *a b bUp aUp*
+		a, b, bUp,
+		a, aUp, bUp,
+		// *b c cUp dUp*
+		b, c, cUp,
+		b, bUp, cUp
+	};
+
+	this->vertexPositions = vertexPosi;
+	//object in the center of the world, identity trans
+	this->worldTransform = glm::mat4x4
+	(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+
+	//i dont know what it is used for, but we probably dont need it (I hope so)
+	this->normalTransform = glm::mat4x4
+	(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
 }
 
 MeshModel::~MeshModel()
@@ -125,19 +189,30 @@ void MeshModel::LoadFile(const string& fileName)
 	//Then vertexPositions should contain:
 	//vertexPositions={v1,v2,v3,v1,v3,v4}
 
-	vertexPositions = new glm::vec3[7]; /*BUG*/
+	vertexPositions = new glm::vec4[7]; /*BUG*/
 	// iterate through all stored faces and create triangles
 	int k=0;
 	for (vector<FaceIdx>::iterator it = faces.begin(); it != faces.end(); ++it)
 	{
 		for (int i = 0; i < FACE_ELEMENTS; i++)
 		{
-			vertexPositions[k++] = glm::vec3(); /*BUG*/
+			vertexPositions[k++] = glm::vec4(); /*BUG*/
 		}
 	}
 }
 
 const vector<glm::vec3>* MeshModel::Draw()
 {
+	/*
+	should use "DrawTriangles" function(?)
+	also, should use "setObjectMatrices"(?) (before drawing, to first transform the points)
+	
+	maybe just return the transformed points to scene so it would draw?
+	meshModel doesn't have a renderer!
+	
+	*/
+
+
+
 	return NULL;
 }
