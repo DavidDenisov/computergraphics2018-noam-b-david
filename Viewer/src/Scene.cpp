@@ -33,19 +33,15 @@ void Scene::DrawDemo()
 	//fileName = "C:/Users/Nir blagovsky/Documents/Noam/גרפיקה ממוחשבת/GitHub/computergraphics2018-noam-b-david/Data/camera.obj";
 	MeshModel* testOBJ = new MeshModel(); //a cube?
 
-<<<<<<< HEAD
-	const glm::vec4* verPos = testOBJ->Draw();
-	
-	renderer->SetDemoBuffer();
-=======
-	//renderer->SetDemoBuffer();
->>>>>>> 2c44ee6e1ef32f46d8296e1871e4dc857799ad6c
+
 	//renderer->printLineNaive(); //Naive draw line
-	renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
+	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
 	
-																	  //draw first triangle :O
+	const glm::vec3* verPos = testOBJ->Draw();
+	//draw first triangle :O
 	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
-	for (int face = 0; face < 36 - 2; face = face + 3)
+
+	for (int face = 0; face < 33; face = face + 3)
 	{
 		a.x = verPos[face].x;
 		a.y = verPos[face].y;
@@ -56,9 +52,9 @@ void Scene::DrawDemo()
 		c.x = verPos[face + 2].x;
 		c.y = verPos[face + 2].y;
 
-		renderer->drawLine(a * 4.0f + 100.0f, b * 4.0f + 100.0f);
-		renderer->drawLine(b * 4.0f + 100.0f, c * 4.0f + 100.0f);
-		renderer->drawLine(c * 4.0f + 100.0f, a * 4.0f + 100.0f);
+		renderer->drawLine(a * 100.0f +100.f , b * 100.0f + 100.f);
+		renderer->drawLine(b * 100.0f + 100.f, c * 100.0f + 100.f);
+		renderer->drawLine(c * 100.0f + 100.f, a * 100.0f + 100.f);
 	}
 
 	

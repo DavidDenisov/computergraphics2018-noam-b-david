@@ -51,8 +51,9 @@ int main(int argc, char **argv)
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
 		// draw scene here
-		//scene.DrawDemo(); // from task1
+		scene.DrawDemo(); // from task1
 		scene.drawf();
+
         // Start the ImGui frame
 		StartFrame();
 		// imgui stuff here

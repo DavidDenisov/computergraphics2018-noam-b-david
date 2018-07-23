@@ -46,6 +46,8 @@ public:
 	// Draws wireframe triangles to the color buffer
 	void DrawTriangles(const vector<glm::vec3>* vertices);
 
+	void DrawTriangles2(glm::vec2* vertices);
+
 	// Sets the camera transformations with relation to world coordinates
 	void SetCameraTransform(const glm::mat4x4& cTransform);
 
