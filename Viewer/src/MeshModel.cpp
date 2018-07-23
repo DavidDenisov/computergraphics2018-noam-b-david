@@ -256,7 +256,12 @@ const glm::vec4* MeshModel::Draw()
 	*/
 
 	//for testing, dont worry
-	return this->vertexPositions;
+	glm::vec4* transVertexPositions = new glm::vec4[(unsigned)(this->getVertexPosNum())];
+	for (int i = 0; i < (int)(this->getVertexPosNum()); i++)
+	{
+		transVertexPositions[i] = this->worldTransform * this->vertexPositions[i];
+	}
+	return transVertexPositions;
 
 
 	return NULL;
