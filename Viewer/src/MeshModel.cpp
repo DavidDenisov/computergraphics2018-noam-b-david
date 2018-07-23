@@ -101,7 +101,7 @@ MeshModel::MeshModel() //primitive MeshModel - task2
 	glm::vec4 aUp(-0.5f, 0.5f, -0.5f, 0.0f), bUp(0.5f, 0.5f, -0.5f, 0.0f),
 		cUp(0.5f, 0.5f, 0.5f, 0.0f), dUp(-0.5f, 0.5f, 0.5f, 0.0f);
 
-	glm::vec4 vertexPosi[] =
+	glm::vec4 vertexPosi[35] =
 	{
 		// *a b c d*
 		a, b, d,
@@ -240,7 +240,7 @@ void MeshModel::LoadFile(const string& fileName)
 
 }
 
-const vector<glm::vec4>* MeshModel::Draw()
+const glm::vec4* MeshModel::Draw()
 {
 	/*
 	should use "DrawTriangles" function(?)
@@ -251,6 +251,8 @@ const vector<glm::vec4>* MeshModel::Draw()
 	
 	*/
 
+	//for testing, dont worry
+	return this->vertexPositions;
 
 
 	return NULL;

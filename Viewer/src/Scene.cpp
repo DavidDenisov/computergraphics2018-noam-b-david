@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "MeshModel.h"
 #include <string>
+#define GLM_SWIZZLE
 
 //for checking filename
 #include <iostream>
@@ -26,13 +27,37 @@ void Scene::Draw()
 void Scene::DrawDemo()
 {
 	MeshModel* primitive = new MeshModel(); //testing
-	string fileName = "C:/Users/nir blagovsky/Documents/Noam/TEXTFILE.txt";
-	fileName = "C:/Users/Nir blagovsky/Documents/Noam/גרפיקה ממוחשבת/GitHub/computergraphics2018-noam-b-david/Data/camera.obj";
-	MeshModel* testOBJ = new MeshModel(fileName);
 
+	string fileName = "C:/Users/nir blagovsky/Documents/Noam/TEXTFILE.txt";
+	//LoadFile of camera instead
+	//fileName = "C:/Users/Nir blagovsky/Documents/Noam/גרפיקה ממוחשבת/GitHub/computergraphics2018-noam-b-david/Data/camera.obj";
+	MeshModel* testOBJ = new MeshModel(); //a cube?
+
+	const glm::vec4* verPos = testOBJ->Draw();
+	
 	renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
 	renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
+	
+																	  //draw first triangle :O
+	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
+	for (int face = 0; face < 36 - 2; face = face + 3)
+	{
+		a.x = verPos[face].x;
+		a.y = verPos[face].y;
+
+		b.x = verPos[face + 1].x;
+		b.y = verPos[face + 1].y;
+
+		c.x = verPos[face + 2].x;
+		c.y = verPos[face + 2].y;
+
+		renderer->drawLine(a * 4.0f + 100.0f, b * 4.0f + 100.0f);
+		renderer->drawLine(b * 4.0f + 100.0f, c * 4.0f + 100.0f);
+		renderer->drawLine(c * 4.0f + 100.0f, a * 4.0f + 100.0f);
+	}
+
+	
 	renderer->SwapBuffers();
 }
 

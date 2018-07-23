@@ -56,6 +56,34 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
 
 	int replaced = 0;
 
+	//first deal with special cases like p2 - p1 = 0 or q2 - q1 = 0
+	if (p2 - p1 == 0)
+	{
+		int min = q2 >= q1 ? q1 : q2;
+		int max = q2 <= q1 ? q1 : q2;
+		for (int h = min; h < max; h++)
+		{
+			putPixel(p1, h, green);
+		}
+
+		return;
+	}
+	if (q2 - q1 == 0)
+	{
+		int min = p2 >= p1 ? p1 : p2;
+		int max = q2 <= q1 ? p1 : p2;
+		for (int w = min; w < max; w++)
+		{
+			putPixel(w, q1, green);
+		}
+
+		return;
+	}
+
+
+
+
+
 	//for measuring distance between the line's y and the approximation's y
 	int e; 
 	int tmp;
