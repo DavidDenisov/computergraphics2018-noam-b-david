@@ -251,7 +251,5 @@ const vector<glm::vec4>* MeshModel::Draw()
 	
 	*/
 
-
-
 	return NULL;
 }

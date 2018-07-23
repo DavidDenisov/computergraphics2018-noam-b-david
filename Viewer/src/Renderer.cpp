@@ -31,6 +31,15 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 	colorBuffer[INDEX(width, i, j, 2)] = color.z;
 }
 
+void Renderer::DrawTriangles(const vector<glm::vec3>* vertices)
+{
+	glm::vec2 a = { vertices->at(0).x, vertices->at(0).y };
+	glm::vec2 b = { vertices->at(1).x, vertices->at(1).y };
+	glm::vec2 c = { vertices->at(2).x, vertices->at(2).y };
+	drawLine(a, b);
+	drawLine(a, c);
+	drawLine(c, b);
+}
 void Renderer::createBuffers(int w, int h)
 {
 	createOpenGLBuffer(); //Do not remove this line.
@@ -48,12 +57,22 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
 {
 	glm::vec4 green = glm::vec4(0, 1, 0, 1);
 	
+	
 	int p1 = point1.x, q1 = point1.y; // point1 parameters
 	int p2 = point2.x, q2 = point2.y; // point2 parameters
 	int y, x;
 	float m;
 	int c;
+	if (p1 > p2)
+	{
+		int temp = p1;
+		p1 = p2;
+		p2 = temp;
 
+		temp = q1;
+		q1 = q2;
+		q2 = temp;
+	}
 	int replaced = 0;
 
 	//for measuring distance between the line's y and the approximation's y
