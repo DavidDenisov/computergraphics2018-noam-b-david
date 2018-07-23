@@ -6,20 +6,20 @@
 using namespace std;
 
 /*
-* MeshModel class. Mesh model object represents a triangle mesh (loaded fron an obj file).
-*
-*/
+ * MeshModel class. Mesh model object represents a triangle mesh (loaded fron an obj file).
+ * 
+ */
 class MeshModel : public Model
 {
-protected:
+protected :
 	//MeshModel() {} - primitive MeshModel - part of task2
 	glm::vec4 *vertexPositions; //changed vec3 to vec4
-								// Add more attributes.
-	int vertexPosNum; // 3 * #vertices
-					  //is it neccesery?
-					  //vector<glm::vec3> modelVertices; 
+	// Add more attributes.
+	
+	//is it neccesery?
+	//vector<glm::vec3> modelVertices; 
 
-					  //***added above
+	//***added above
 	glm::mat4x4 worldTransform;
 	glm::mat4x4 normalTransform;
 
@@ -28,6 +28,5 @@ public:
 	MeshModel(); //primitive MeshModel - task2
 	~MeshModel();
 	void LoadFile(const string& fileName);
-	int getVertexPosNum();
 	const glm::vec4* Draw();
 };
