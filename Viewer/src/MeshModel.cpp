@@ -152,39 +152,47 @@ void MeshModel::LoadFile(const string& fileName)
 	ifstream ifile(fileName.c_str());
 	vector<FaceIdx> faces;
 	vector<glm::vec4> vertices;
-	
+	//trying to memory problems around stack
+	string lineType;
+	istringstream* issLine;
+	string curLine;
+
 	float x, y, z;
 
 	// while not end of file
 	while (!ifile.eof())
 	{
 		// get line
-		string curLine;
+		curLine = "";
 		getline(ifile, curLine);
 
 		// read the type of the line
-		istringstream issLine(curLine);
-		string lineType;
+		issLine = new istringstream(curLine); //used to be "istringstream issLine(curLine)"
+		lineType = ""; //used to be "string lineType"
 
-		issLine >> std::ws >> lineType;
+		*issLine >> std::ws >> lineType;
 
 		// based on the type parse data
 		if (lineType == "v") /*BUG*/ //--changed to "v" because it's a vertex
 		{
 			//read the 3d point and make it 4d (for later trans)
-			vertices.push_back( glm::vec4(vec3fFromStream(issLine),1.0f) );
+			vertices.push_back( glm::vec4(vec3fFromStream(*issLine),1.0f) );
+			
+			//std::cout << "vertex\n"; //testing
 		}
 		else if (lineType == "f") /*BUG*/ //--changed to "f" because it's a face
 		{
-			faces.push_back(issLine); //creates faceIdx object and then pushes it
+			faces.push_back(*issLine); //creates faceIdx object and then pushes it
+		
+			//std::cout << "face\n"; //testing
 		}
 		else if (lineType == "#" || lineType == "")
 		{
-			// comment / empty line
+			//std::cout << "hello\n"; // comment / empty line
 		}
 		else
 		{
-			cout << "Found unknown line Type \"" << lineType << "\"";
+			//cout << "Found unknown line Type \"" << lineType << "\"";
 		}
 	}
 
@@ -196,17 +204,40 @@ void MeshModel::LoadFile(const string& fileName)
 	//Then vertexPositions should contain:
 	//vertexPositions={v1,v2,v3,v1,v3,v4}
 
-	vertexPositions = new glm::vec4[FACE_ELEMENTS * faces.size()]; /*BUG*/ //--changed array size
+	this->vertexPositions = new glm::vec4[FACE_ELEMENTS * faces.size()]; /*BUG*/ //--changed array size
 	// iterate through all stored faces and create triangles
 	int k=0;
+	glm::vec4 *avoidDeleting;
 	for (vector<FaceIdx>::iterator it = faces.begin(); it != faces.end(); ++it)
 	{
 		for (int i = 0; i < FACE_ELEMENTS; i++)
 		{
-			//--get face's i-point's value from vertices array
-			vertexPositions[k++] = vertices[(*it).v[i]]; /*BUG*/ //fixed? 
+			//--get  vertices[  face's vertex's index minus 1 ]
+			this->vertexPositions[k++] = vertices[(*it).v[i] - 1]; /*BUG*/ //fixed? 
 		}
 	}
+
+
+	//object in the center of the world, identity trans
+	this->worldTransform = glm::mat4x4
+	(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+
+	//i dont know what it is used for, but we probably dont need it (I hope so)
+	this->normalTransform = glm::mat4x4
+	(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+
+
+
 }
 
 const vector<glm::vec4>* MeshModel::Draw()

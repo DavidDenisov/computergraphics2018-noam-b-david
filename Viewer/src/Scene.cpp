@@ -2,6 +2,12 @@
 #include "MeshModel.h"
 #include <string>
 
+//for checking filename
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+
 using namespace std;
 void Scene::LoadOBJModel(string fileName)
 {
@@ -19,8 +25,10 @@ void Scene::Draw()
 
 void Scene::DrawDemo()
 {
-
 	MeshModel* primitive = new MeshModel(); //testing
+	string fileName = "C:/Users/nir blagovsky/Documents/Noam/TEXTFILE.txt";
+	fileName = "C:/Users/Nir blagovsky/Documents/Noam/גרפיקה ממוחשבת/GitHub/computergraphics2018-noam-b-david/Data/camera.obj";
+	MeshModel* testOBJ = new MeshModel(fileName);
 
 	renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
