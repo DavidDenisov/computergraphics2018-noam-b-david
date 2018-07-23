@@ -28,5 +28,5 @@ public:
 	MeshModel(); //primitive MeshModel - task2
 	~MeshModel();
 	void LoadFile(const string& fileName);
-	const vector<glm::vec3>* Draw();
+	const vector<glm::vec4>* Draw();
 };

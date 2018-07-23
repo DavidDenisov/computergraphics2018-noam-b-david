@@ -33,14 +33,15 @@ struct FaceIdx
 			v[i] = vn[i] = vt[i] = 0;
 
 		char c;
-		for(int i = 0; i < FACE_ELEMENTS; i++) // v0/vn0/vt0 v1/vn1/vt1  
+		// v0/vt0/vn0 v1/vt1/vn1 
+		for(int i = 0; i < FACE_ELEMENTS; i++)  
 		{
 			issLine >> std::ws >> v[i] >> std::ws;
 			if (issLine.peek() != '/')
 			{
 				continue;
 			}
-			issLine >> c >> std::ws;
+			issLine >> c >> std::ws;  //reads the '/'
 			if (issLine.peek() == '/')
 			{
 				issLine >> c >> std::ws >> vn[i];
@@ -150,7 +151,10 @@ void MeshModel::LoadFile(const string& fileName)
 {
 	ifstream ifile(fileName.c_str());
 	vector<FaceIdx> faces;
-	vector<glm::vec3> vertices;
+	vector<glm::vec4> vertices;
+	
+	float x, y, z;
+
 	// while not end of file
 	while (!ifile.eof())
 	{
@@ -165,13 +169,14 @@ void MeshModel::LoadFile(const string& fileName)
 		issLine >> std::ws >> lineType;
 
 		// based on the type parse data
-		if (lineType == "?") /*BUG*/
+		if (lineType == "v") /*BUG*/ //--changed to "v" because it's a vertex
 		{
-			vertices.push_back(vec3fFromStream(issLine));
+			//read the 3d point and make it 4d (for later trans)
+			vertices.push_back( glm::vec4(vec3fFromStream(issLine),1.0f) );
 		}
-		else if (lineType == "?") /*BUG*/
+		else if (lineType == "f") /*BUG*/ //--changed to "f" because it's a face
 		{
-			faces.push_back(issLine);
+			faces.push_back(issLine); //creates faceIdx object and then pushes it
 		}
 		else if (lineType == "#" || lineType == "")
 		{
@@ -182,6 +187,8 @@ void MeshModel::LoadFile(const string& fileName)
 			cout << "Found unknown line Type \"" << lineType << "\"";
 		}
 	}
+
+
 	//Vertex_positions is an array of vec3. Every three elements define a triangle in 3D.
 	//If the face part of the obj is
 	//f 1 2 3
@@ -189,19 +196,20 @@ void MeshModel::LoadFile(const string& fileName)
 	//Then vertexPositions should contain:
 	//vertexPositions={v1,v2,v3,v1,v3,v4}
 
-	vertexPositions = new glm::vec4[7]; /*BUG*/
+	vertexPositions = new glm::vec4[FACE_ELEMENTS * faces.size()]; /*BUG*/ //--changed array size
 	// iterate through all stored faces and create triangles
 	int k=0;
 	for (vector<FaceIdx>::iterator it = faces.begin(); it != faces.end(); ++it)
 	{
 		for (int i = 0; i < FACE_ELEMENTS; i++)
 		{
-			vertexPositions[k++] = glm::vec4(); /*BUG*/
+			//--get face's i-point's value from vertices array
+			vertexPositions[k++] = vertices[(*it).v[i]]; /*BUG*/ //fixed? 
 		}
 	}
 }
 
-const vector<glm::vec3>* MeshModel::Draw()
+const vector<glm::vec4>* MeshModel::Draw()
 {
 	/*
 	should use "DrawTriangles" function(?)

@@ -19,6 +19,9 @@ void Scene::Draw()
 
 void Scene::DrawDemo()
 {
+
+	MeshModel* primitive = new MeshModel(); //testing
+
 	renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
 	renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
