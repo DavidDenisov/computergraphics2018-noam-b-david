@@ -101,29 +101,28 @@ MeshModel::MeshModel() //primitive MeshModel - task2
 	glm::vec4 aUp(-0.5f, 0.5f, -0.5f, 0.0f), bUp(0.5f, 0.5f, -0.5f, 0.0f),
 		cUp(0.5f, 0.5f, 0.5f, 0.0f), dUp(-0.5f, 0.5f, 0.5f, 0.0f);
 
-	glm::vec4 vertexPosi[36] =
-	{
-		// *a b c d*
-		a, b, d,
-		b, c ,d,
-		// *aUp bUp cUp dUp*
-		aUp, bUp, dUp,
-		bUp, cUp, dUp,
-		// *c d dUp cUp*
-		d, c, cUp,
-		d, dUp, cUp,
-		// *a d dUp aUp*
-		a, d, dUp,
-		a, aUp, dUp,
-		// *a b bUp aUp*
-		a, b, bUp,
-		a, aUp, bUp,
-		// *b c cUp dUp*
-		b, c, cUp,
-		b, bUp, cUp
-	};
+	glm::vec4* vPi = new glm::vec4[36];
+	// *a b c d*
+	vPi[0] = a; vPi[1] = b; vPi[2] = d;
+	vPi[3] = b; vPi[4] = c; vPi[5] = d;
+	// *aUp bUp cUp dUp*
+	vPi[6] = aUp; vPi[7] = bUp; vPi[8] = dUp;
+	vPi[9] = bUp; vPi[10] = cUp; vPi[11] = dUp;
+	// *c d dUp cUp*
+	vPi[12] = d; vPi[13] = c; vPi[14] = cUp;
+	vPi[15] = d; vPi[16] = dUp; vPi[17] = cUp;
+	// *a d dUp aUp*
+	vPi[18] = a; vPi[19] = d; vPi[20] = dUp;
+	vPi[21] = a; vPi[22] = aUp; vPi[23] = dUp;
+	// *a b bUp aUp*
+	vPi[24] = a; vPi[25] = b; vPi[26] = bUp;
+	vPi[27] = a; vPi[28] = aUp; vPi[29] = bUp;
+	// *b c cUp dUp*
+	vPi[30] = b; vPi[31] = c; vPi[32] = cUp;
+	vPi[33] = b; vPi[34] = bUp; vPi[35] = cUp;
 
-	this->vertexPositions = vertexPosi;
+	this->vertexPositions = vPi;
+	this->vertexPosNum = 36;
 	//object in the center of the world, identity trans
 	this->worldTransform = glm::mat4x4
 	(
@@ -145,6 +144,10 @@ MeshModel::MeshModel() //primitive MeshModel - task2
 
 MeshModel::~MeshModel()
 {
+}
+int MeshModel::getVertexPosNum()
+{
+	return this->vertexPosNum;
 }
 
 void MeshModel::LoadFile(const string& fileName)
@@ -204,6 +207,7 @@ void MeshModel::LoadFile(const string& fileName)
 	//Then vertexPositions should contain:
 	//vertexPositions={v1,v2,v3,v1,v3,v4}
 
+	this->vertexPosNum = FACE_ELEMENTS * faces.size();
 	this->vertexPositions = new glm::vec4[FACE_ELEMENTS * faces.size()]; /*BUG*/ //--changed array size
 	// iterate through all stored faces and create triangles
 	int k=0;
@@ -251,12 +255,9 @@ const glm::vec4* MeshModel::Draw()
 	
 	*/
 
-<<<<<<< HEAD
 	//for testing, dont worry
 	return this->vertexPositions;
 
 
-=======
->>>>>>> 2c44ee6e1ef32f46d8296e1871e4dc857799ad6c
 	return NULL;
 }
