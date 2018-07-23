@@ -101,7 +101,7 @@ MeshModel::MeshModel() //primitive MeshModel - task2
 	glm::vec4 aUp(-0.5f, 0.5f, -0.5f, 0.0f), bUp(0.5f, 0.5f, -0.5f, 0.0f),
 		cUp(0.5f, 0.5f, 0.5f, 0.0f), dUp(-0.5f, 0.5f, 0.5f, 0.0f);
 
-	glm::vec4 vertexPosi[35] =
+	glm::vec4 vertexPosi[36] =
 	{
 		// *a b c d*
 		a, b, d,
@@ -251,9 +251,12 @@ const glm::vec4* MeshModel::Draw()
 	
 	*/
 
+<<<<<<< HEAD
 	//for testing, dont worry
 	return this->vertexPositions;
 
 
+=======
+>>>>>>> 2c44ee6e1ef32f46d8296e1871e4dc857799ad6c
 	return NULL;
 }

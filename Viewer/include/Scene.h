@@ -32,7 +32,7 @@ public:
 	// Draws an example.
 	void DrawDemo();
 
-	
+	void drawf();
 
 
 	int ActiveModel;

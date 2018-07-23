@@ -33,9 +33,13 @@ void Scene::DrawDemo()
 	//fileName = "C:/Users/Nir blagovsky/Documents/Noam/גרפיקה ממוחשבת/GitHub/computergraphics2018-noam-b-david/Data/camera.obj";
 	MeshModel* testOBJ = new MeshModel(); //a cube?
 
+<<<<<<< HEAD
 	const glm::vec4* verPos = testOBJ->Draw();
 	
 	renderer->SetDemoBuffer();
+=======
+	//renderer->SetDemoBuffer();
+>>>>>>> 2c44ee6e1ef32f46d8296e1871e4dc857799ad6c
 	//renderer->printLineNaive(); //Naive draw line
 	renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
 	
@@ -60,4 +64,13 @@ void Scene::DrawDemo()
 	
 	renderer->SwapBuffers();
 }
-
+void Scene::drawf()
+{
+	vector <glm::vec3> *c =new vector <glm::vec3>;
+	c->clear();
+	c->push_back(glm::vec3(100, 100, 0));
+	c->push_back(glm::vec3(200, 100, 0));
+	c->push_back(glm::vec3(100, 200, 0));
+	renderer->DrawTriangles(c); //Bresenham algorithm
+	renderer->SwapBuffers();
+}
