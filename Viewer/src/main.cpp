@@ -37,16 +37,8 @@ int main(int argc, char **argv)
 	if (!window)
 		return 1;
 	// Setup renderer and scene
-	
 	Renderer renderer = Renderer(w,h);
 	Scene scene = Scene(&renderer);
-	
-	//task3 - part1
-	scene.LoadOBJModel
-	("C:/Users/Nir blagovsky/Documents/Noam/גרפיקה ממוחשבת/GitHub/computergraphics2018-noam-b-david/Data/camera.obj");
-
-
-
     // Setup Dear ImGui binding
 	ImGuiIO& io = SetupDearImgui(window);
     // Main loop - the famous "Game Loop" in video games :)
@@ -59,15 +51,9 @@ int main(int argc, char **argv)
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
 		// draw scene here
-		
-		/*
-		scene.DrawDemo(); // from task1
+		//scene.DrawDemo(); // from task1
 		scene.drawf();
-        */
-		
-		scene.Draw(); //task3 - part2
-		
-		// Start the ImGui frame
+        // Start the ImGui frame
 		StartFrame();
 		// imgui stuff here
 		DrawImguiMenus(io,&scene);
