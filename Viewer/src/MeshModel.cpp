@@ -79,72 +79,13 @@ MeshModel::MeshModel(const string& fileName)
 	LoadFile(fileName);
 }
 
-MeshModel::MeshModel() //primitive MeshModel - task2
-{
-	//let's build a primitive MeshModel, a cube!
-
-	/*
-	the (0,0,0) point is in the center of the cube.
-
-	  
-	   a'_______  b'
-	d'/|_____c'/|
-	  ||      | |
-	  ||a_____|_|b
-	  |/______|/
-	  d       c
-	*/
-
-	glm::vec4 a(-0.5f, -0.5f, -0.5f, 0.0f), b(0.5f, -0.5f, -0.5f, 0.0f),
-		c(0.5f, -0.5f, 0.5f, 0.0f), d(-0.5f, -0.5f, 0.5f, 0.0f);
-	
-	glm::vec4 aUp(-0.5f, 0.5f, -0.5f, 0.0f), bUp(0.5f, 0.5f, -0.5f, 0.0f),
-		cUp(0.5f, 0.5f, 0.5f, 0.0f), dUp(-0.5f, 0.5f, 0.5f, 0.0f);
-
-	glm::vec4 vertexPosi[36] =
-	{
-		// *a b c d*
-		a, b, d,
-		b, c ,d,
-		// *aUp bUp cUp dUp*
-		aUp, bUp, dUp,
-		bUp, cUp, dUp,
-		// *c d dUp cUp*
-		d, c, cUp,
-		d, dUp, cUp,
-		// *a d dUp aUp*
-		a, d, dUp,
-		a, aUp, dUp,
-		// *a b bUp aUp*
-		a, b, bUp,
-		a, aUp, bUp,
-		// *b c cUp dUp*
-		b, c, cUp,
-		b, bUp, cUp
-	};
-
-	this->vertexPositions = vertexPosi;
-	//object in the center of the world, identity trans
-	this->worldTransform = glm::mat4x4
-	(
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
-	);
-
-	//i dont know what it is used for, but we probably dont need it (I hope so)
-	this->normalTransform = glm::mat4x4
-	(
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
-	);
-}
 
 MeshModel::~MeshModel()
 {
+}
+int MeshModel::getVertexPosNum()
+{
+	return this->vertexPosNum;
 }
 
 void MeshModel::LoadFile(const string& fileName)
@@ -204,6 +145,7 @@ void MeshModel::LoadFile(const string& fileName)
 	//Then vertexPositions should contain:
 	//vertexPositions={v1,v2,v3,v1,v3,v4}
 
+	this->vertexPosNum = FACE_ELEMENTS * faces.size();
 	this->vertexPositions = new glm::vec4[FACE_ELEMENTS * faces.size()]; /*BUG*/ //--changed array size
 	// iterate through all stored faces and create triangles
 	int k=0;
@@ -251,12 +193,14 @@ const glm::vec4* MeshModel::Draw()
 	
 	*/
 
-<<<<<<< HEAD
 	//for testing, dont worry
-	return this->vertexPositions;
+	glm::vec4* transVertexPositions = new glm::vec4[(unsigned)(this->getVertexPosNum())];
+	for (int i = 0; i < (int)(this->getVertexPosNum()); i++)
+	{
+		transVertexPositions[i] = this->worldTransform * this->vertexPositions[i];
+	}
+	return transVertexPositions;
 
 
-=======
->>>>>>> 2c44ee6e1ef32f46d8296e1871e4dc857799ad6c
 	return NULL;
 }

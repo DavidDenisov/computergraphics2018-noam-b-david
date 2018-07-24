@@ -12,10 +12,10 @@ using namespace std;
 class MeshModel : public Model
 {
 protected :
-	//MeshModel() {} - primitive MeshModel - part of task2
+	MeshModel() {} //for PrimMeshModel()
 	glm::vec4 *vertexPositions; //changed vec3 to vec4
 	// Add more attributes.
-	
+	int vertexPosNum; // 3 * #vertices
 	//is it neccesery?
 	//vector<glm::vec3> modelVertices; 
 
@@ -25,8 +25,9 @@ protected :
 
 public:
 	MeshModel(const string& fileName);
-	MeshModel(); //primitive MeshModel - task2
+	
 	~MeshModel();
 	void LoadFile(const string& fileName);
+	int getVertexPosNum();
 	const glm::vec4* Draw();
 };

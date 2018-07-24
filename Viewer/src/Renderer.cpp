@@ -90,7 +90,7 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
 	if (q2 - q1 == 0)
 	{
 		int min = p2 >= p1 ? p1 : p2;
-		int max = q2 <= q1 ? p1 : p2;
+		int max = p2 <= p1 ? p1 : p2;
 		for (int w = min; w < max; w++)
 		{
 			putPixel(w, q1, green);
