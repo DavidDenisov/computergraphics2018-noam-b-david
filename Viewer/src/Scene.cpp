@@ -1,3 +1,4 @@
+
 #include "Scene.h"
 #include "MeshModel.h"
 #include <string>
@@ -28,8 +29,8 @@ void Scene::Draw()
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
-	//renderer->SetCameraTransform(default);
-	//renderer->SetProjection(default);
+	renderer->SetCameraTransform(default);
+	renderer->SetProjection(default);
 	// 2. Tell all models to draw themselves
 	
 	//renderer->SetDemoBuffer();

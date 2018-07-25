@@ -30,7 +30,10 @@ void Camera::LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& 
 		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
 		-eye
 	);
+
 	this->cTransform = c * translate;
+
+
 }
 
 
