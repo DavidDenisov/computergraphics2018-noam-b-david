@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "MeshModel.h"
 #include <string>
+#include "PrimMeshModel.h"
 #define GLM_SWIZZLE
 
 //for checking filename
@@ -16,36 +17,48 @@ void Scene::LoadOBJModel(string fileName)
 	models.push_back(model);
 }
 
+
 void Scene::Draw()
 {
 	// 1. Send the renderer the current camera transform and the projection
+	glm::mat4x4 default = glm::mat4x4
+	(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+	//renderer->SetCameraTransform(default);
+	//renderer->SetProjection(default);
 	// 2. Tell all models to draw themselves
+	
+	//renderer->SetDemoBuffer();
+	//renderer->printLineNaive(); //Naive draw line
+	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
 
+	//draw first triangle :O
+	//std::cout << models.at(ActiveModel)->getVertexPosNum()<<"  ";
+	renderer->DrawTriangles(models.at(ActiveModel)->Draw(),
+	models.at(ActiveModel)->getVertexPosNum());
 	renderer->SwapBuffers();
 }
 
 void Scene::DrawDemo()
 {
-	MeshModel* primitive = new MeshModel(); //testing
+	MeshModel* primitive = new PrimMeshModel(); //testing
 
 	string fileName = "C:/Users/nir blagovsky/Documents/Noam/TEXTFILE.txt";
-	//LoadFile of camera instead
-	//fileName = "C:/Users/Nir blagovsky/Documents/Noam/גרפיקה ממוחשבת/GitHub/computergraphics2018-noam-b-david/Data/camera.obj";
-	MeshModel* testOBJ = new MeshModel(); //a cube?
+	//LoadFile of camera instead?
+	MeshModel* testOBJ = new MeshModel(fileName); //a cube?
 
-<<<<<<< HEAD
 	const glm::vec4* verPos = testOBJ->Draw();
-	
-	renderer->SetDemoBuffer();
-=======
 	//renderer->SetDemoBuffer();
->>>>>>> 2c44ee6e1ef32f46d8296e1871e4dc857799ad6c
 	//renderer->printLineNaive(); //Naive draw line
-	renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
+	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
 	
-																	  //draw first triangle :O
+	//draw first triangle :O
 	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
-	for (int face = 0; face < 36 - 2; face = face + 3)
+	for (int face = 0; face < testOBJ->getVertexPosNum() - 2; face = face + 3)
 	{
 		a.x = verPos[face].x;
 		a.y = verPos[face].y;
@@ -56,9 +69,9 @@ void Scene::DrawDemo()
 		c.x = verPos[face + 2].x;
 		c.y = verPos[face + 2].y;
 
-		renderer->drawLine(a * 4.0f + 100.0f, b * 4.0f + 100.0f);
-		renderer->drawLine(b * 4.0f + 100.0f, c * 4.0f + 100.0f);
-		renderer->drawLine(c * 4.0f + 100.0f, a * 4.0f + 100.0f);
+		renderer->drawLine(a, b);
+		renderer->drawLine(b, c);
+		renderer->drawLine(c, a);
 	}
 
 	
@@ -66,11 +79,10 @@ void Scene::DrawDemo()
 }
 void Scene::drawf()
 {
-	vector <glm::vec3> *c =new vector <glm::vec3>;
-	c->clear();
-	c->push_back(glm::vec3(100, 100, 0));
-	c->push_back(glm::vec3(200, 100, 0));
-	c->push_back(glm::vec3(100, 200, 0));
-	renderer->DrawTriangles(c); //Bresenham algorithm
+	glm::vec4 *c =new glm::vec4;
+	c[0] = (glm::vec4(100, 100, 0,0));
+	c[1] = (glm::vec4(200, 100, 0,0));
+	c[2] = (glm::vec4(100, 200, 0,0));
+	renderer->DrawTriangles(c,3); //Bresenham algorithm
 	renderer->SwapBuffers();
 }

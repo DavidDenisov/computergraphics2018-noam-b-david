@@ -17,11 +17,10 @@ private:
 	vector<Light*> lights;
 	vector<Camera*> cameras;
 	Renderer *renderer;
-
 public:
 
-	Scene() {};
-	Scene(Renderer *renderer) : renderer(renderer) {};
+	Scene(){};
+	Scene(Renderer *renderer) : renderer(renderer){};
 
 	// Loads an obj file into the scene.
 	void LoadOBJModel(string fileName);
@@ -35,7 +34,7 @@ public:
 	void drawf();
 
 
-	int ActiveModel;
-	int ActiveLight;
-	int ActiveCamera;
+	int ActiveModel=0;
+	int ActiveLight=0;
+	int ActiveCamera=0;
 };

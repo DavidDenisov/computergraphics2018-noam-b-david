@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include "InitShader.h"
 #include <imgui/imgui.h>
+#include <iostream>
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
@@ -31,15 +32,17 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 	colorBuffer[INDEX(width, i, j, 2)] = color.z;
 }
 
-void Renderer::DrawTriangles(const vector<glm::vec3>* vertices)
+void Renderer::DrawTriangles(const glm::vec4* vertices,int x)
 {
-	glm::vec2 a = { vertices->at(0).x, vertices->at(0).y };
-	glm::vec2 b = { vertices->at(1).x, vertices->at(1).y };
-	glm::vec2 c = { vertices->at(2).x, vertices->at(2).y };
+	glm::vec2 a = { vertices[0].x * 16 + 100, vertices[0].y * 16 + 100 };
+	glm::vec2 b = { vertices[1].x * 16 + 100, vertices[1].y * 16 + 100 };
+	glm::vec2 c = { vertices[2].x * 16 + 100, vertices[2].y * 16 + 100 };
+	std::cout << c.x<<"  "<<c.y << "  ";
 	drawLine(a, b);
 	drawLine(a, c);
 	drawLine(c, b);
 }
+
 void Renderer::createBuffers(int w, int h)
 {
 	createOpenGLBuffer(); //Do not remove this line.
@@ -90,7 +93,7 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
 	if (q2 - q1 == 0)
 	{
 		int min = p2 >= p1 ? p1 : p2;
-		int max = q2 <= q1 ? p1 : p2;
+		int max = p2 <= p1 ? p1 : p2;
 		for (int w = min; w < max; w++)
 		{
 			putPixel(w, q1, green);

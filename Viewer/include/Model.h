@@ -10,5 +10,7 @@ class Model
 {
 protected:
 	virtual ~Model() {}
+public:
+	virtual int getVertexPosNum() = 0;
 	virtual const glm::vec4* Draw() = 0; //changed it from vector<glm::vec4>* to glm::vec4*
 };

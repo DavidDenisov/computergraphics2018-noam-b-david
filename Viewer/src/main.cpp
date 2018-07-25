@@ -1,4 +1,4 @@
-// ImGui - standalone example application for GLFW + OpenGL 3, using programmable pipeline
+﻿// ImGui - standalone example application for GLFW + OpenGL 3, using programmable pipeline
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 // (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
 // (Glad is a helper library to access OpenGL functions since there is no standard header to access modern OpenGL functions easily. Alternatives are GLEW, GL3W, etc.)
@@ -37,8 +37,16 @@ int main(int argc, char **argv)
 	if (!window)
 		return 1;
 	// Setup renderer and scene
+	
 	Renderer renderer = Renderer(w,h);
 	Scene scene = Scene(&renderer);
+	
+	//task3 - part1
+	scene.LoadOBJModel
+	("C:/Users/david/Desktop/computergraphics2018-noam-b-david/Data/camera.obj");
+
+
+
     // Setup Dear ImGui binding
 	ImGuiIO& io = SetupDearImgui(window);
     // Main loop - the famous "Game Loop" in video games :)
@@ -51,9 +59,15 @@ int main(int argc, char **argv)
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
 		// draw scene here
-		//scene.DrawDemo(); // from task1
-		scene.drawf();
-        // Start the ImGui frame
+		
+		/*
+		scene.DrawDemo(); // from task1
+		
+        */
+		//scene.drawf();
+		scene.Draw(); //task3 - part2
+		
+		// Start the ImGui frame
 		StartFrame();
 		// imgui stuff here
 		DrawImguiMenus(io,&scene);
