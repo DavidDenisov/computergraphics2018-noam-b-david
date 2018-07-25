@@ -7,14 +7,14 @@
 
 
 Renderer::Renderer() : width(1280), height(720),
-myCameraTransform(), myProjection(), oTransform(), nTransform()
+myCameraTransform(1.0f), myProjection(1.0f), oTransform(1.0f), nTransform(1.0f)
 {
 	initOpenGLRendering();
 	createBuffers(1280,720);
 }
 
 Renderer::Renderer(int w, int h) : width(w), height(h),
-myCameraTransform(), myProjection(), oTransform(), nTransform()
+myCameraTransform(1.0f), myProjection(1.0f), oTransform(1.0f), nTransform(1.0f)
 {
 	initOpenGLRendering();
 	createBuffers(w,h);
@@ -73,20 +73,23 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
 	for (int face = 0; face < size - 2; face = face + 3)
 	{
-		a.x = transVerticesPositions[face].x;
-		a.y = transVerticesPositions[face].y;
+		a.x = transVerticesPositions[face].x*16+100;
+		a.y = transVerticesPositions[face].y * 16 + 100;
 
-		b.x = transVerticesPositions[face + 1].x;
-		b.y = transVerticesPositions[face + 1].y;
+		b.x = transVerticesPositions[face + 1].x * 16 + 100;
+		b.y = transVerticesPositions[face + 1].y * 16 + 100;
 
-		c.x = transVerticesPositions[face + 2].x;
-		c.y = transVerticesPositions[face + 2].y;
-	}
+		c.x = transVerticesPositions[face + 2].x * 16 + 100;
+		c.y = transVerticesPositions[face + 2].y * 16 + 100;
 
 		//draw triangle [a,b,c]
 		this->drawLine(a, b);
 		this->drawLine(b, c);
 		this->drawLine(c, a);
+
+	}
+
+		
 
 	
 

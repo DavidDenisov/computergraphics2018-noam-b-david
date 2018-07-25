@@ -21,6 +21,7 @@ void Scene::LoadOBJModel(string fileName)
 
 void Scene::Draw()
 {
+
 	// 1. Send the renderer the current camera transform and the projection
 	glm::mat4x4 default = glm::mat4x4
 	(
@@ -29,8 +30,8 @@ void Scene::Draw()
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
-	renderer->SetCameraTransform(default);
-	renderer->SetProjection(default);
+	//renderer->SetCameraTransform(default);
+	//renderer->SetProjection(default);
 	// 2. Tell all models to draw themselves
 	
 	//renderer->SetDemoBuffer();
@@ -46,6 +47,7 @@ void Scene::Draw()
 
 void Scene::DrawDemo()
 {
+
 	MeshModel* primitive = new PrimMeshModel(); //testing
 
 	string fileName = "C:/Users/nir blagovsky/Documents/Noam/TEXTFILE.txt";
@@ -61,14 +63,14 @@ void Scene::DrawDemo()
 	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
 	for (int face = 0; face < testOBJ->getVertexPosNum() - 2; face = face + 3)
 	{
-		a.x = verPos[face].x;
-		a.y = verPos[face].y;
+		a.x = verPos[face].x*16+100;
+		a.y = verPos[face].y * 16 + 100;
 
-		b.x = verPos[face + 1].x;
-		b.y = verPos[face + 1].y;
+		b.x = verPos[face + 1].x * 16 + 100;
+		b.y = verPos[face + 1].y * 16 + 100;
 
-		c.x = verPos[face + 2].x;
-		c.y = verPos[face + 2].y;
+		c.x = verPos[face + 2].x * 16 + 100;
+		c.y = verPos[face + 2].y * 16 + 100;
 
 		renderer->drawLine(a, b);
 		renderer->drawLine(b, c);
