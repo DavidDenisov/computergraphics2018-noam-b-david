@@ -64,11 +64,10 @@ void Scene::DrawDemo()
 }
 void Scene::drawf()
 {
-	vector <glm::vec3> *c =new vector <glm::vec3>;
-	c->clear();
-	c->push_back(glm::vec3(100, 100, 0));
-	c->push_back(glm::vec3(200, 100, 0));
-	c->push_back(glm::vec3(100, 200, 0));
-	renderer->DrawTriangles(c); //Bresenham algorithm
+	glm::vec4 *c =new glm::vec4;
+	c[0] = (glm::vec4(100, 100, 0,0));
+	c[1] = (glm::vec4(200, 100, 0,0));
+	c[2] = (glm::vec4(100, 200, 0,0));
+	renderer->DrawTriangles(c,3); //Bresenham algorithm
 	renderer->SwapBuffers();
 }

@@ -5,13 +5,15 @@
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
 
-Renderer::Renderer() : width(1280), height(720)
+Renderer::Renderer() : width(1280), height(720),
+myCameraTransform(), myProjection(), oTransform(), nTransform()
 {
 	initOpenGLRendering();
 	createBuffers(1280,720);
 }
 
-Renderer::Renderer(int w, int h) : width(w), height(h)
+Renderer::Renderer(int w, int h) : width(w), height(h),
+myCameraTransform(), myProjection(), oTransform(), nTransform()
 {
 	initOpenGLRendering();
 	createBuffers(w,h);
@@ -31,14 +33,60 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 	colorBuffer[INDEX(width, i, j, 2)] = color.z;
 }
 
-void Renderer::DrawTriangles(const vector<glm::vec3>* vertices)
+void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 {
+	/*
 	glm::vec2 a = { vertices->at(0).x, vertices->at(0).y };
 	glm::vec2 b = { vertices->at(1).x, vertices->at(1).y };
 	glm::vec2 c = { vertices->at(2).x, vertices->at(2).y };
 	drawLine(a, b);
 	drawLine(a, c);
 	drawLine(c, b);
+	*/
+
+	//we recieve the object to draw with a vector of verticesPositions
+	//we will draw these triangles but first will do the transformations
+
+
+	//first do the transformations:
+
+	//the model-view matrix
+	glm::mat4x4 mv = oTransform * glm::inverse(myCameraTransform); // T = M * C^-1
+
+	//now the project transformation:
+	glm::mat4x4 T = myProjection * mv; //first transform on the 3d world, then projet it
+
+	glm::vec4* transVerticesPositions = new glm::vec4[size];
+	glm::vec2* drawVertexPositions = new glm::vec2[size];
+	for (int i = 0; i < size; i++)
+	{
+		//first transform all the points (including projection)
+		transVerticesPositions[i] = T * vertexPositions[i];
+	}
+
+
+
+	//now draw the points (and always before put them in vec2)
+	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
+	for (int face = 0; face < size - 2; face = face + 3)
+	{
+		a.x = transVerticesPositions[face].x;
+		a.y = transVerticesPositions[face].y;
+
+		b.x = transVerticesPositions[face + 1].x;
+		b.y = transVerticesPositions[face + 1].y;
+
+		c.x = transVerticesPositions[face + 2].x;
+		c.y = transVerticesPositions[face + 2].y;
+	}
+
+		//draw triangle [a,b,c]
+		this->drawLine(a, b);
+		this->drawLine(b, c);
+		this->drawLine(c, a);
+
+	
+
 }
 void Renderer::createBuffers(int w, int h)
 {

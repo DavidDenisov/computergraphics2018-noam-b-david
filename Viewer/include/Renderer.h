@@ -21,6 +21,12 @@ private:
 	// Screen dimensions
 	int width, height;
 
+	// Added more attributes. all you need to keep to drawTriangle
+	glm::mat4x4 myCameraTransform; 
+	glm::mat4x4 myProjection;
+	glm::mat4x4 oTransform;
+	glm::mat4x4 nTransform;
+
 	// Draws a pixel in location p with color color
 	void putPixel(int i, int j, const glm::vec3& color);
 	// creates float array of dimension [3,w,h]
@@ -44,7 +50,7 @@ public:
 	void Init();
 
 	// Draws wireframe triangles to the color buffer
-	void DrawTriangles(const vector<glm::vec3>* vertexPositionVECTOR);
+	void DrawTriangles(const glm::vec4* vertexPositionVECTOR, int size);
 
 	// Sets the camera transformations with relation to world coordinates
 	void SetCameraTransform(const glm::mat4x4& cTransform);
