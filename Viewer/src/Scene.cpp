@@ -1,7 +1,8 @@
+
 #include "Scene.h"
 #include "MeshModel.h"
-#include "PrimMeshModel.h"
 #include <string>
+#include "PrimMeshModel.h"
 #define GLM_SWIZZLE
 
 //for checking filename
@@ -21,7 +22,7 @@ void Scene::Draw()
 {
 	// 1. Send the renderer the current camera transform and the projection
 	// 2. Tell all models to draw themselves
-
+	
 
 
 	renderer->SwapBuffers();
