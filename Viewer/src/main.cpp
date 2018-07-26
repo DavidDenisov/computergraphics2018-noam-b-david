@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 	
 	//task3 - part1
 	scene.LoadOBJModel
-	("C:/Users/david/Desktop/computergraphics2018-noam-b-david/Data/camera.obj");
+	("../Data/camera.obj");
 
 
 
