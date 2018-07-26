@@ -5,7 +5,14 @@
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
-
+void Renderer::SetCameraTransform(const glm::mat4x4& cTransform)
+{
+	myCameraTransform = cTransform;
+}
+void Renderer::SetProjection(const glm::mat4x4& projection)
+{
+	myProjection = projection;
+}
 Renderer::Renderer() : width(1280), height(720),
 myCameraTransform(1.0f), myProjection(1.0f), oTransform(1.0f), nTransform(1.0f)
 {
@@ -166,8 +173,6 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
 	
 	if (m >= 0.0f) //m>=0
 	{
-
-
 		if (m > 1.0f) // if m>1 replace x & y for both points
 		{
 			//switch(p1,q1)

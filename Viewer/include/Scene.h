@@ -28,11 +28,15 @@ public:
 	// Draws the current scene.
 	void Draw();
 
+	void DrawScene();
 	// Draws an example.
 	void DrawDemo();
 
 	void drawf();
 
+	void setcur_cam(int i);
+
+	void setcur_model(int i);
 
 	int ActiveModel=0;
 	int ActiveLight=0;
