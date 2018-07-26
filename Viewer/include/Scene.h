@@ -38,6 +38,10 @@ public:
 
 	void setcur_model(int i);
 
+	void load_cam(Camera* cam);
+
+	void remove_cam(int i);
+
 	int ActiveModel;
 	int ActiveLight;
 	int ActiveCamera;

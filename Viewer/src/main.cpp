@@ -3,6 +3,7 @@
 // (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
 // (Glad is a helper library to access OpenGL functions since there is no standard header to access modern OpenGL functions easily. Alternatives are GLEW, GL3W, etc.)
 
+#include <iostream>
 #include <imgui/imgui.h>
 #include <stdio.h>
 #include <glad/glad.h>    // This example is using glad to access OpenGL functions. You may freely use any other OpenGL loader such as: glew, gl3w, glLoadGen, etc.
@@ -40,18 +41,27 @@ int main(int argc, char **argv)
 	
 	Renderer renderer = Renderer(w,h);
 	Scene scene = Scene(&renderer);
+	Camera cam =Camera();
+	glm::vec4 eye, at, up;
+	
 	
 	//task3 - part1
+	cam.LookAt(glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, -1, 0, 1));
 	scene.LoadOBJModel
-	("../Data/camera.obj");
-
-
-
+	("../Data/cow.obj");
+	scene.remove_cam(0);
+	scene.load_cam(&cam);
+	//cam.LookAt(glm::vec4(0, 1, 2, 3), glm::vec4(0, 0, 0, 0), glm::vec4(1, 0, 0, 0));
     // Setup Dear ImGui binding
 	ImGuiIO& io = SetupDearImgui(window);
+	
     // Main loop - the famous "Game Loop" in video games :)
     while (!glfwWindowShouldClose(window))
     {
+		if (glfwGetMouseButton(window, 0) == 1)
+		{
+			cout << glfwGetWindowMonitor(window);
+		}
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -65,7 +75,7 @@ int main(int argc, char **argv)
 		
         */
 		//scene.drawf();
-		scene.Draw(); //task3 - part2
+		scene.DrawScene(); //task3 - part2
 		
 		// Start the ImGui frame
 		StartFrame();

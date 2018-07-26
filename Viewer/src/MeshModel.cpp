@@ -156,6 +156,7 @@ void MeshModel::LoadFile(const string& fileName)
 		{
 			//--get  vertices[  face's vertex's index minus 1 ]
 			this->vertexPositions[k++] = vertices[(*it).v[i] - 1]; /*BUG*/ //fixed? 
+			//cout << vertices[(*it).v[i] - 1].data;
 		}
 	}
 

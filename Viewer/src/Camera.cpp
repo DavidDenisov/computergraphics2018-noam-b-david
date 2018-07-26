@@ -4,9 +4,16 @@
 
 Camera::Camera()
 {
-	
+	projection = cTransform = glm::mat4x4(1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1);
 }
-
+Camera::Camera(Camera* c)
+{
+	projection = c->get_projection();
+	cTransform = c->get_Transform();
+}
 glm::mat4x4 Camera::get_projection() { return projection; }
 glm::mat4x4 Camera::get_Transform() { return cTransform; }
 Camera::~Camera()

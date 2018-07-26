@@ -11,10 +11,12 @@ private:
 	glm::mat4x4 projection;
 public:
 	Camera();
+	Camera(Camera* c);
 	~Camera();
 
 	glm::mat4x4 get_projection();
 	glm::mat4x4 get_Transform();
+
 	// Sets the camera transformations with relation to world coordinates
 	void SetTransformation(const glm::mat4x4& transform);
 

@@ -17,12 +17,30 @@ int ActiveCamera=0;
 
 using namespace std;
 
+void Scene::load_cam(Camera* cam)
+{
+	Camera* c = new Camera(cam);
+	cameras.push_back(c);
+}
+void Scene::remove_cam(int i)
+{
+	cameras.erase(cameras.begin()+i);
+}
 Scene::Scene() : ActiveModel(0), ActiveLight(0), ActiveCamera(0)
-{};
+{
+	Camera* c = new Camera();
+	cameras.push_back(c);
+};
 
 Scene::Scene(Renderer *renderer) : renderer(renderer),
 ActiveModel(0), ActiveLight(0), ActiveCamera(0)
-{};
+{
+	if(int(cameras.size())==0)
+	{
+		Camera* c = new Camera();
+		cameras.push_back(c);
+	}
+};
 
 
 void Scene::LoadOBJModel(string fileName)
@@ -44,7 +62,7 @@ void Scene::DrawScene()
 {
 
 	// 1. Send the renderer the current camera transform and the projection
-
+	
 	renderer->SetCameraTransform(cameras.at(ActiveCamera)->get_Transform());
 	renderer->SetProjection(cameras.at(ActiveCamera)->get_projection());
 	// 2. Tell all models to draw themselves
@@ -60,7 +78,6 @@ void Scene::DrawScene()
 
 void Scene::Draw()
 {
-
 	// 1. Send the renderer the current camera transform and the projection
 	glm::mat4x4 default = glm::mat4x4
 	(
@@ -69,15 +86,8 @@ void Scene::Draw()
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
-	glm::mat4x4 default2 = glm::mat4x4
-	(
-		-4.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, -4.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, -4.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 4.0f
-	);
 	renderer->SetCameraTransform(default);
-	renderer->SetProjection(default2);
+	renderer->SetProjection(default);
 	// 2. Tell all models to draw themselves
 	
 	//renderer->SetDemoBuffer();
