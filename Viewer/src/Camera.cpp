@@ -3,6 +3,64 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
+glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
+	, glm::vec3 Translate_val,glm::vec2 rotat_val)
+{
+	glm::mat4x4 a, b, c,d;
+	a = ScaleTransform(Scale_val[0], Scale_val[1], Scale_val[2]);
+	b = TranslateTransform(Translate_val[0], Translate_val[1], Translate_val[2]);
+	c = rotationTransform(rotat_val[0], rotat_val[1]);
+	d= a * b*c;
+	for (int i = 0; i < 4; i++)
+	{	
+		for (int j = 0; j < 4; j++)
+			std::cout<<d[i][j] << " ";
+		std::cout << "\n";
+	}
+	return d;
+}
+glm::mat4x4 Camera::TranslateTransform(int x_scale, int y_scale, int z_scale)
+{
+	return glm::mat4x4(1, 0, 0, x_scale,
+		0, 1, 0, y_scale,
+		0, 0, 1, z_scale,
+		0, 0, 0, 1);
+}
+
+glm::mat4x4 Camera::ScaleTransform(int x_scale, int y_scale, int z_scale)
+{
+	return glm::mat4x4(x_scale, 0, 0, 0,
+		0, y_scale, 0, 0,
+		0, 0, z_scale, 0,
+		0, 0, 0, 1);
+}
+glm::mat4x4 Camera::rotationTransform(int deg, int axis)
+{
+	//if (deg < 2)// we belive that a angles smaller than 2 is considerd small
+	//convert from deg to radian
+	if (axis == 0)
+	{
+		return glm::mat4x4(cos(deg), -sin(deg), 0, 0,
+			sin(deg), cos(deg), 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1);	
+	}
+	if (axis==1)
+	{
+		return glm::mat4x4(1,0,0,0,
+			0,cos(deg), -sin(deg), 0,
+			0,sin(deg), cos(deg),0,
+			0, 0, 0, 1);
+	}
+	if (axis == 2)
+	{
+		return glm::mat4x4(1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0,cos(deg), -sin(deg),
+			0,0,sin(deg), cos(deg)
+			);
+	}
+}
 Camera::Camera()
 {
 	projection = cTransform = glm::mat4x4(1, 0, 0, 0,
