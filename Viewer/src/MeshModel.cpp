@@ -8,7 +8,15 @@
 
 
 using namespace std;
-
+void MeshModel::transformModel(glm::mat4x4 transform)
+{
+	int k;
+	for (int i = 0; i < getVertexPosNum(); i++)
+	{
+		vertexPositions[i] = transform * vertexPositions[i];
+		k = 0;
+	}
+}
 // A struct for processing a single line in a wafefront obj file:
 // https://en.wikipedia.org/wiki/Wavefront_.obj_file
 struct FaceIdx
@@ -156,7 +164,6 @@ void MeshModel::LoadFile(const string& fileName)
 		{
 			//--get  vertices[  face's vertex's index minus 1 ]
 			this->vertexPositions[k++] = vertices[(*it).v[i] - 1]; /*BUG*/ //fixed? 
-			//cout << vertices[(*it).v[i] - 1].data;
 		}
 	}
 

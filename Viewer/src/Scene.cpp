@@ -17,6 +17,11 @@ int ActiveCamera=0;
 
 using namespace std;
 
+void Scene::transformModel(glm::mat4x4 transform)
+{
+	models[ActiveModel]->transformModel(transform);
+	int k = 0;
+}
 void Scene::load_cam(Camera* cam)
 {
 	Camera* c = new Camera(cam);

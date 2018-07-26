@@ -22,6 +22,7 @@ public:
 	Scene();
 	Scene(Renderer *renderer);
 
+	void transformModel(glm::mat4x4 transform);
 	// Loads an obj file into the scene.
 	void LoadOBJModel(string fileName);
 

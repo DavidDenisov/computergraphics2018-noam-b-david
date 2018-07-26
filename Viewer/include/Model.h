@@ -13,4 +13,5 @@ protected:
 public:
 	virtual int getVertexPosNum() = 0;
 	virtual const glm::vec4* Draw() = 0; //changed it from vector<glm::vec4>* to glm::vec4*
+	virtual void transformModel(glm::mat4x4 transform) = 0;
 };

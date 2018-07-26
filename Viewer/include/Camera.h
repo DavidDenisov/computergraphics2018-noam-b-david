@@ -9,11 +9,15 @@ class Camera
 private:
 	glm::mat4x4 cTransform;
 	glm::mat4x4 projection;
+	glm::mat4x4 rotationTransform(int deg, int axis);
+	glm::mat4x4 ScaleTransform(int x_scale, int y_scale, int z_scale);
+	glm::mat4x4 TranslateTransform(int x_scale, int y_scale, int z_scale);
 public:
 	Camera();
 	Camera(Camera* c);
 	~Camera();
-
+	glm::mat4x4 creatTransform(glm::vec3 Scale_val
+		, glm::vec3 Translate_val,glm::vec2 rotat_val);
 	glm::mat4x4 get_projection();
 	glm::mat4x4 get_Transform();
 

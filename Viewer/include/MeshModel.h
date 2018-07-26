@@ -25,9 +25,9 @@ protected:
 
 public:
 	MeshModel(const string& fileName);
-
 	~MeshModel();
 	void LoadFile(const string& fileName);
 	int getVertexPosNum();
+	void transformModel(glm::mat4x4 transform);
 	const glm::vec4* Draw();
 };

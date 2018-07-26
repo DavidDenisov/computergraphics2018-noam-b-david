@@ -80,20 +80,20 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
 	for (int face = 0; face < size - 2; face = face + 3)
 	{
-		a.x = transVerticesPositions[face].x*16+100;
-		a.y = transVerticesPositions[face].y * 16 + 100;
+		a.x = transVerticesPositions[face].x;
+		a.y = transVerticesPositions[face].y;
 
-		b.x = transVerticesPositions[face + 1].x * 16 + 100;
-		b.y = transVerticesPositions[face + 1].y * 16 + 100;
+		b.x = transVerticesPositions[face + 1].x;
+		b.y = transVerticesPositions[face + 1].y;
 
-		c.x = transVerticesPositions[face + 2].x * 16 + 100;
-		c.y = transVerticesPositions[face + 2].y * 16 + 100;
+		c.x = transVerticesPositions[face + 2].x;
+		c.y = transVerticesPositions[face + 2].y;
 
 		//draw triangle [a,b,c]
 		this->drawLine(a, b);
 		this->drawLine(b, c);
 		this->drawLine(c, a);
-
+		
 	}
 
 		

@@ -46,11 +46,15 @@ int main(int argc, char **argv)
 	
 	
 	//task3 - part1
-	cam.LookAt(glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, -1, 0, 1));
+	
+	//cam.LookAt(glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, -1, 0, 1));
 	scene.LoadOBJModel
 	("../Data/cow.obj");
+	int a = 200, b = 0;
 	scene.remove_cam(0);
 	scene.load_cam(&cam);
+	scene.transformModel(cam.creatTransform(glm::vec3(a, a, a), glm::vec3(b, b, b)
+		, glm::vec2(2*3.14159265358979323846,  0)));
 	//cam.LookAt(glm::vec4(0, 1, 2, 3), glm::vec4(0, 0, 0, 0), glm::vec4(1, 0, 0, 0));
     // Setup Dear ImGui binding
 	ImGuiIO& io = SetupDearImgui(window);
