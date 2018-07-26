@@ -9,9 +9,22 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+/*
+int ActiveModel=0;
+int ActiveLight=0;
+int ActiveCamera=0;
+*/
 
 using namespace std;
+
+Scene::Scene() : ActiveModel(0), ActiveLight(0), ActiveCamera(0)
+{};
+
+Scene::Scene(Renderer *renderer) : renderer(renderer),
+ActiveModel(0), ActiveLight(0), ActiveCamera(0)
+{};
+
+
 void Scene::LoadOBJModel(string fileName)
 {
 	MeshModel *model = new MeshModel(fileName);
