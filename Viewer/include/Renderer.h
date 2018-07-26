@@ -84,4 +84,6 @@ public:
 
 	//Task1, naive solution to draw a line
 	void printLineNaive();
+
+
 };

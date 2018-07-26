@@ -7,7 +7,8 @@ Camera::Camera()
 	
 }
 
-
+glm::mat4x4 Camera::get_projection() { return projection; }
+glm::mat4x4 Camera::get_Transform() { return cTransform; }
 Camera::~Camera()
 {
 }

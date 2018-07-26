@@ -18,6 +18,32 @@ void Scene::LoadOBJModel(string fileName)
 	models.push_back(model);
 }
 
+void Scene::setcur_cam(int i)
+{
+	ActiveCamera = i;
+}
+
+void Scene::setcur_model(int i)
+{
+	ActiveModel = i;
+}
+void Scene::DrawScene()
+{
+
+	// 1. Send the renderer the current camera transform and the projection
+
+	renderer->SetCameraTransform(cameras.at(ActiveCamera)->get_Transform());
+	renderer->SetProjection(cameras.at(ActiveCamera)->get_projection());
+	// 2. Tell all models to draw themselves
+
+	//renderer->SetDemoBuffer();
+	//renderer->printLineNaive(); //Naive draw line
+	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
+
+	renderer->DrawTriangles(models.at(ActiveModel)->Draw(),
+		models.at(ActiveModel)->getVertexPosNum());
+	renderer->SwapBuffers();
+}
 
 void Scene::Draw()
 {
@@ -30,16 +56,21 @@ void Scene::Draw()
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
-	//renderer->SetCameraTransform(default);
-	//renderer->SetProjection(default);
+	glm::mat4x4 default2 = glm::mat4x4
+	(
+		-4.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, -4.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, -4.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 4.0f
+	);
+	renderer->SetCameraTransform(default);
+	renderer->SetProjection(default2);
 	// 2. Tell all models to draw themselves
 	
 	//renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
 	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
 
-	//draw first triangle :O
-	//std::cout << models.at(ActiveModel)->getVertexPosNum()<<"  ";
 	renderer->DrawTriangles(models.at(ActiveModel)->Draw(),
 	models.at(ActiveModel)->getVertexPosNum());
 	renderer->SwapBuffers();
