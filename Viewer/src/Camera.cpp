@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
-
+# define PI 3.141592653589793238462643383279502884L /* pi */
 
 glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
 	, glm::vec3 Translate_val,glm::vec2 rotat_val)
@@ -37,27 +37,30 @@ glm::mat4x4 Camera::ScaleTransform(int x_scale, int y_scale, int z_scale)
 glm::mat4x4 Camera::rotationTransform(int deg, int axis)
 {
 	//if (deg < 2)// we belive that a angles smaller than 2 is considerd small
+	long double rad;
+	rad = deg / 180.0L;
+	rad = rad * PI;
 	//convert from deg to radian
 	if (axis == 0)
 	{
-		return glm::mat4x4(cos(deg), -sin(deg), 0, 0,
-			sin(deg), cos(deg), 0, 0,
+		return glm::mat4x4(cos(rad), -sin(rad), 0, 0,
+			sin(rad), cos(rad), 0, 0,
 			0, 0, 1, 0,
 			0, 0, 0, 1);	
 	}
 	if (axis==1)
 	{
 		return glm::mat4x4(1,0,0,0,
-			0,cos(deg), -sin(deg), 0,
-			0,sin(deg), cos(deg),0,
+			0,cos(rad), -sin(rad), 0,
+			0,sin(rad), cos(rad),0,
 			0, 0, 0, 1);
 	}
 	if (axis == 2)
 	{
 		return glm::mat4x4(1, 0, 0, 0,
 			0, 1, 0, 0,
-			0, 0,cos(deg), -sin(deg),
-			0,0,sin(deg), cos(deg)
+			0, 0,cos(rad), -sin(rad),
+			0,0,sin(rad), cos(rad)
 			);
 	}
 }
@@ -81,6 +84,7 @@ Camera::~Camera()
 
 void Camera::LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up)
 {
+
 	glm::vec4 n = glm::normalize(at - eye);
 	//no cross for vec4: convert to vec3 and then again to vec4
 	glm::vec4 u = glm::normalize( glm::vec4(glm::cross(glm::vec3(up), glm::vec3(n)), 1.0f) );

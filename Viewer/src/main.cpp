@@ -50,11 +50,11 @@ int main(int argc, char **argv)
 	//cam.LookAt(glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, -1, 0, 1));
 	scene.LoadOBJModel
 	("../Data/cow.obj");
-	int a = 200, b = 0;
+	int a = 100, b = 100;
 	scene.remove_cam(0);
 	scene.load_cam(&cam);
 	scene.transformModel(cam.creatTransform(glm::vec3(a, a, a), glm::vec3(b, b, b)
-		, glm::vec2(2*3.14159265358979323846,  0)));
+		, glm::vec2(360,  0)));
 	//cam.LookAt(glm::vec4(0, 1, 2, 3), glm::vec4(0, 0, 0, 0), glm::vec4(1, 0, 0, 0));
     // Setup Dear ImGui binding
 	ImGuiIO& io = SetupDearImgui(window);
@@ -80,7 +80,8 @@ int main(int argc, char **argv)
         */
 		//scene.drawf();
 		scene.DrawScene(); //task3 - part2
-		
+		scene.transformModel(cam.creatTransform(glm::vec3(1,1, 1), glm::vec3(0, 0, 0)
+			, glm::vec2(1, 0)));
 		// Start the ImGui frame
 		StartFrame();
 		// imgui stuff here
