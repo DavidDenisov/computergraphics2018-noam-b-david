@@ -43,6 +43,8 @@ public:
 
 	void remove_cam(int i);
 
+	glm::vec4* GetVertex(int mod);
+
 	int ActiveModel;
 	int ActiveLight;
 	int ActiveCamera;

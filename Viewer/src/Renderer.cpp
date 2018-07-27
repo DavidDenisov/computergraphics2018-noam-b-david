@@ -74,7 +74,7 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 		transVerticesPositions[i] = T * vertexPositions[i];
 	}
 
-
+	
 
 	//now draw the points (and always before put them in vec2)
 	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
@@ -97,8 +97,9 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 	}
 
 		
-
-	
+	delete transVerticesPositions; //they take a lot of memory and will not be used again
+	delete	drawVertexPositions;
+	delete vertexPositions;
 
 }
 

@@ -10,12 +10,8 @@
 using namespace std;
 void MeshModel::transformModel(glm::mat4x4 transform)
 {
-	int k;
 	for (int i = 0; i < getVertexPosNum(); i++)
-	{
-		vertexPositions[i] = transform * vertexPositions[i];
-		k = 0;
-	}
+		vertexPositions[i] = vertexPositions[i]* transform;
 }
 // A struct for processing a single line in a wafefront obj file:
 // https://en.wikipedia.org/wiki/Wavefront_.obj_file
@@ -89,8 +85,8 @@ MeshModel::MeshModel(const string& fileName)
 
 
 MeshModel::~MeshModel()
-{
-}
+{}
+
 int MeshModel::getVertexPosNum()
 {
 	return this->vertexPosNum;
@@ -189,7 +185,10 @@ void MeshModel::LoadFile(const string& fileName)
 
 
 }
-
+glm::vec4* MeshModel::GetVertex()
+{
+	return vertexPositions;
+}
 const glm::vec4* MeshModel::Draw()
 {
 	/*
@@ -200,15 +199,10 @@ const glm::vec4* MeshModel::Draw()
 	meshModel doesn't have a renderer!
 	
 	*/
-
 	//for testing, dont worry
-	glm::vec4* transVertexPositions = new glm::vec4[(unsigned)(this->getVertexPosNum())];
+	glm::vec4* transVertexPositions = new glm::vec4[(unsigned(this->getVertexPosNum()))];
+	// we delete it in draw tringals so we won't have alot of un used memory
 	for (int i = 0; i < (int)(this->getVertexPosNum()); i++)
-	{
 		transVertexPositions[i] = this->worldTransform * this->vertexPositions[i];
-	}
 	return transVertexPositions;
-
-
-	return NULL;
 }

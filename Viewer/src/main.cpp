@@ -50,22 +50,23 @@ int main(int argc, char **argv)
 	//cam.LookAt(glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, -1, 0, 1));
 	scene.LoadOBJModel
 	("../Data/cow.obj");
-	int a = 100, b = 100;
+	int a = 100, b = 300;
 	scene.remove_cam(0);
 	scene.load_cam(&cam);
 	scene.transformModel(cam.creatTransform(glm::vec3(a, a, a), glm::vec3(b, b, b)
 		, glm::vec2(360,  0)));
+	
 	//cam.LookAt(glm::vec4(0, 1, 2, 3), glm::vec4(0, 0, 0, 0), glm::vec4(1, 0, 0, 0));
     // Setup Dear ImGui binding
 	ImGuiIO& io = SetupDearImgui(window);
-	
+	glm::mat4x4 d = glm::mat4x4(1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1);
     // Main loop - the famous "Game Loop" in video games :)
     while (!glfwWindowShouldClose(window))
     {
-		if (glfwGetMouseButton(window, 0) == 1)
-		{
-			cout << glfwGetWindowMonitor(window);
-		}
+		//if (glfwGetMouseButton(window, 0) == 1){cout << glfwGetWindowMonitor(window);}
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -80,8 +81,10 @@ int main(int argc, char **argv)
         */
 		//scene.drawf();
 		scene.DrawScene(); //task3 - part2
-		scene.transformModel(cam.creatTransform(glm::vec3(1,1, 1), glm::vec3(0, 0, 0)
-			, glm::vec2(1, 0)));
+		scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*
+		cam.GetrotationTransform(1, 0)*cam.GetTranslateTransform(b, b, b) );
+		//scene.transformModel(cam.creatTransform(glm::vec3(1,1, 1),
+		//glm::vec3(0, 0, 0), glm::vec2(1, 0)));
 		// Start the ImGui frame
 		StartFrame();
 		// imgui stuff here

@@ -16,6 +16,9 @@ public:
 	Camera();
 	Camera(Camera* c);
 	~Camera();
+	glm::mat4x4 GetrotationTransform(int deg, int axis);
+	glm::mat4x4 GetScaleTransform(int x_scale, int y_scale, int z_scale);
+	glm::mat4x4 GetTranslateTransform(int x_scale, int y_scale, int z_scale);
 	glm::mat4x4 creatTransform(glm::vec3 Scale_val
 		, glm::vec3 Translate_val,glm::vec2 rotat_val);
 	glm::mat4x4 get_projection();

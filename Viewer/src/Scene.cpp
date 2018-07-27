@@ -16,7 +16,10 @@ int ActiveCamera=0;
 */
 
 using namespace std;
-
+glm::vec4* Scene::GetVertex(int mod)
+{
+	return models[mod]->GetVertex();
+}
 void Scene::transformModel(glm::mat4x4 transform)
 {
 	models[ActiveModel]->transformModel(transform);
@@ -75,7 +78,6 @@ void Scene::DrawScene()
 	//renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
 	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
-
 	renderer->DrawTriangles(models.at(ActiveModel)->Draw(),
 		models.at(ActiveModel)->getVertexPosNum());
 	renderer->SwapBuffers();
@@ -147,4 +149,5 @@ void Scene::drawf()
 	c[2] = (glm::vec4(100, 200, 0,0));
 	renderer->DrawTriangles(c,3); //Bresenham algorithm
 	renderer->SwapBuffers();
+	delete c;
 }

@@ -30,4 +30,5 @@ public:
 	int getVertexPosNum();
 	void transformModel(glm::mat4x4 transform);
 	const glm::vec4* Draw();
+	glm::vec4* GetVertex();
 };

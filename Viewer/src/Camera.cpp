@@ -10,7 +10,7 @@ glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
 	a = ScaleTransform(Scale_val[0], Scale_val[1], Scale_val[2]);
 	b = TranslateTransform(Translate_val[0], Translate_val[1], Translate_val[2]);
 	c = rotationTransform(rotat_val[0], rotat_val[1]);
-	d= a * b*c;
+	d= a *b*c;
 	for (int i = 0; i < 4; i++)
 	{	
 		for (int j = 0; j < 4; j++)
@@ -18,6 +18,18 @@ glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
 		std::cout << "\n";
 	}
 	return d;
+}
+glm::mat4x4 Camera::GetrotationTransform(int deg, int axis)
+{
+	return rotationTransform(deg,axis);
+}
+glm::mat4x4 Camera::GetScaleTransform(int x_scale, int y_scale, int z_scale)
+{
+	return ScaleTransform(x_scale, y_scale, z_scale);
+}
+glm::mat4x4 Camera::GetTranslateTransform(int x_scale, int y_scale, int z_scale)
+{
+	return TranslateTransform(x_scale, y_scale, z_scale);
 }
 glm::mat4x4 Camera::TranslateTransform(int x_scale, int y_scale, int z_scale)
 {
@@ -103,7 +115,6 @@ void Camera::LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& 
 	);
 
 	this->cTransform = c * translate;
-
 
 }
 
