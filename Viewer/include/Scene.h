@@ -45,6 +45,8 @@ public:
 
 	glm::vec4* GetVertex(int mod);
 
+	glm::vec4 GetVertexAvg(int mod);
+
 	int ActiveModel;
 	int ActiveLight;
 	int ActiveCamera;

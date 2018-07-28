@@ -49,13 +49,19 @@ int main(int argc, char **argv)
 	
 	//cam.LookAt(glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, -1, 0, 1));
 	scene.LoadOBJModel
-	("../Data/beethoven.obj");
-	int a = 50, b = 270;
+	("../Data/feline.obj");
+	double a = 100, b = 270;
 	scene.remove_cam(0);
 	scene.load_cam(&cam);
-	scene.transformModel(cam.creatTransform(glm::vec3(a, a, a), glm::vec3(900, 300, 0)
-		, glm::vec2(0,  0)));
-	
+	glm::vec4 avg = scene.GetVertexAvg(0);
+	float pos_x = avg.x, pos_y = avg.y,
+	pos_z = avg.z;
+	scene.transformModel(cam.GetScaleTransform(a, a, a));
+	pos_x = pos_x * a;
+	pos_y = pos_y * a;
+	pos_z = pos_z * a;
+	//we normalize the mouse on the avereg of all the vertexes and it will be the center 
+	//of all the rotations 
 	//cam.LookAt(glm::vec4(0, 1, 2, 3), glm::vec4(0, 0, 0, 0), glm::vec4(1, 0, 0, 0));
     // Setup Dear ImGui binding
 	ImGuiIO& io = SetupDearImgui(window);
@@ -64,7 +70,9 @@ int main(int argc, char **argv)
 		0, 0, 1, 0,
 		0, 0, 0, 1);
 	double xpos, ypos;
-	double pos_x=900, pos_y=300,pos_z=0;
+	
+
+
 	//GLFWwindow* my_window = SetupGlfwWindow(w, h, "the window");
     // Main loop - the famous "Game Loop" in video games :)
     while (!glfwWindowShouldClose(window))
@@ -84,40 +92,46 @@ int main(int argc, char **argv)
         */
 		
 		glfwGetCursorPos(window,&xpos, &ypos);
+		ypos = 720 - ypos;
 		if (pos_x != xpos || pos_y != ypos)//folow the mouse
 		{
-			scene.transformModel(cam.GetTranslateTransform(xpos - pos_x,pos_y -ypos, 0));
+			scene.transformModel(cam.GetTranslateTransform(xpos - pos_x,ypos-pos_y, 0));
 			pos_x=xpos;
 			pos_y=ypos;
 		}
 			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(-pos_x, -pos_y,0)*
-				cam.GetrotationTransform(10, 1)*cam.GetTranslateTransform(pos_x, pos_y,0));
+				scene.transformModel(cam.GetTranslateTransform(-pos_x, -pos_y,-pos_z)*
+			cam.GetrotationTransform(10, 1)*cam.GetTranslateTransform(pos_x, pos_y, pos_z));
 
 			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(-pos_x, -pos_y,0)*
-				cam.GetrotationTransform(-10, 1)*cam.GetTranslateTransform(pos_x, pos_y,0));
+				scene.transformModel(cam.GetTranslateTransform(-pos_x, -pos_y,-pos_z)*
+			cam.GetrotationTransform(-10, 1)*cam.GetTranslateTransform(pos_x, pos_y, pos_z));
 
 			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(-pos_x, -pos_y,0)*
-				cam.GetrotationTransform(-10, 2)*cam.GetTranslateTransform(pos_x, pos_y,0));
+				scene.transformModel(cam.GetTranslateTransform(-pos_x, -pos_y,-pos_z)*
+			cam.GetrotationTransform(-10, 2)*cam.GetTranslateTransform(pos_x, pos_y, pos_z));
 
 			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(-pos_x, -pos_y, 0)*
-			cam.GetrotationTransform(10, 2)*cam.GetTranslateTransform(pos_x, pos_y, 0));
+				scene.transformModel(cam.GetTranslateTransform(-pos_x, -pos_y, -pos_z)*
+			cam.GetrotationTransform(10, 2)*cam.GetTranslateTransform(pos_x, pos_y, pos_z));
 
 			if (glfwGetKey(window, 68) == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(-pos_x, -pos_y,0)*
-				cam.GetrotationTransform(10, 0)*cam.GetTranslateTransform(pos_x, pos_y,0));
+				scene.transformModel(cam.GetTranslateTransform(-pos_x, -pos_y,-pos_z)*
+			cam.GetrotationTransform(10, 0)*cam.GetTranslateTransform(pos_x, pos_y, pos_z));
 
 			if (glfwGetKey(window, 65) == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(-pos_x, -pos_y,0)*
-				cam.GetrotationTransform(-10, 0)*cam.GetTranslateTransform(pos_x, pos_y,0));
+				scene.transformModel(cam.GetTranslateTransform(-pos_x, -pos_y,-pos_z)*
+			cam.GetrotationTransform(-10, 0)*cam.GetTranslateTransform(pos_x, pos_y, pos_z));
+
+			if (glfwGetKey(window, 83) == GLFW_PRESS)
+				scene.transformModel(cam.GetScaleTransform(0.5, 0.5, 0.5));
+
+			if (glfwGetKey(window, 87) == GLFW_PRESS)
+				scene.transformModel(cam.GetScaleTransform(1.5,1.5,1.5));
 		//scene.drawf();
 		scene.DrawScene(); //task3 - part2
 		//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*
 		//cam.GetrotationTransform(1, 0)*cam.GetTranslateTransform(b, b, b) );
-		
 		// Start the ImGui frame
 		StartFrame();
 		// imgui stuff here
