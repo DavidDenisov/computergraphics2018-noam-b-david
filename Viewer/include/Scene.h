@@ -49,6 +49,11 @@ public:
 
 	glm::vec4 GetVertexAvg(int mod);
 
+	const vector<Model*> getModels();
+	const vector<Light*> getLights();
+	const vector<Camera*> getCameras();
+
+
 	int ActiveModel;
 	int ActiveLight;
 	int ActiveCamera;

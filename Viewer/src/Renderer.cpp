@@ -99,8 +99,6 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 		
 	delete transVerticesPositions; //they take a lot of memory and will not be used again
 	delete	drawVertexPositions;
-	delete vertexPositions;
-
 }
 
 void Renderer::createBuffers(int w, int h)

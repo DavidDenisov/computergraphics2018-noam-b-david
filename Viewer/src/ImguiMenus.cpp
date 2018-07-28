@@ -86,7 +86,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 						std::cout << filename << std::endl;
 						scene->LoadOBJModel(filename);
 						std::cout << "test LoadOBJ\n";
-						scene->setcur_model(1);
+						std::cout << "active Model: " << scene->ActiveModel << std::endl;
+						std::cout << "num of models: " << scene->getModels().size() << std::endl;
+						std::cout << "Models[0] " << scene->getModels()[0]->getNameModel() << std::endl;
+						std::cout << "Models[0] " << scene->getModels()[1]->getNameModel() << std::endl;
+
+
 						free(outPath);
 					}
 					else if (result == NFD_CANCEL) {

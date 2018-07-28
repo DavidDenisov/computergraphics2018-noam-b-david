@@ -18,7 +18,7 @@ protected:
 	int vertexPosNum; // 3 * #vertices
 					  //is it neccesery?
 					  //vector<glm::vec3> modelVertices; 
-
+	
 					  //***added above
 	glm::mat4x4 worldTransform;
 	glm::mat4x4 normalTransform;

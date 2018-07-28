@@ -194,19 +194,5 @@ const glm::vec4* MeshModel::Draw()
 	meshModel doesn't have a renderer!
 	*/
 	//for testing, dont worry
-	glm::vec4* transVertexPositions = new glm::vec4[(unsigned(this->getVertexPosNum()))];
-	// we delete it in draw tringals so we won't have alot of un used memory
-	for (int i = 0; i < (int)(this->getVertexPosNum()); i++)
-	{
-		transVertexPositions[i] = this->worldTransform * this->vertexPositions[i];
-		float z = transVertexPositions[i][3];
-		transVertexPositions[i]= transVertexPositions[i]*
-		glm::mat4x4(1 ,0,0,0,
-					0,1,0,0,
-					0,0,1,0,
-					0,0,1 ,1);
-		
-
-	}
-	return transVertexPositions;
+	return vertexPositions;
 }
