@@ -2,7 +2,7 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 # define PI 3.141592653589793238462643383279502884L /* pi */
-
+using namespace std;
 glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
 	, glm::vec3 Translate_val,glm::vec2 rotat_val)
 {
@@ -11,27 +11,22 @@ glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
 	b = TranslateTransform(Translate_val[0], Translate_val[1], Translate_val[2]);
 	c = rotationTransform(rotat_val[0], rotat_val[1]);
 	d= a *b*c;
-	for (int i = 0; i < 4; i++)
-	{	
-		for (int j = 0; j < 4; j++)
-			std::cout<<d[i][j] << " ";
-		std::cout << "\n";
-	}
+
 	return d;
 }
-glm::mat4x4 Camera::GetrotationTransform(int deg, int axis)
+glm::mat4x4 Camera::GetrotationTransform(double deg, int axis)
 {
 	return rotationTransform(deg,axis);
 }
-glm::mat4x4 Camera::GetScaleTransform(int x_scale, int y_scale, int z_scale)
+glm::mat4x4 Camera::GetScaleTransform(double x_scale, double y_scale, double z_scale)
 {
 	return ScaleTransform(x_scale, y_scale, z_scale);
 }
-glm::mat4x4 Camera::GetTranslateTransform(int x_scale, int y_scale, int z_scale)
+glm::mat4x4 Camera::GetTranslateTransform(double x_scale, double y_scale, double z_scale)
 {
 	return TranslateTransform(x_scale, y_scale, z_scale);
 }
-glm::mat4x4 Camera::TranslateTransform(int x_scale, int y_scale, int z_scale)
+glm::mat4x4 Camera::TranslateTransform(double x_scale, double y_scale, double z_scale)
 {
 	return glm::mat4x4(1, 0, 0, x_scale,
 		0, 1, 0, y_scale,
@@ -39,14 +34,14 @@ glm::mat4x4 Camera::TranslateTransform(int x_scale, int y_scale, int z_scale)
 		0, 0, 0, 1);
 }
 
-glm::mat4x4 Camera::ScaleTransform(int x_scale, int y_scale, int z_scale)
+glm::mat4x4 Camera::ScaleTransform(double x_scale, double y_scale, double z_scale)
 {
 	return glm::mat4x4(x_scale, 0, 0, 0,
 		0, y_scale, 0, 0,
 		0, 0, z_scale, 0,
 		0, 0, 0, 1);
 }
-glm::mat4x4 Camera::rotationTransform(int deg, int axis)
+glm::mat4x4 Camera::rotationTransform(double deg, int axis)
 {
 	//if (deg < 2)// we belive that a angles smaller than 2 is considerd small
 	long double rad;
@@ -69,11 +64,13 @@ glm::mat4x4 Camera::rotationTransform(int deg, int axis)
 	}
 	if (axis == 2)
 	{
-		return glm::mat4x4(1, 0, 0, 0,
+		return glm::mat4x4(cos(rad), 0, sin(rad), 0,
 			0, 1, 0, 0,
-			0, 0,cos(rad), -sin(rad),
-			0,0,sin(rad), cos(rad)
+			-sin(rad), 0, cos(rad), 0,
+			0,0,0, 1
 			);
+		
+		
 	}
 }
 Camera::Camera()

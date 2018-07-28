@@ -11,7 +11,9 @@ using namespace std;
 void MeshModel::transformModel(glm::mat4x4 transform)
 {
 	for (int i = 0; i < getVertexPosNum(); i++)
-		vertexPositions[i] = vertexPositions[i]* transform;
+		vertexPositions[i] = vertexPositions[i] * transform;
+		
+
 }
 // A struct for processing a single line in a wafefront obj file:
 // https://en.wikipedia.org/wiki/Wavefront_.obj_file
