@@ -26,6 +26,8 @@ public:
 	// Loads an obj file into the scene.
 	void LoadOBJModel(string fileName);
 
+
+	void RemoveModel(int num);
 	// Draws the current scene.
 	void Draw();
 
