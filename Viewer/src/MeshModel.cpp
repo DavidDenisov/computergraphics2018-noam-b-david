@@ -6,13 +6,16 @@
 #include <sstream>
 #define FACE_ELEMENTS 3
 
+//#include <cstddef>         // std::size_t
+#include <string>
+#include <algorithm>
 
 using namespace std;
 void MeshModel::transformModel(glm::mat4x4 transform)
 {
 	for (int i = 0; i < getVertexPosNum(); i++)
 		vertexPositions[i] = vertexPositions[i] * transform;
-		
+
 
 }
 // A struct for processing a single line in a wafefront obj file:
@@ -105,6 +108,9 @@ void MeshModel::LoadFile(const string& fileName)
 	string curLine;
 
 	float x, y, z;
+
+	int lastIndex = fileName.find_last_of("/");
+	this->nameModel = fileName.substr(lastIndex + 1, fileName.length() - lastIndex);
 
 	// while not end of file
 	while (!ifile.eof())
@@ -205,6 +211,6 @@ const glm::vec4* MeshModel::Draw()
 	glm::vec4* transVertexPositions = new glm::vec4[(unsigned(this->getVertexPosNum()))];
 	// we delete it in draw tringals so we won't have alot of un used memory
 	for (int i = 0; i < (int)(this->getVertexPosNum()); i++)
-		transVertexPositions[i] = this->worldTransform * this->vertexPositions[i];
+		transVertexPositions[i] = this->vertexPositions[i];
 	return transVertexPositions;
 }

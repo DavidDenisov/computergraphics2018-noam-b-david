@@ -165,3 +165,17 @@ void Scene::drawf()
 	renderer->SwapBuffers();
 	delete c;
 }
+
+
+const vector<Model*> Scene::getModels()
+{
+	return this->models;
+}
+const vector<Light*> Scene::getLights()
+{
+	return this->lights;
+}
+const vector<Camera*> Scene::getCameras()
+{
+	return this->cameras;
+}
