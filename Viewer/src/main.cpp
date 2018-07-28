@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 	
 	//cam.LookAt(glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, -1, 0, 1));
 	scene.LoadOBJModel
-	("../Data/teapot.obj");
+	("../Data/dolphin.obj");
 	double a = 100, b = 270;
 	scene.remove_cam(0);
 	scene.load_cam(&cam);
@@ -60,8 +60,8 @@ int main(int argc, char **argv)
 	pos_x[0] = avg.x;
 	pos_y[0] = avg.y;
 	pos_z[0] = avg.z;
-
 	scene.transformModel(cam.GetScaleTransform(a, a, a));
+	//scene.transformModel(cam.GetScaleTransform(a, a, a));
 	pos_x[0] = pos_x[0] * a;
 	pos_y[0] = pos_y[0] * a;
 	pos_z[0] = pos_z[0] * a;
@@ -161,6 +161,48 @@ int main(int argc, char **argv)
 		
         */
 		
+
+			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+			scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
+			cam.GetrotationTransform(10, 1)*cam.GetTranslateTransform(x, y,z));
+
+			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+			scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
+			cam.GetrotationTransform(-10, 1)*cam.GetTranslateTransform(x, y,z));
+
+			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+			scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
+			cam.GetrotationTransform(-10, 2)*cam.GetTranslateTransform(x, y, z));
+
+			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+			scene.transformModel(cam.GetTranslateTransform(-x, -y, -z)*
+			cam.GetrotationTransform(10, 2)*cam.GetTranslateTransform(x, y, z));
+
+			if (glfwGetKey(window, 68) == GLFW_PRESS)
+			scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
+			cam.GetrotationTransform(10, 0)*cam.GetTranslateTransform(x, y, z));
+
+			if (glfwGetKey(window, 65) == GLFW_PRESS)
+			scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
+			cam.GetrotationTransform(-10, 0)*cam.GetTranslateTransform(x, y,z));
+
+			
+			if (glfwGetKey(window, 83) == GLFW_PRESS)
+			{
+				scene.transformModel(cam.GetScaleTransform(0.99, 0.99, 0.99));
+				pos_x[active] *= 0.99;
+				pos_y[active] *= 0.99;
+				pos_z[active] *= 0.99;
+			}
+
+			if (glfwGetKey(window, 87) == GLFW_PRESS)
+			{
+				scene.transformModel(cam.GetScaleTransform(1.01, 1.01, 1.01));
+				pos_x[active] *= 1.01;
+				pos_y[active] *= 1.01;
+				pos_z[active] *= 1.01;
+			}
+
 		glfwGetCursorPos(window,&xpos, &ypos);
 		ypos = 720- ypos;
 		x = pos_x[active];
@@ -172,46 +214,6 @@ int main(int argc, char **argv)
 			pos_x[active] =xpos;
 			pos_y[active] =ypos;
 		}
-			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
-			cam.GetrotationTransform(10, 1)*cam.GetTranslateTransform(x, y,z));
-
-			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
-			cam.GetrotationTransform(-10, 1)*cam.GetTranslateTransform(x, y,z));
-
-			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
-			cam.GetrotationTransform(-10, 2)*cam.GetTranslateTransform(x, y, z));
-
-			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(-x, -y, -z)*
-			cam.GetrotationTransform(10, 2)*cam.GetTranslateTransform(x, y, z));
-
-			if (glfwGetKey(window, 68) == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
-			cam.GetrotationTransform(10, 0)*cam.GetTranslateTransform(x, y, z));
-
-			if (glfwGetKey(window, 65) == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
-			cam.GetrotationTransform(-10, 0)*cam.GetTranslateTransform(x, y,z));
-
-			
-			if (glfwGetKey(window, 83) == GLFW_PRESS)
-			{
-				scene.transformModel(cam.GetScaleTransform(0.5, 0.5, 0.5));
-				pos_x[active] *= 0.5;
-				pos_y[active] *= 0.5;
-				pos_z[active] *= 0.5 ;
-			}
-
-			if (glfwGetKey(window, 87) == GLFW_PRESS)
-			{
-				scene.transformModel(cam.GetScaleTransform(2, 2, 2));
-				pos_x[active] *= 2;
-				pos_y[active] *= 2;
-				pos_z[active] *= 2;
-			}
 		//scene.drawf();
 		scene.DrawScene(); //task3 - part2
 		//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*

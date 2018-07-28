@@ -331,7 +331,6 @@ void Renderer::SetDemoBuffer()
 			putPixel(i, (height / 2) + r0, magenta);
 			putPixel(i, (height / 2) - r0, magenta);
 		}
-
 	}
 }
 

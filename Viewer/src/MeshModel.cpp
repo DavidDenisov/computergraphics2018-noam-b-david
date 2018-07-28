@@ -6,14 +6,11 @@
 #include <sstream>
 #define FACE_ELEMENTS 3
 
-
 using namespace std;
 void MeshModel::transformModel(glm::mat4x4 transform)
 {
 	for (int i = 0; i < getVertexPosNum(); i++)
 		vertexPositions[i] = vertexPositions[i] * transform;
-		
-
 }
 // A struct for processing a single line in a wafefront obj file:
 // https://en.wikipedia.org/wiki/Wavefront_.obj_file
@@ -183,9 +180,6 @@ void MeshModel::LoadFile(const string& fileName)
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
-
-
-
 }
 glm::vec4* MeshModel::GetVertex()
 {
@@ -196,15 +190,23 @@ const glm::vec4* MeshModel::Draw()
 	/*
 	should use "DrawTriangles" function(?)
 	also, should use "setObjectMatrices"(?) (before drawing, to first transform the points)
-	
 	maybe just return the transformed points to scene so it would draw?
 	meshModel doesn't have a renderer!
-	
 	*/
 	//for testing, dont worry
 	glm::vec4* transVertexPositions = new glm::vec4[(unsigned(this->getVertexPosNum()))];
 	// we delete it in draw tringals so we won't have alot of un used memory
 	for (int i = 0; i < (int)(this->getVertexPosNum()); i++)
+	{
 		transVertexPositions[i] = this->worldTransform * this->vertexPositions[i];
+		float z = transVertexPositions[i][3];
+		transVertexPositions[i]= transVertexPositions[i]*
+		glm::mat4x4(1 ,0,0,0,
+					0,1,0,0,
+					0,0,1,0,
+					0,0,1 ,1);
+		
+
+	}
 	return transVertexPositions;
 }

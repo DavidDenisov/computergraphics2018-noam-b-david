@@ -97,7 +97,8 @@ void Scene::DrawScene()
 	//renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
 	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
-	renderer->DrawTriangles(models.at(ActiveModel)->Draw(),
+	for(int i=0;i<models.size();i++)
+		renderer->DrawTriangles(models.at(i)->Draw(),
 		models.at(ActiveModel)->getVertexPosNum());
 	renderer->SwapBuffers();
 }
@@ -115,11 +116,9 @@ void Scene::Draw()
 	renderer->SetCameraTransform(default);
 	renderer->SetProjection(default);
 	// 2. Tell all models to draw themselves
-	
 	//renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
 	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
-
 	renderer->DrawTriangles(models.at(ActiveModel)->Draw(),
 	models.at(ActiveModel)->getVertexPosNum());
 	renderer->SwapBuffers();
@@ -127,9 +126,7 @@ void Scene::Draw()
 
 void Scene::DrawDemo()
 {
-
 	MeshModel* primitive = new PrimMeshModel(); //testing
-
 	string fileName = "C:/Users/nir blagovsky/Documents/Noam/TEXTFILE.txt";
 	//LoadFile of camera instead?
 	MeshModel* testOBJ = new MeshModel(fileName); //a cube?
