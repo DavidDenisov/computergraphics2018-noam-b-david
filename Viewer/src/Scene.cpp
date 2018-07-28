@@ -16,12 +16,17 @@ int ActiveCamera=0;
 */
 
 using namespace std;
+
+void Scene::RemoveModel(int num)
+{
+	models.erase(models.begin()+num);
+}
 glm::vec4 Scene::GetVertexAvg(int mod)
 {
 	long long s = models[mod]->getVertexPosNum();
 	glm::vec4 avg= glm::vec4(0,0,0,0);
 	for (long long i = 0; i < s; i++)
-		avg = avg + GetVertex(0)[i];
+		avg = avg + GetVertex(ActiveModel)[i];
 
 	for (int i = 0; i < 4; i++)
 		avg[i] = float(avg[i] /float(s));
