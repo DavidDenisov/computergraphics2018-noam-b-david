@@ -10,7 +10,7 @@ glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
 	a = ScaleTransform(Scale_val[0], Scale_val[1], Scale_val[2]);
 	b = TranslateTransform(Translate_val[0], Translate_val[1], Translate_val[2]);
 	c = rotationTransform(rotat_val[0], rotat_val[1]);
-	d= a *b*c;
+	d= a *b*c; // shouldn't be b * a * c? because translate you do last...
 
 	return d;
 }

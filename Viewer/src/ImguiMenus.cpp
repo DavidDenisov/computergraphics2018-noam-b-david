@@ -4,6 +4,10 @@
 #include <stdlib.h>
 // open file dialog cross platform https://github.com/mlabbe/nativefiledialog
 #include <nfd.h>
+//my includes:
+#include <iostream>
+#include <string>
+#include <algorithm>
 
 bool showDemoWindow = false;
 bool showAnotherWindow = false;
@@ -24,14 +28,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 		ImGui::Begin("Test Menu");
 		static float f = 0.0f;
 		static int counter = 0;
-		ImGui::Text("Hello, world!");                           // Display some text (you can use a format string too)
+		// Display some text (you can use a format string too)
+		ImGui::Text("Hello, world!\nHere you can change which model will be viewed and view stats about the model");
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
 		ImGui::ColorEdit3("clear color", (float*)&clearColor); // Edit 3 floats representing a color
 
 		ImGui::Checkbox("Demo Window", &showDemoWindow);      // Edit bools storing our windows open/close state
 		ImGui::Checkbox("Another Window", &showAnotherWindow);
 
-		if (ImGui::Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
+		if (ImGui::Button("Button")) // Buttons return true when clicked (NB: most widgets return true when edited/activated)
 			counter++;
 		ImGui::SameLine();
 		ImGui::Text("counter = %d", counter);
@@ -72,11 +77,22 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 					nfdresult_t result = NFD_OpenDialog("obj;png,jpg", NULL, &outPath);
 					if (result == NFD_OKAY) {
 						ImGui::Text("Hello from another window!");
+						std::cout << "success\n";
+						
+						std::string filename(outPath);
+						std::cout << filename << std::endl;
+						//replace all '\' to '/' in the path
+						std::replace(filename.begin(), filename.end(), '\\', '/');
+						std::cout << filename << std::endl;
+						scene->LoadOBJModel(filename);
+						std::cout << "test LoadOBJ\n";
+						scene->setcur_model(1);
 						free(outPath);
 					}
 					else if (result == NFD_CANCEL) {
 					}
 					else {
+						std:cout << "why...?";
 					}
 
 				}
