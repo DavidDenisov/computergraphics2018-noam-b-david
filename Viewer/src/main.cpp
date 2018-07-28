@@ -71,12 +71,13 @@ int main(int argc, char **argv)
 	double xpos, ypos;
 	int active = 0;
 	float x, y, z;
-
+	glfwGetWindowSize(window, &w, &h);
+	glm::vec2 old_size = glm::vec2(1280,720);
+	glm::vec2 size;
 	//GLFWwindow* my_window = SetupGlfwWindow(w, h, "the window");
     // Main loop - the famous "Game Loop" in video games :)
     while (!glfwWindowShouldClose(window))
     {
-
 		if (glfwGetMouseButton(window, 0) == 1&& !glfwWindowShouldClose(window))
 		{
 			cout << num%13;
@@ -184,17 +185,37 @@ int main(int argc, char **argv)
 				scene.transformModel(cam.GetScaleTransform(1.01, 1.01, 1.01));
 				a *= 1.01;
 			}
-
+		glfwGetWindowSize(window, &w, &h);
+		size = glm::vec2(w, h);
 		glfwGetCursorPos(window,&xpos, &ypos);
-		ypos = 720- ypos;
+		ypos = h- ypos;
 		avg = scene.GetVertexAvg(active);
 		x = avg.x;
 		y = avg.y;
 		z= avg.z;
 		if (x != xpos || y != ypos)//follow the mouse
-			scene.transformModel(cam.GetTranslateTransform(xpos - x,ypos-y, 0));
+			scene.transformModel(cam.GetTranslateTransform(h*(xpos - x)/ 1280.0,
+				w*(ypos-y)/720.0, 0));
 		//scene.drawf();
-		scene.DrawScene(); //task3 - part2
+		//resizing
+		
+		if ((size.x != old_size.x || size.y != old_size.y)
+			&& size.x!=0 && size.y != 0)
+		{
+			cout << size.x << " " << size.y;
+			cout << old_size.x << " " << old_size.y;
+			scene.transformModel(glm::mat4x4(old_size.x/size.x, 0, 0, 0,
+				0, old_size.y/size.y, 0, 0,
+				0, 0, 1, 0,
+				0, 0, 0, 1));
+			scene.DrawScene(); //task3 - part2
+			old_size.x = size.x;
+			old_size.y = size.y;
+		}
+		else
+		{
+			scene.DrawScene(); //task3 - part2
+		}
 		//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*
 		//cam.GetrotationTransform(1, 0)*cam.GetTranslateTransform(b, b, b) );
 		// Start the ImGui frame
