@@ -43,7 +43,6 @@ glm::mat4x4 Camera::ScaleTransform(double x_scale, double y_scale, double z_scal
 }
 glm::mat4x4 Camera::rotationTransform(double deg, int axis)
 {
-	//if (deg < 2)// we belive that a angles smaller than 2 is considerd small
 	long double rad;
 	rad = deg / 180.0L;
 	rad = rad * PI;

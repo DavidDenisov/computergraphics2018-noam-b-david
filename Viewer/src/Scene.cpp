@@ -16,6 +16,20 @@ int ActiveCamera=0;
 */
 
 using namespace std;
+glm::vec4 Scene::GetVertexAvg(int mod)
+{
+	long long s = models[mod]->getVertexPosNum();
+	glm::vec4 avg= glm::vec4(0,0,0,0);
+	for (long long i = 0; i < s; i++)
+		avg = avg + GetVertex(0)[i];
+
+	for (int i = 0; i < 4; i++)
+		avg[i] = float(avg[i] /float(s));
+
+
+	return avg;
+}
+
 glm::vec4* Scene::GetVertex(int mod)
 {
 	return models[mod]->GetVertex();
