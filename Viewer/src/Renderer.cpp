@@ -44,16 +44,6 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 
 void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 {
-	/*
-	glm::vec2 a = { vertices->at(0).x, vertices->at(0).y };
-	glm::vec2 b = { vertices->at(1).x, vertices->at(1).y };
-	glm::vec2 c = { vertices->at(2).x, vertices->at(2).y };
-
-	drawLine(a, b);
-	drawLine(a, c);
-	drawLine(c, b);
-	*/
-
 	//we recieve the object to draw with a vector of verticesPositions
 	//we will draw these triangles but first will do the transformations
 

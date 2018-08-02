@@ -11,6 +11,7 @@ void Camera::Ortho(const float left, const float right,
 	TranslateTransform(-(right + left) / 2, -(top + bottom) / 2, -(zNear + zFar) / 2)
 	*ScaleTransform(2 / (right - left), 2 / (top - bottom), 2 / (zFar-zNear));
 }
+
 void Camera::Perspective(const float fovy, const float aspect,
 	const float zNear, const float zFar)
 {
@@ -28,6 +29,7 @@ void Camera::Perspective(const float fovy, const float aspect,
 		0, 0, -1, 0);
 	
 }
+
 void Camera::Frustum(const float left, const float right,
 	const float bottom, const float top,
 	const float zNear, const float zFar)
@@ -36,9 +38,10 @@ void Camera::Frustum(const float left, const float right,
 	float w = top - bottom,h = abs(left - right);
 	Perspective(w/(zFar- zNear), w / h, zNear, zFar);
 }
+
 void Camera::Transform(glm::mat4x4 t)
 {
-	cTransform = cTransform*t;
+	cTransform = cTransform*t; // ***
 }
 glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
 	, glm::vec3 Translate_val,glm::vec2 rotat_val)
@@ -47,7 +50,8 @@ glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
 	a = ScaleTransform(Scale_val[0], Scale_val[1], Scale_val[2]);
 	b = TranslateTransform(Translate_val[0], Translate_val[1], Translate_val[2]);
 	c = rotationTransform(rotat_val[0], rotat_val[1]);
-	d= a *b*c; // shouldn't be b * a * c? because translate you do last...
+
+	d= a*b*c; // shouldn't be b * a * c? because translate you do last...
 	return d;
 }
 glm::mat4x4 Camera::GetrotationTransform(double deg, int axis)

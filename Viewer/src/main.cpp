@@ -150,10 +150,7 @@ int main(int argc, char **argv)
         glfwPollEvents();
 		// draw scene here
 		
-		/*
-		scene.DrawDemo(); // from task1
 		
-        */
 			//if (glfwGetKey(window, 'R') == GLFW_PRESS)
 			//scene.transformProjection(1, 2, 1, 2, 1, 2);
 			//resizing
@@ -223,7 +220,6 @@ int main(int argc, char **argv)
 			x1 =(xpos);
 			y1 =(ypos);
 		}
-		//scene.drawf();
 		
 		scene.DrawScene(); //task3 - part2
 		

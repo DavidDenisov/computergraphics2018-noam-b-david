@@ -174,6 +174,14 @@ void MeshModel::LoadFile(const string& fileName)
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
 
+	this->modelTransform = glm::mat4x4
+	(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+
 	//i dont know what it is used for, but we probably dont need it (I hope so)
 	this->normalTransform = glm::mat4x4
 	(
@@ -199,6 +207,6 @@ const glm::vec4* MeshModel::Draw()
 
 	glm::vec4* transVertexPositions = new glm::vec4[(unsigned)(this->getVertexPosNum())];
 	for (int i = 0; i < (int)(this->getVertexPosNum()); i++)
-		transVertexPositions[i] =this->vertexPositions[i]*this->worldTransform;
+		transVertexPositions[i] =this->vertexPositions[i]*this->modelTransform;
 	return transVertexPositions;
 }
