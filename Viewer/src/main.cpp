@@ -48,15 +48,14 @@ int main(int argc, char **argv)
 	//task3 - part1
 	
 	//cam.LookAt(glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, -1, 0, 1));
-	scene.LoadOBJModel
-	("../Data/dolphin.obj");
+
 	scene.LoadOBJModel
 	("../Data/cow.obj");
 	double a = 100, b = 270;
 	scene.remove_cam(0);
 	scene.load_cam(&cam);
 	glm::vec4 avg = scene.GetVertexAvg(0);
-	scene.setcur_model(1);
+	scene.setcur_model(0);
 	scene.transformModel(cam.GetScaleTransform(a, a, a));
 	
 	//scene.transformModel(cam.GetScaleTransform(a, a, a));
@@ -79,11 +78,13 @@ int main(int argc, char **argv)
 	glfwGetWindowSize(window, &w, &h);
 	glm::vec2 old_size = glm::vec2(1280,720);
 	glm::vec2 size;
+
+	
 	//GLFWwindow* my_window = SetupGlfwWindow(w, h, "the window");
     // Main loop - the famous "Game Loop" in video games :)
     while (!glfwWindowShouldClose(window))
     {
-		if (glfwGetMouseButton(window, 0) == 1&& !glfwWindowShouldClose(window))
+		if (glfwGetMouseButton(window, 0) == 1&& !glfwWindowShouldClose(window)&&FALSE)
 		{
 			cout << num%13;
 			string s = "banana";
@@ -155,41 +156,68 @@ int main(int argc, char **argv)
 			//scene.transformProjection(1, 2, 1, 2, 1, 2);
 			//resizing
 
-			if (glfwGetKey(window, 'C') == GLFW_PRESS)
-			scene.transformModel(cam.GetrotationTransform(10, 1));
+				
+			glfwGetWindowSize(window, &w, &h);
+			size = glm::vec2(w, h);
+			glfwGetCursorPos(window, &xpos, &ypos);
+			ypos = h - ypos;
+			avg = scene.GetVertexAvg(scene.ActiveModel);
+			x = w*(avg.x) /1280.0 ;
+			//x = (avg.x);
+			y =(avg.y)/(720.0/h);
+			z = avg.z;
+
+			if ((size.x != old_size.x || size.y != old_size.y)
+				&& size.x != 0 && size.y != 0) //window resizing
+			{
+				
+				scene.transformModel(cam.GetScaleTransform
+				(old_size.x / size.x, old_size.x / size.x, 1));
+				old_size.x = size.x;
+				old_size.y = size.y;
+			}
+			if ((x != xpos || y != ypos))//follow the mouse
+			{
+				scene.transformModel(cam.GetTranslateTransform(xpos - x, ypos - y, 0));
+
+			}
+
+			x =  (avg.x) *( 1280.0/ w );
+			y = (avg.y) * (720.0 / h);
 
 			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
-			cam.GetrotationTransform(10, 1)*cam.GetTranslateTransform(x, y,z));
+			scene.transformModel(cam.GetTranslateTransform(x, y,z)*
+			cam.GetrotationTransform(10, 1)*cam.GetTranslateTransform(-x,-y,-z));
 
 			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
-			cam.GetrotationTransform(-10, 1)*cam.GetTranslateTransform(x, y,z));
+			scene.transformModel(cam.GetTranslateTransform(x, y,z)*
+			cam.GetrotationTransform(-10, 1)*cam.GetTranslateTransform(-x, -y,-z));
 
 			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
-			cam.GetrotationTransform(-10, 2)*cam.GetTranslateTransform(x, y, z));
+			scene.transformModel(cam.GetTranslateTransform(x, y,z)*
+			cam.GetrotationTransform(-10, 2)*cam.GetTranslateTransform(-x, -y, -z));
 
 			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(-x, -y, -z)*
-			cam.GetrotationTransform(10, 2)*cam.GetTranslateTransform(x, y, z));
+				scene.transformModel(cam.GetTranslateTransform(x, y, z)*
+				cam.GetrotationTransform(10, 2)*cam.GetTranslateTransform(-x, -y, -z));
 
-			if (glfwGetKey(window, 68) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
-			cam.GetrotationTransform(10, 0)*cam.GetTranslateTransform(x, y, z));
+			if (glfwGetKey(window, 'A') == GLFW_PRESS)
+				scene.transformModel(cam.GetTranslateTransform(x, y, z)*
+				cam.GetrotationTransform(10, 0)*cam.GetTranslateTransform(-x, -y, -z));
 
-			if (glfwGetKey(window, 65) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
-			cam.GetrotationTransform(-10, 0)*cam.GetTranslateTransform(x, y,z));
+			if (glfwGetKey(window, 'D') == GLFW_PRESS)
+				scene.transformModel(cam.GetTranslateTransform(x, y, z)*
+				cam.GetrotationTransform(-10, 0)*cam.GetTranslateTransform(-x , 
+				 -y, -z));
 
 			
-			if (glfwGetKey(window, 83) == GLFW_PRESS)
+			if (glfwGetKey(window, 'S') == GLFW_PRESS)
 			{
 				scene.transformModel(cam.GetScaleTransform(0.99, 0.99, 0.99));
 				a *= 0.99;
 			}
 
-			if (glfwGetKey(window, 87) == GLFW_PRESS)
+			if (glfwGetKey(window, 'W') == GLFW_PRESS)
 			{
 				scene.transformModel(cam.GetScaleTransform(1.01, 1.01, 1.01));
 				a *= 1.01;
@@ -220,7 +248,7 @@ int main(int argc, char **argv)
 			x1 =(xpos);
 			y1 =(ypos);
 		}
-		
+
 		scene.DrawScene(); //task3 - part2
 		
 		//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*

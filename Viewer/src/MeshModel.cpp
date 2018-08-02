@@ -10,7 +10,7 @@ using namespace std;
 void MeshModel::transformModel(glm::mat4x4 transform)
 {
 
-	worldTransform = worldTransform * transform;
+	worldTransform = transform* worldTransform;
 	//for (int i = 0; i < getVertexPosNum(); i++)
 		//vertexPositions[i] = vertexPositions[i] * transform;
 }
@@ -188,7 +188,7 @@ void MeshModel::LoadFile(const string& fileName)
 		1.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
+		0.0f, 0.0f, 0.0f, 0.0f
 	);
 }
 glm::vec4* MeshModel::GetVertex()
@@ -204,7 +204,6 @@ const glm::vec4* MeshModel::Draw()
 	meshModel doesn't have a renderer!
 	*/
 	//for testing, dont worry
-
 	glm::vec4* transVertexPositions = new glm::vec4[(unsigned)(this->getVertexPosNum())];
 	for (int i = 0; i < (int)(this->getVertexPosNum()); i++)
 		transVertexPositions[i] =this->vertexPositions[i]*this->modelTransform;
