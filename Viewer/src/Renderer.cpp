@@ -80,6 +80,7 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
 	for (int face = 0; face < size - 2; face = face + 3)
 	{
+
 		a.x = transVerticesPositions[face].x;
 		a.y = transVerticesPositions[face].y;
 
@@ -99,6 +100,7 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 		
 	delete transVerticesPositions; //they take a lot of memory and will not be used again
 	delete	drawVertexPositions;
+	delete vertexPositions;
 }
 
 void Renderer::createBuffers(int w, int h)

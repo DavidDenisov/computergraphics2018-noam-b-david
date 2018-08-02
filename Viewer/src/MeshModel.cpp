@@ -9,8 +9,10 @@
 using namespace std;
 void MeshModel::transformModel(glm::mat4x4 transform)
 {
-	for (int i = 0; i < getVertexPosNum(); i++)
-		vertexPositions[i] = vertexPositions[i] * transform;
+
+	worldTransform = worldTransform * transform;
+	//for (int i = 0; i < getVertexPosNum(); i++)
+		//vertexPositions[i] = vertexPositions[i] * transform;
 }
 // A struct for processing a single line in a wafefront obj file:
 // https://en.wikipedia.org/wiki/Wavefront_.obj_file
@@ -194,5 +196,9 @@ const glm::vec4* MeshModel::Draw()
 	meshModel doesn't have a renderer!
 	*/
 	//for testing, dont worry
-	return vertexPositions;
+
+	glm::vec4* transVertexPositions = new glm::vec4[(unsigned)(this->getVertexPosNum())];
+	for (int i = 0; i < (int)(this->getVertexPosNum()); i++)
+		transVertexPositions[i] =this->vertexPositions[i]*this->worldTransform;
+	return transVertexPositions;
 }

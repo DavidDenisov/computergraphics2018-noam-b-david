@@ -3,6 +3,43 @@
 #include <glm/gtc/matrix_transform.hpp>
 # define PI 3.141592653589793238462643383279502884L /* pi */
 using namespace std;
+void Camera::Ortho(const float left, const float right,
+	const float bottom, const float top,
+	const float zNear, const float zFar)
+{
+	projection = projection *
+	TranslateTransform(-(right + left) / 2, -(top + bottom) / 2, -(zNear + zFar) / 2)
+	*ScaleTransform(2 / (right - left), 2 / (top - bottom), 2 / (zFar-zNear));
+}
+void Camera::Perspective(const float fovy, const float aspect,
+	const float zNear, const float zFar)
+{
+	float n, f, r, l, t, b;
+	n = zNear;
+	f = zFar;
+	b = 0;
+	t = f * sin(fovy);
+	r = 0;
+	l = aspect * f;
+	projection = projection *
+	glm::mat4x4(2 * n / (r - l), 0, (r + l) / (r - l), 0,
+		0, 2 * n*(t - b), (t + b) / (t - b), 0,
+		0, 0, (t + n) / (n - f), 2 * (t + n) / (n - f),
+		0, 0, -1, 0);
+	
+}
+void Camera::Frustum(const float left, const float right,
+	const float bottom, const float top,
+	const float zNear, const float zFar)
+{
+	Ortho(left, right, bottom, top, zNear, zFar);
+	float w = top - bottom,h = abs(left - right);
+	Perspective(w/(zFar- zNear), w / h, zNear, zFar);
+}
+void Camera::Transform(glm::mat4x4 t)
+{
+	cTransform = cTransform*t;
+}
 glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
 	, glm::vec3 Translate_val,glm::vec2 rotat_val)
 {
@@ -11,7 +48,6 @@ glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
 	b = TranslateTransform(Translate_val[0], Translate_val[1], Translate_val[2]);
 	c = rotationTransform(rotat_val[0], rotat_val[1]);
 	d= a *b*c; // shouldn't be b * a * c? because translate you do last...
-
 	return d;
 }
 glm::mat4x4 Camera::GetrotationTransform(double deg, int axis)

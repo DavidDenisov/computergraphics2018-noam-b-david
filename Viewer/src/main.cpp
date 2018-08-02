@@ -50,12 +50,15 @@ int main(int argc, char **argv)
 	//cam.LookAt(glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, -1, 0, 1));
 	scene.LoadOBJModel
 	("../Data/dolphin.obj");
+	scene.LoadOBJModel
+	("../Data/cow.obj");
 	double a = 100, b = 270;
 	scene.remove_cam(0);
 	scene.load_cam(&cam);
 	glm::vec4 avg = scene.GetVertexAvg(0);
-
+	scene.setcur_model(1);
 	scene.transformModel(cam.GetScaleTransform(a, a, a));
+	
 	//scene.transformModel(cam.GetScaleTransform(a, a, a));
 
 
@@ -64,13 +67,15 @@ int main(int argc, char **argv)
 	//cam.LookAt(glm::vec4(0, 1, 2, 3), glm::vec4(0, 0, 0, 0), glm::vec4(1, 0, 0, 0));
     // Setup Dear ImGui binding
 	ImGuiIO& io = SetupDearImgui(window);
+	//scene.transformProjection(0, 1, 0, 1, 0, 1);
 	glm::mat4x4 d = glm::mat4x4(1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1);
 	double xpos, ypos;
-	int active = 0;
+	int active = 1;
 	float x, y, z;
+	float x1=0, y1=0, z1=0;
 	glfwGetWindowSize(window, &w, &h);
 	glm::vec2 old_size = glm::vec2(1280,720);
 	glm::vec2 size;
@@ -121,7 +126,7 @@ int main(int argc, char **argv)
 				s = "pawn";
 				break;
 			}
-				//cin >> s;
+			//cin >> s;
 			s = "../Data/" + s + ".obj";
 			if(num<13)
 				scene.LoadOBJModel(s);
@@ -131,7 +136,7 @@ int main(int argc, char **argv)
 			active = scene.ActiveModel;
 			a = 100;
 			//cam = Camera();
-			glm::vec4 avg = scene.GetVertexAvg(active);
+			glm::vec4 avg = scene.GetVertexAvg(scene.ActiveModel);
 			//scene.remove_cam(0);
 			//scene.load_cam(&cam);
 			if(num<13)
@@ -149,6 +154,13 @@ int main(int argc, char **argv)
 		scene.DrawDemo(); // from task1
 		
         */
+			//if (glfwGetKey(window, 'R') == GLFW_PRESS)
+			//scene.transformProjection(1, 2, 1, 2, 1, 2);
+			//resizing
+
+			if (glfwGetKey(window, 'C') == GLFW_PRESS)
+			scene.transformModel(cam.GetrotationTransform(10, 1));
+
 			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 			scene.transformModel(cam.GetTranslateTransform(-x, -y,-z)*
 			cam.GetrotationTransform(10, 1)*cam.GetTranslateTransform(x, y,z));
@@ -185,37 +197,36 @@ int main(int argc, char **argv)
 				scene.transformModel(cam.GetScaleTransform(1.01, 1.01, 1.01));
 				a *= 1.01;
 			}
-		glfwGetWindowSize(window, &w, &h);
-		size = glm::vec2(w, h);
-		glfwGetCursorPos(window,&xpos, &ypos);
-		ypos = h- ypos;
-		avg = scene.GetVertexAvg(active);
-		x = avg.x;
-		y = avg.y;
-		z= avg.z;
+
+			glfwGetWindowSize(window, &w, &h);
+			size = glm::vec2(w, h);
+			glfwGetCursorPos(window, &xpos, &ypos);
+			ypos = h - ypos;
+			avg = scene.GetVertexAvg(scene.ActiveModel);
+			x = w * (avg.x) / 1280.0;
+			//x = (avg.x);
+			y = h * (avg.y) / 720.0;
+			z = avg.z;
+			if ((size.x != old_size.x || size.y != old_size.y)
+				&& size.x != 0 && size.y != 0) //window resizing
+			{
+				scene.transformModel(glm::mat4x4(old_size.x / size.x, 0, 0, 0,
+					0, old_size.y / size.y, 0, 0,
+					0, 0, 1, 0,
+					0, 0, 0, 1));
+				old_size.x = size.x;
+				old_size.y = size.y;
+			}
 		if (x != xpos || y != ypos)//follow the mouse
-			scene.transformModel(cam.GetTranslateTransform(h*(xpos - x)/ 1280.0,
-				w*(ypos-y)/720.0, 0));
+		{
+			scene.transformModel(cam.GetTranslateTransform(xpos - x,ypos - y,0));
+			x1 =(xpos);
+			y1 =(ypos);
+		}
 		//scene.drawf();
-		//resizing
 		
-		if ((size.x != old_size.x || size.y != old_size.y)
-			&& size.x!=0 && size.y != 0)
-		{
-			cout << size.x << " " << size.y;
-			cout << old_size.x << " " << old_size.y;
-			scene.transformModel(glm::mat4x4(old_size.x/size.x, 0, 0, 0,
-				0, old_size.y/size.y, 0, 0,
-				0, 0, 1, 0,
-				0, 0, 0, 1));
-			scene.DrawScene(); //task3 - part2
-			old_size.x = size.x;
-			old_size.y = size.y;
-		}
-		else
-		{
-			scene.DrawScene(); //task3 - part2
-		}
+		scene.DrawScene(); //task3 - part2
+		
 		//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*
 		//cam.GetrotationTransform(1, 0)*cam.GetTranslateTransform(b, b, b) );
 		// Start the ImGui frame
@@ -228,7 +239,9 @@ int main(int argc, char **argv)
     }
     // Cleanup
 	int i;
-	for (i= 0; i < num - 1; i++);
+	for (i= 0; i < scene.getModels().size() - 1; i++)
+		scene.RemoveModel(i);
+	for (i = 0; i < int(scene.getCameras().size()); i++)
 		scene.remove_cam(i);
 	Cleanup(window);
     return 0;

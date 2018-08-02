@@ -24,14 +24,14 @@ void Scene::RemoveModel(int num)
 glm::vec4 Scene::GetVertexAvg(int mod)
 {
 	long long s = models[mod]->getVertexPosNum();
+	const glm::vec4 * a = models[mod]->Draw();
 	glm::vec4 avg= glm::vec4(0,0,0,0);
 	for (long long i = 0; i < s; i++)
-		avg = avg + GetVertex(ActiveModel)[i];
+		avg = avg + a[i];
 
 	for (int i = 0; i < 4; i++)
 		avg[i] = float(avg[i] /float(s));
-
-
+	delete a;
 	return avg;
 }
 
@@ -42,7 +42,20 @@ glm::vec4* Scene::GetVertex(int mod)
 void Scene::transformModel(glm::mat4x4 transform)
 {
 	models[ActiveModel]->transformModel(transform);
-	int k = 0;
+}
+void Scene::transformProjection(int a, int b, int c, int d, int e, int f)
+{
+	cameras[ActiveCamera]->Frustum(a, b, c, d, e, f);
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+			cout << cameras[ActiveCamera]->get_projection()[i][j] << " ";
+		cout << endl;
+	}
+}
+void Scene::transformCam(glm::mat4x4 transform)
+{
+	cameras[ActiveCamera]->Transform(transform);
 }
 void Scene::load_cam(Camera* cam)
 {
@@ -99,7 +112,7 @@ void Scene::DrawScene()
 	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
 	for(int i=0;i<models.size();i++)
 		renderer->DrawTriangles(models.at(i)->Draw(),
-		models.at(ActiveModel)->getVertexPosNum());
+		models.at(i)->getVertexPosNum());
 	renderer->SwapBuffers();
 }
 

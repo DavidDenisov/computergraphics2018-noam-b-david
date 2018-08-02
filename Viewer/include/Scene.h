@@ -21,11 +21,12 @@ public:
 
 	Scene();
 	Scene(Renderer *renderer);
-
+	void transformProjection(int a, int b, int c, int d, int e, int f);
 	void transformModel(glm::mat4x4 transform);
 	// Loads an obj file into the scene.
 	void LoadOBJModel(string fileName);
 
+	void Scene::transformCam(glm::mat4x4 transform);
 
 	void RemoveModel(int num);
 	// Draws the current scene.
