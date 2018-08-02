@@ -209,9 +209,9 @@ int main(int argc, char **argv)
 				cam.GetrotationTransform(10, 0)*cam.GetTranslateTransform(-x, -y, -z));
 
 			if (glfwGetKey(window, 'D') == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(x, y, z)*
-				cam.GetrotationTransform(-10, 0)*cam.GetTranslateTransform(-x , 
-				 -y, -z));
+				scene.transformModel(cam.GetTranslateTransform(x/(w/1280), y/(h/780.0), z)*
+				cam.GetrotationTransform(-10, 0)*cam.GetTranslateTransform(-x /(w / 1280),
+				 -y / (h / 780.0), -z));
 
 			
 			if (glfwGetKey(window, 'S') == GLFW_PRESS)

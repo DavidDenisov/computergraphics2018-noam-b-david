@@ -38,7 +38,7 @@ void Camera::Frustum(const float left, const float right,
 }
 void Camera::Transform(glm::mat4x4 t)
 {
-	cTransform = cTransform*t;
+	cTransform = t*cTransform;
 }
 glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
 	, glm::vec3 Translate_val,glm::vec2 rotat_val)
