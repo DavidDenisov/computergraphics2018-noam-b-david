@@ -82,7 +82,6 @@ ActiveModel(0), ActiveLight(0), ActiveCamera(0)
 	}
 };
 
-
 void Scene::LoadOBJModel(string fileName)
 {
 	MeshModel *model = new MeshModel(fileName);
