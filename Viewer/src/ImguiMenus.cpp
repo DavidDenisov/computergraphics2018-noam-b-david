@@ -12,6 +12,9 @@
 bool showDemoWindow = false;
 bool showAnotherWindow = false;
 bool showFile = false;
+
+bool modelsWindow = false;
+bool camerasWindow = false;
 glm::vec4 clearColor = glm::vec4(0.4f, 0.55f, 0.60f, 1.00f);
 
 const glm::vec4& GetClearColor()
@@ -35,6 +38,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 
 		ImGui::Checkbox("Demo Window", &showDemoWindow);      // Edit bools storing our windows open/close state
 		ImGui::Checkbox("Another Window", &showAnotherWindow);
+		ImGui::Checkbox("Models Window", &modelsWindow);
 
 		if (ImGui::Button("Button")) // Buttons return true when clicked (NB: most widgets return true when edited/activated)
 			counter++;
@@ -89,7 +93,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 						std::cout << "active Model: " << scene->ActiveModel << std::endl;
 						std::cout << "num of models: " << scene->getModels().size() << std::endl;
 						std::cout << "Models[0] " << scene->getModels()[0]->getNameModel() << std::endl;
-						std::cout << "Models[0] " << scene->getModels()[1]->getNameModel() << std::endl;
+						std::cout << "Models[1] " << scene->getModels()[1]->getNameModel() << std::endl;
 
 
 						free(outPath);
@@ -120,5 +124,14 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 			}
 			ImGui::EndMainMenuBar();
 		}
+	}
+
+	if (modelsWindow)
+	{
+		ImGui::Begin("Models", &modelsWindow);
+
+
+		ImGui::End();
+		
 	}
 }
