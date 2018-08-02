@@ -23,7 +23,7 @@ public:
 		, glm::vec3 Translate_val,glm::vec2 rotat_val);
 	glm::mat4x4 get_projection();
 	glm::mat4x4 get_Transform();
-	void Camera::Transform(glm::mat4x4 t);
+	void Transform(glm::mat4x4 t);
 
 	// Sets the camera transformations with relation to world coordinates
 	void SetTransformation(const glm::mat4x4& transform);

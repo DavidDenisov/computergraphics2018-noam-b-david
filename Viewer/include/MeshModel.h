@@ -13,15 +13,15 @@ class MeshModel : public Model
 {
 protected:
 	MeshModel() {} //for PrimMeshModel()
-	glm::vec4 *vertexPositions; //changed vec3 to vec4
-								// Add more attributes.
+	glm::vec4 *vertexPositions;
+	glm::vec4 *normalPositions;
+	// Add more attributes.
 	int vertexPosNum; // 3 * #vertices
-					  //is it neccesery?
-					  //vector<glm::vec3> modelVertices; 
 	
-					  //***added above
-	glm::mat4x4 worldTransform;
-	glm::mat4x4 normalTransform;
+	
+	glm::mat4x4 worldTransform; //transformations according to the world's origin
+	glm::mat4x4 modelTransform; //transformations according to model's origin
+	glm::mat4x4 normalTransform; //transformations on normals
 
 public:
 	MeshModel(const string& fileName);

@@ -151,10 +151,7 @@ int main(int argc, char **argv)
         glfwPollEvents();
 		// draw scene here
 		
-		/*
-		scene.DrawDemo(); // from task1
 		
-        */
 			//if (glfwGetKey(window, 'R') == GLFW_PRESS)
 			//scene.transformProjection(1, 2, 1, 2, 1, 2);
 			//resizing
@@ -226,11 +223,32 @@ int main(int argc, char **argv)
 				a *= 1.01;
 			}
 
+			glfwGetWindowSize(window, &w, &h);
+			size = glm::vec2(w, h);
+			glfwGetCursorPos(window, &xpos, &ypos);
+			ypos = h - ypos;
+			avg = scene.GetVertexAvg(scene.ActiveModel);
+			x = w * (avg.x) / 1280.0;
+			//x = (avg.x);
+			y = h * (avg.y) / 720.0;
+			z = avg.z;
+			if ((size.x != old_size.x || size.y != old_size.y)
+				&& size.x != 0 && size.y != 0) //window resizing
+			{
+				scene.transformModel(glm::mat4x4(old_size.x / size.x, 0, 0, 0,
+					0, old_size.y / size.y, 0, 0,
+					0, 0, 1, 0,
+					0, 0, 0, 1));
+				old_size.x = size.x;
+				old_size.y = size.y;
+			}
+		if (x != xpos || y != ypos)//follow the mouse
+		{
+			scene.transformModel(cam.GetTranslateTransform(xpos - x,ypos - y,0));
+			x1 =(xpos);
+			y1 =(ypos);
+		}
 
-
-		
-		//scene.drawf();
-		
 		scene.DrawScene(); //task3 - part2
 		
 		//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*
