@@ -25,6 +25,8 @@ protected:
 	glm::mat4x4 normalTransform; //transformations on normals
 
 public:
+
+	bool window_open = 0;
 	bool folow_the_mouse = 0;
 	MeshModel(const string& fileName);
 	void LoadFile(const string& fileName);

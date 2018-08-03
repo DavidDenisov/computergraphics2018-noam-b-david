@@ -9,11 +9,13 @@
 #include <string>
 #include <algorithm>
 # define PI 3.141592653589793238462643383279502884L /* pi */
+int mod_counter=0;
 vector<glm::vec3> zero;
-float f11 = 0, f12 = 0, f13 = 0;
-float f21 = 0, f22 = 0, f23 = 0;
-float f31 = 0, f32 = 0, f33 = 0;
-float old_f31 = 1, old_f32 = 1, old_f33 = 1;
+float *f11, *f12, *f13;
+float *f21, *f22, *f23;
+float *f31, *f32, *f33;
+float *f41, *f42, *f43;
+float *old_f31, *old_f32, *old_f33;
 float d1=0, d2 = 0, d3 = 0;
 bool rad = new bool;
 bool deg = new bool;
@@ -73,6 +75,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 		scale.push_back(glm::vec3(1, 1, 1));
 		transformLIST.push_back(glm::vec3(0, 0, 0));
 		zero.push_back(glm::vec3(0, 0, 0));
+		f11= new float; f12 = new float; f13 = new float;
+		f21= new float; f22 = new float; f23 = new float;
+		f31= new float; f32 = new float; f33 = new float;
+		f41= new float; f42 = new float; f43 = new float;
+		old_f31= new float, old_f32 = new float, old_f33 = new float;
+		mod_counter = 0;
 	}
 	string str;
 	ImGui::SetNextWindowPos(ImVec2(0, 20), ImGuiCond_Once);
@@ -184,20 +192,30 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 		if (ImGui::Button("ADD Model"))
 		{
 			loadOBJ(scene);
-			modwid[scene->getModels().size() - 1] = FALSE;
-
+			modwid[mod_counter] = FALSE;
 			rotation.push_back(glm::vec3(0, 0, 0));
 			scale.push_back(glm::vec3(1, 1, 1));
 			transformLIST.push_back(glm::vec3(0, 0, 0));
-
 			zero.push_back(glm::vec3(0, 0, 0));
+			f11[mod_counter] = 0.0f; f12[mod_counter] = 0.0f; f13[mod_counter] = 0.0f;
+			f21[mod_counter] = 0.0f; f22[mod_counter] = 0.0f; f23[mod_counter] = 0.0f;
+			f31[mod_counter] = 0.0f; f32[mod_counter] = 0.0f; f33[mod_counter] = 0.0f;
+			f41[mod_counter] = 0.0f; f42[mod_counter] = 0.0f; f43[mod_counter] = 0.0f;
+			old_f31[mod_counter] = 0.0f; old_f32[mod_counter] = 0.0f;old_f33[mod_counter] = 0.0f;
+			mod_counter++;
 		}
-
+		if(scene->getModels().size()>0)
+		str = "the active model is model " + 
+			scene->getModels()[scene->ActiveModel]->getNameModel() +" "+
+			to_string(scene->ActiveModel);
+		ImGui::Text(const_cast<char*>(str.c_str()));
 		for (int i = 0; i < scene->getModels().size(); i++)
 		{
-			str = "show the window of MODEL : " + scene->getModels()[i]->getNameModel() + to_string(i);
+			str = "show the window of MODEL : " 
+				+ scene->getModels()[i]->getNameModel() +" "+ to_string(i);
 			ImGui::Checkbox(const_cast<char*>(str.c_str()), &modwid[i]);
-			str = "REMOVE MODEL : " + scene->getModels()[i]->getNameModel() + to_string(i);
+			str = "REMOVE MODEL : " + scene->getModels()[i]->getNameModel()
+			+ " " + to_string(i);
 			if(scene->getModels().size()>1)
 			if (ImGui::Button(const_cast<char*>(str.c_str())))
 			{
@@ -245,10 +263,13 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 	{
 		if (modwid[i])
 		{
+
+
 			string str = "MODEL : " + scene->getModels()[i]->getNameModel()+to_string(i);
 			ImGui::Begin(const_cast<char*>(str.c_str()), &modelsWindow);
 			if (ImGui::Button("make active"))
 				scene->ActiveModel = i;
+
 			if(!scene->getModels()[i]->folow_the_mouse)
 				if (ImGui::Button("folow the mouse"))
 					scene->getModels()[i]->folow_the_mouse = TRUE;
@@ -280,33 +301,33 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 					{
 					rad = FALSE;
 					deg = TRUE;
-					f11 = 0;
-					f12 = 0;
-					f13 = 0;
+					f11[i] = 0;
+					f12[i] = 0;
+					f13[i] = 0;
 					}
-					ImGui::SliderFloat("rotation x rad", &f11, 0.0f, 2*PI);
-					d1= a[0] - f11;
-					ImGui::SliderFloat("rotation y rad", &f12, 0.0f, 2*PI);
-					d2 = a[1] - f12;
-					ImGui::SliderFloat("rotation z rad", &f13, 0.0f, 2*PI);
-					d3 = a[2] - f13;
+					ImGui::SliderFloat("rotation x rad", &f11[i], 0.0f, 2*PI);
+					d1= a[0] - f11[i];
+					ImGui::SliderFloat("rotation y rad", &f12[i], 0.0f, 2*PI);
+					d2 = a[1] - f12[i];
+					ImGui::SliderFloat("rotation z rad", &f13[i], 0.0f, 2*PI);
+					d3 = a[2] - f13[i];
 				}
 			else
 				{
 					if (ImGui::Button("rad"))
 					{
 						deg = FALSE;rad = TRUE;
-						f11 = 0;
-						f12 = 0;
-						f13 = 0;
+						f11[i] = 0;
+						f12[i] = 0;
+						f13[i] = 0;
 					}
 					else
-					ImGui::SliderFloat("rotation x degrees", &f11, 0.0f, 360.0f);
-					d1= (a[0] - f11)*(PI / 180.0);
-					ImGui::SliderFloat("rotation y degrees", &f12, 0.0f, 360.0f);
-					d2 = (a[1] - f12)*(PI / 180.0);
-					ImGui::SliderFloat("rotation z degrees", &f13, 0.0f, 360.0f);
-					d3 = (a[2] - f13)*(PI / 180.0);
+					ImGui::SliderFloat("rotation x degrees", &f11[i], 0.0f, 360.0f);
+					d1= (a[0] - f11[i])*(PI / 180.0);
+					ImGui::SliderFloat("rotation y degrees", &f12[i], 0.0f, 360.0f);
+					d2 = (a[1] - f12[i])*(PI / 180.0);
+					ImGui::SliderFloat("rotation z degrees", &f13[i], 0.0f, 360.0f);
+					d3 = (a[2] - f13[i])*(PI / 180.0);
 				}
 				ImGui::Checkbox("rotate in place", &in_place1);
 				if (in_place1)
@@ -338,35 +359,49 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 						glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
 				}
 			
-			rotation[i] = glm::vec3(f11, f12, f13);
+			rotation[i] = glm::vec3(f11[i], f12[i], f13[i]);
 
-			ImGui::InputFloat("transpose x", &f21, 0.0f, 0.0f, "%e");
+			ImGui::InputFloat("transpose x", &f21[i], 0.0f, 0.0f);
 			
-			ImGui::InputFloat("transpose y", &f22, 0.0f, 0.0f, "%e");
+			ImGui::InputFloat("transpose y", &f22[i], 0.0f, 0.0f);
 		
-			ImGui::InputFloat("transpose z", &f23, 0.0f, 0.0f, "%e");
+			ImGui::InputFloat("transpose z", &f23[i], 0.0f, 0.0f);
 
-			zero[i] = glm::vec3(zero[i][0] + f21, zero[i][1] + f22, zero[i][2] + f23);
+			zero[i] = glm::vec3(zero[i][0] + f21[i], 
+				zero[i][1] + f22[i], zero[i][2] + f23[i]);
 
-			scene->transformModel(cam->GetTranslateTransform(f21, f22, f23));
-			transformLIST[i] = glm::vec3(transformLIST[i][0]+ f21
-			, transformLIST[i][1] + f22, transformLIST[i][2] + f23);
+			scene->transformModel(cam->GetTranslateTransform(f21[i], f22[i], f23[i]));
+			transformLIST[i] = glm::vec3(transformLIST[i][0]+ f21[i]
+			, transformLIST[i][1] + f22[i], transformLIST[i][2] + f23[i]);
 			
-			ImGui::SliderFloat("scale x", &f31, -1000.f, 1000.0f, "%e");
+			ImGui::SliderFloat("scale x", &f31[i], -300.f, 300.0f);
 
-			ImGui::SliderFloat("scale y", &f32, -1000.f, 1000.0f, "%e");
+			ImGui::SliderFloat("scale y", &f32[i], -300.f, 300.0f);
 
-			ImGui::SliderFloat("scale z", &f33, -1000.f, 1000.0f, "%e");
-			glm::vec3 au = glm::vec3(f31, f32, f33);
-			
+			ImGui::SliderFloat("scale z", &f33[i], -300.f, 300.0f);
 
-			scene->transformModel(cam->GetScaleTransform(f31/ old_f31, f32 / old_f32
-				, f33 / old_f33));
-			zero[i] = cam->GetScaleTransform(f31 / old_f31, f32 / old_f32, f33 / old_f33)*
+			f41[i] = f31[i]; f42[i] = f32[i]; f43[i] = f33[i];
+			f31[i] = pow(1.005,f31[i]);
+			f32[i] = pow(1.005, f32[i]);
+			f33[i] = pow(1.005, f33[i]);
+
+			old_f31[i] = pow(1.005, old_f31[i]);
+			old_f32[i] = pow(1.005, old_f32[i]);
+			old_f33[i] = pow(1.005, old_f33[i]);
+			scene->transformModel(cam->GetScaleTransform(f31[i]/ old_f31[i], 
+				f32[i] / old_f32[i], f33[i] / old_f33[i]));
+			zero[i] = cam->GetScaleTransform(f31[i] / old_f31[i]
+			, f32[i] / old_f32[i], f33[i] / old_f33[i])*
 				glm::vec4(zero[i][0], zero[i][1], zero[i][2],1);
-			old_f31 = f31;
-			old_f32 = f32;
-			old_f33 = f33;
+
+			scale[i][0] = scale[i][0] * (f31[i] / old_f31[i]);
+			scale[i][1] = scale[i][1] * (f32[i] / old_f32[i]);
+			scale[i][2] = scale[i][2] * (f33[i] / old_f33[i]);
+			f31[i]=old_f31[i] = f41[i];
+			f32[i]=old_f32[i] = f42[i];
+			f33[i]=old_f33[i] = f43[i];
+			
+			
 			//ImGui::DragInt("drag int 0..100", &i2, 1, 0, 100, "%d%%");
 			//ImGui::InputText("input text", const_cast<char*>(str.c_str()),1000);
 			ImGui::End();

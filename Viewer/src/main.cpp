@@ -52,12 +52,11 @@ int main(int argc, char **argv)
 	
 	//cam.LookAt(eye, at, up);
 
-	scene.LoadOBJModel
-	("../Data/cow.obj");
+	//scene.LoadOBJModel("../Data/cow.obj");
 	double a = 1, b = 270;
 	scene.remove_cam(0);
 	scene.load_cam(&cam);
-	glm::vec4 avg = scene.GetVertexAvg(0);
+	glm::vec4 avg ;
 	scene.setcur_model(0);
 	
 	//scene.transformModel(cam.GetScaleTransform(a, a, a));
@@ -99,16 +98,16 @@ int main(int argc, char **argv)
 			//if (glfwGetKey(window, 'R') == GLFW_PRESS)
 			//scene.transformProjection(1, 2, 1, 2, 1, 2);
 			//resizing
-
-				
-			glfwGetWindowSize(window, &w, &h);
+		glfwGetWindowSize(window, &w, &h);
+		if (scene.getModels().size()>0)
+		{
 			size = glm::vec2(w, h);
 			glfwGetCursorPos(window, &xpos, &ypos);
 			ypos = h - ypos;
 			avg = scene.GetVertexAvg(scene.ActiveModel);
-			x = w*(avg.x) /1280.0 ;
+			x = w * (avg.x) / 1280.0;
 			//x = (avg.x);
-			y =(avg.y)/(720.0/h);
+			y = (avg.y) / (720.0 / h);
 			z = avg.z;
 
 			//update lookAt:
@@ -122,41 +121,23 @@ int main(int argc, char **argv)
 			if ((size.x != old_size.x || size.y != old_size.y)
 				&& size.x != 0 && size.y != 0) //window resizing
 			{
-				
+
 				scene.transformModel(cam.GetScaleTransform
 				(old_size.x / size.x, old_size.x / size.x, 1));
 				old_size.x = size.x;
 				old_size.y = size.y;
 			}
 
-			if ((x != xpos || y != ypos)&&
+			if ((x != xpos || y != ypos) &&
 				scene.getModels()[scene.ActiveModel]->folow_the_mouse)//follow the mouse
 				scene.transformModel(cam.GetTranslateTransform(xpos - x, ypos - y, 0));
-			
 
-			
-			x =  (avg.x) *( 1280.0/ w );
+
+
+			x = (avg.x) *(1280.0 / w);
 			y = (avg.y) * (720.0 / h);
 
-			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(0,10,0));
 
-			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(0, -10,0));
-
-			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(-10,0,0));
-
-			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(10, 0, 0));
-
-			if (glfwGetKey(window, 'A') == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(0, 0, 10));
-
-			if (glfwGetKey(window, 'D') == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(0, 0, -10));
-
-			
 			if (glfwGetKey(window, 'S') == GLFW_PRESS)
 			{
 				scene.transformModel(cam.GetScaleTransform(0.99, 0.99, 0.99));
@@ -168,9 +149,9 @@ int main(int argc, char **argv)
 				scene.transformModel(cam.GetScaleTransform(1.01, 1.01, 1.01));
 				a *= 1.01;
 			}
-			
-			
 
+
+		}
 
 		scene.DrawScene( w , h); //task3 - part2
 		
@@ -185,11 +166,6 @@ int main(int argc, char **argv)
 		RenderFrame(window, &renderer);// --> go to line 137
     }
     // Cleanup
-	int i;
-	for (i= 0; i < scene.getModels().size() - 1; i++)
-		scene.RemoveModel(i);
-	for (i = 0; i < int(scene.getCameras().size()); i++)
-		scene.remove_cam(i);
 	Cleanup(window);
     return 0;
 }
