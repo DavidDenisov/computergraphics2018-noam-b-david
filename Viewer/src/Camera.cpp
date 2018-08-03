@@ -2,41 +2,46 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
+# define PI 3.141592653589793238462643383279502884L /* pi */
+
 using namespace std;
 void Camera::Ortho(const float left, const float right,
 	const float bottom, const float top,
 	const float zNear, const float zFar)
-{
-	projection = projection *
-	TranslateTransform(-(right + left) / 2, -(top + bottom) / 2, -(zNear + zFar) / 2)
-	*ScaleTransform(2 / (right - left), 2 / (top - bottom), 2 / (zFar-zNear));
+{ 
+	glm::mat4x4 moveToOrigin = TranslateTransform(-(right + left) / 2, -(top + bottom) / 2, -(zNear + zFar) / 2);
+	glm::mat4x4 scale = ScaleTransform(2 / (right - left), 2 / (top - bottom), 2 / (zFar-zNear));
+	
+	projection = scale * moveToOrigin;
 }
 
 void Camera::Perspective(const float fovy, const float aspect,
 	const float zNear, const float zFar)
 {
-	float n, f, r, l, t, b;
-	n = zNear;
-	f = zFar;
-	b = 0;
-	t = f * sin(fovy);
-	r = 0;
-	l = aspect * f;
-	projection = projection *
-	glm::mat4x4(2 * n / (r - l), 0, (r + l) / (r - l), 0,
-		0, 2 * n*(t - b), (t + b) / (t - b), 0,
-		0, 0, (t + n) / (n - f), 2 * (t + n) / (n - f),
-		0, 0, -1, 0);
+	float degToRad = 2 * PI / 360;
+	float tg = tan(degToRad * fovy / 2);
+
+	float top = zNear * tg;
+	float right = aspect * top;
 	
+	float left = -right, bottom = -top;
+
+
+	this->Frustum(left, right, bottom, top, zNear, zFar);
 }
 
 void Camera::Frustum(const float left, const float right,
 	const float bottom, const float top,
 	const float zNear, const float zFar)
 {
-	Ortho(left, right, bottom, top, zNear, zFar);
-	float w = top - bottom,h = abs(left - right);
-	Perspective(w/(zFar- zNear), w / h, zNear, zFar);
+	glm::vec4 firstCol(2 * zNear / (right - left), 0.0f, 0.0f, 0.0f);
+	glm::vec4 secondCol(0.0f, 2 * zNear / (top - bottom), 0.0f, 0.0f);
+	glm::vec4 thirdCol((right + left) / (right - left),
+		(top + bottom) / (top - bottom), -(zFar + zNear) / (zFar - zNear), -1.0f);
+	glm::vec4 fourthCol(0.0f, 0.0f, -2 * zFar*zNear / (zFar - zNear), 0.0f);
+
+	glm::mat4x4 frutsum(firstCol, secondCol, thirdCol, thirdCol);
+	projection = frutsum;
 }
 
 void Camera::Transform(glm::mat4x4 t)
