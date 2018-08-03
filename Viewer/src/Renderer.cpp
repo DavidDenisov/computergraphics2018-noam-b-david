@@ -14,14 +14,14 @@ void Renderer::SetProjection(const glm::mat4x4& projection)
 	myProjection = projection;
 }
 Renderer::Renderer() : width(1280), height(720),
-myCameraTransform(1.0f), myProjection(1.0f), oTransform(1.0f), nTransform(1.0f)
+myCameraTransform(1.0f), myProjection(1.0f), worldTransform(1.0f), nTransform(1.0f)
 {
 	initOpenGLRendering();
 	createBuffers(1280,720);
 }
 
 Renderer::Renderer(int w, int h) : width(w), height(h),
-myCameraTransform(1.0f), myProjection(1.0f), oTransform(1.0f), nTransform(1.0f)
+myCameraTransform(1.0f), myProjection(1.0f), worldTransform(1.0f), nTransform(1.0f)
 {
 	initOpenGLRendering();
 	createBuffers(w,h);
@@ -41,6 +41,11 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 	colorBuffer[INDEX(width, i, j, 2)] = color.z;
 }
 
+void Renderer::SetObjectMatrices(const glm::mat4x4& worldTransform, const glm::mat4x4& nTransform)
+{
+	this->worldTransform = worldTransform;
+	this->nTransform = nTransform;
+}
 
 void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 {
@@ -51,7 +56,7 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 	//first do the transformations:
 
 	//the model-view matrix
-	glm::mat4x4 mv = oTransform * glm::inverse(myCameraTransform); // T = M * C^-1
+	glm::mat4x4 mv = worldTransform  * glm::inverse(myCameraTransform); // T = M * C^-1
 
 	//now the project transformation:
 	glm::mat4x4 T = myProjection * mv; //first transform on the 3d world, then projet it
@@ -272,7 +277,6 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
 
 
 }
-
 void Renderer::printLineNaive()
 {
 	float m = 0.7f, b = 10.0f; //slope
@@ -322,6 +326,8 @@ void Renderer::SetDemoBuffer()
 		}
 	}
 }
+
+
 
 
 

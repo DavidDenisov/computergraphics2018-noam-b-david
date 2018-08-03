@@ -87,6 +87,11 @@ void Scene::LoadOBJModel(string fileName)
 	MeshModel *model = new MeshModel(fileName);
 	models.push_back(model);
 }
+void Scene::LoadPrim()
+{
+	MeshModel *primModel = new PrimMeshModel();
+	models.push_back(primModel);
+}
 
 void Scene::setcur_cam(int i)
 {
@@ -102,16 +107,20 @@ void Scene::DrawScene()
 
 	// 1. Send the renderer the current camera transform and the projection
 	
-	renderer->SetCameraTransform(cameras.at(ActiveCamera)->get_Transform());
+	renderer->SetCameraTransform(cameras.at(ActiveCamera)->get_Transform()); // ** update by lookat!
 	renderer->SetProjection(cameras.at(ActiveCamera)->get_projection());
 	// 2. Tell all models to draw themselves
 
 	//renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
 	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
-	for(int i=0;i<models.size();i++)
-		renderer->DrawTriangles(models.at(i)->Draw(),
-		models.at(i)->getVertexPosNum());
+	for (int i = 0; i < models.size(); i++)
+	{
+		//first set worldTransformation & nTransformation of the object in renderer
+		renderer->SetObjectMatrices(models.at(i)->getWorldTransform(), models.at(i)->getNormalTransform());
+
+		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum());
+	}
 	renderer->SwapBuffers();
 }
 
@@ -181,7 +190,7 @@ void Scene::drawf()
 }
 
 
-const vector<Model*> Scene::getModels()
+const vector<MeshModel*> Scene::getModels()
 {
 	return this->models;
 }

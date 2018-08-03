@@ -6,6 +6,7 @@
 #include <string>
 #include "Renderer.h"
 #include "Model.h"
+#include "MeshModel.h"
 #include "Light.h"
 #include "Camera.h"
 
@@ -13,7 +14,7 @@ using namespace std;
 
 class Scene {
 private:
-	vector<Model*> models;
+	vector<MeshModel*> models;
 	vector<Light*> lights;
 	vector<Camera*> cameras;
 	Renderer *renderer;
@@ -25,7 +26,7 @@ public:
 	void transformModel(glm::mat4x4 transform);
 	// Loads an obj file into the scene.
 	void LoadOBJModel(string fileName);
-
+	void LoadPrim();
 	void Scene::transformCam(glm::mat4x4 transform);
 
 	void RemoveModel(int num);
@@ -50,7 +51,7 @@ public:
 
 	glm::vec4 GetVertexAvg(int mod);
 
-	const vector<Model*> getModels();
+	const vector<MeshModel*> getModels();
 	const vector<Light*> getLights();
 	const vector<Camera*> getCameras();
 
