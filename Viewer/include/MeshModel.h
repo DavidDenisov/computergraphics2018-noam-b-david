@@ -15,6 +15,7 @@ protected:
 	MeshModel() {} //for PrimMeshModel()
 	glm::vec4 *vertexPositions;
 	glm::vec4 *normalPositions;
+	
 	// Add more attributes.
 	int vertexPosNum; // 3 * #vertices
 	
@@ -24,8 +25,8 @@ protected:
 	glm::mat4x4 normalTransform; //transformations on normals
 
 public:
+	bool folow_the_mouse = 0;
 	MeshModel(const string& fileName);
-	~MeshModel();
 	void LoadFile(const string& fileName);
 	int getVertexPosNum();
 	void transformModel(glm::mat4x4 transform);

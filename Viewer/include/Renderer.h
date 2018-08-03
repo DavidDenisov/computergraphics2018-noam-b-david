@@ -51,7 +51,7 @@ public:
 
 	// Draws wireframe triangles to the color buffer
 
-	void DrawTriangles(const glm::vec4* vertexPositionVECTOR, int size);
+	void DrawTriangles(const glm::vec4* vertexPositionVECTOR, int size, glm::vec4 color,int a,int b);
 
 	// Sets the camera transformations with relation to world coordinates
 	void SetCameraTransform(const glm::mat4x4& cTransform);
@@ -80,7 +80,7 @@ public:
 	void SetDemoBuffer();
   
 	//new function for home work
-	void drawLine(glm::vec2 point1, glm::vec2 point2);
+	void drawLine(glm::vec2 point1, glm::vec2 point2, glm::vec4 color);
 
 	//Task1, naive solution to draw a line
 	void printLineNaive();

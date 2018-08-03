@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
-# define PI 3.141592653589793238462643383279502884L /* pi */
+
 using namespace std;
 void Camera::Ortho(const float left, const float right,
 	const float bottom, const float top,
@@ -85,11 +85,8 @@ glm::mat4x4 Camera::ScaleTransform(double x_scale, double y_scale, double z_scal
 		0, 0, z_scale, 0,
 		0, 0, 0, 1);
 }
-glm::mat4x4 Camera::rotationTransform(double deg, int axis)
+glm::mat4x4 Camera::rotationTransform(double rad, int axis)
 {
-	long double rad;
-	rad = deg / 180.0L;
-	rad = rad * PI;
 	//convert from deg to radian
 	if (axis == 0)
 	{
@@ -116,6 +113,7 @@ glm::mat4x4 Camera::rotationTransform(double deg, int axis)
 }
 Camera::Camera()
 {
+	num=0;
 	projection = cTransform = glm::mat4x4(1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,
@@ -123,6 +121,7 @@ Camera::Camera()
 }
 Camera::Camera(Camera* c)
 {
+	num=c->num+1;
 	projection = c->get_projection();
 	cTransform = c->get_Transform();
 }

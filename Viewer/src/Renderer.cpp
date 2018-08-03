@@ -42,7 +42,8 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 }
 
 
-void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
+void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
+	glm::vec4 color,int w,int h)
 {
 	//we recieve the object to draw with a vector of verticesPositions
 	//we will draw these triangles but first will do the transformations
@@ -71,19 +72,19 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 	for (int face = 0; face < size - 2; face = face + 3)
 	{
 
-		a.x = transVerticesPositions[face].x/ transVerticesPositions[face].w;
-		a.y = transVerticesPositions[face].y / transVerticesPositions[face].w;
+		a.x = transVerticesPositions[face].x / w;
+		a.y = transVerticesPositions[face].y / h;
 
-		b.x = transVerticesPositions[face + 1].x / transVerticesPositions[face+1].w;
-		b.y = transVerticesPositions[face + 1].y / transVerticesPositions[face+1].w;
+		b.x = transVerticesPositions[face + 1].x / w;
+		b.y = transVerticesPositions[face + 1].y / h;
 
-		c.x = transVerticesPositions[face + 2].x / transVerticesPositions[face+2].w;
-		c.y = transVerticesPositions[face + 2].y / transVerticesPositions[face+2].w;
+		c.x = transVerticesPositions[face + 2].x / w;
+		c.y = transVerticesPositions[face + 2].y / h;
 
 		//draw triangle [a,b,c]
-		this->drawLine(a, b);
-		this->drawLine(b, c);
-		this->drawLine(c, a);
+		this->drawLine(a, b, color);
+		this->drawLine(b, c, color);
+		this->drawLine(c, a, color);
 	}
 
 		
@@ -105,11 +106,8 @@ void Renderer::createBuffers(int w, int h)
 	}
 }
 
-void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
+void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, glm::vec4 color)
 {
-	glm::vec4 green = glm::vec4(0, 1, 0, 1);
-	
-	
 	int p1 = point1.x, q1 = point1.y; // point1 parameters
 	int p2 = point2.x, q2 = point2.y; // point2 parameters
 	int y, x;
@@ -134,7 +132,7 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
 		int max = q2 <= q1 ? q1 : q2;
 		for (int h = min; h < max; h++)
 		{
-			putPixel(p1, h, green);
+			putPixel(p1, h, color);
 		}
 
 		return;
@@ -145,7 +143,7 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
 		int max = p2 <= p1 ? p1 : p2;
 		for (int w = min; w < max; w++)
 		{
-			putPixel(w, q1, green);
+			putPixel(w, q1, color);
 		}
 
 		return;
@@ -194,9 +192,9 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
 				e = e - 2 * (p2 - p1);
 			}
 			if (replaced == 0)
-				putPixel(x, y, green);
+				putPixel(x, y, color);
 			else
-				putPixel(y, x, green);
+				putPixel(y, x, color);
 			x = x + 1; //for next point
 			e = e + 2 * (q2 - q1); //line's y got bigger by m*dp
 		}
@@ -261,9 +259,9 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2)
 				y = y - 1; e = e + 2 * (p2-p1);
 			}
 			if (replaced == 0)
-				putPixel(x, y, green);
+				putPixel(x, y, color);
 			else
-				putPixel(y, x, green);
+				putPixel(y, x, color);
 			
 			x = x + 1; e = e + 2*(q2 - q1);
 		}

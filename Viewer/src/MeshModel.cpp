@@ -85,8 +85,7 @@ MeshModel::MeshModel(const string& fileName)
 }
 
 
-MeshModel::~MeshModel()
-{}
+
 
 int MeshModel::getVertexPosNum()
 {

@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 		return 1;
 	// Setup renderer and scene
 	
-	Renderer renderer = Renderer(w,h);
+	Renderer renderer = Renderer(2000,1000);
 	Scene scene = Scene(&renderer);
 	Camera cam =Camera();
 	glm::vec4 eye, at, up;
@@ -56,7 +56,6 @@ int main(int argc, char **argv)
 	scene.load_cam(&cam);
 	glm::vec4 avg = scene.GetVertexAvg(0);
 	scene.setcur_model(0);
-	scene.transformModel(cam.GetScaleTransform(a, a, a));
 	
 	//scene.transformModel(cam.GetScaleTransform(a, a, a));
 
@@ -84,65 +83,7 @@ int main(int argc, char **argv)
     // Main loop - the famous "Game Loop" in video games :)
     while (!glfwWindowShouldClose(window))
     {
-		if (glfwGetMouseButton(window, 0) == 1&& !glfwWindowShouldClose(window)&&FALSE)
-		{
-			cout << num%13;
-			string s = "banana";
-			switch (num % 13)
-			{
-			case 1:
-				s = "banana";
-				break;
-			case 2:
-				s = "beethoven";
-				break;
-			case 3:
-				s = "bishop";
-				break;
-			case 4:
-				s = "blob";
-				break;
-			case 5:
-				s = "Bunny";
-				break;
-			case 6:
-				s = "camera";
-				break;
-			case 7:
-				s = "chain";
-				break;
-			case 8:
-				s = "cow";
-				break;
-			case 9:
-				s = "demo";
-				break;
-			case 10:
-				s = "dolphin";
-				break;
-			case 11:
-				s = "feline";
-				break;
-			case 12:
-				s = "pawn";
-				break;
-			}
-			//cin >> s;
-			s = "../Data/" + s + ".obj";
-			if(num<13)
-				scene.LoadOBJModel(s);
-			//scene.RemoveModel(0);
-			num++;
-			scene.ActiveModel = num%13;
-			active = scene.ActiveModel;
-			a = 100;
-			//cam = Camera();
-			glm::vec4 avg = scene.GetVertexAvg(scene.ActiveModel);
-			//scene.remove_cam(0);
-			//scene.load_cam(&cam);
-			if(num<13)
-				scene.transformModel(cam.GetScaleTransform(a, a, a));
-		}
+
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -176,39 +117,28 @@ int main(int argc, char **argv)
 				old_size.x = size.x;
 				old_size.y = size.y;
 			}
-			if ((x != xpos || y != ypos))//follow the mouse
-			{
+			if ((x != xpos || y != ypos)&&
+				scene.getModels()[scene.ActiveModel]->folow_the_mouse)//follow the mouse
 				scene.transformModel(cam.GetTranslateTransform(xpos - x, ypos - y, 0));
-
-			}
-
-			x =  (avg.x) *( 1280.0/ w );
-			y = (avg.y) * (720.0 / h);
+			
 
 			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(x, y,z)*
-			cam.GetrotationTransform(10, 1)*cam.GetTranslateTransform(-x,-y,-z));
+			scene.transformModel(cam.GetTranslateTransform(0,10,0));
 
 			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(x, y,z)*
-			cam.GetrotationTransform(-10, 1)*cam.GetTranslateTransform(-x, -y,-z));
+			scene.transformModel(cam.GetTranslateTransform(0, -10,0));
 
 			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-			scene.transformModel(cam.GetTranslateTransform(x, y,z)*
-			cam.GetrotationTransform(-10, 2)*cam.GetTranslateTransform(-x, -y, -z));
+			scene.transformModel(cam.GetTranslateTransform(-10,0,0));
 
 			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(x, y, z)*
-				cam.GetrotationTransform(10, 2)*cam.GetTranslateTransform(-x, -y, -z));
+				scene.transformModel(cam.GetTranslateTransform(10, 0, 0));
 
 			if (glfwGetKey(window, 'A') == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(x, y, z)*
-				cam.GetrotationTransform(10, 0)*cam.GetTranslateTransform(-x, -y, -z));
+				scene.transformModel(cam.GetTranslateTransform(0, 0, 10));
 
 			if (glfwGetKey(window, 'D') == GLFW_PRESS)
-				scene.transformModel(cam.GetTranslateTransform(x/(w/1280), y/(h/780.0), z)*
-				cam.GetrotationTransform(-10, 0)*cam.GetTranslateTransform(-x /(w / 1280),
-				 -y / (h / 780.0), -z));
+				scene.transformModel(cam.GetTranslateTransform(0, 0, -10));
 
 			
 			if (glfwGetKey(window, 'S') == GLFW_PRESS)
@@ -222,34 +152,10 @@ int main(int argc, char **argv)
 				scene.transformModel(cam.GetScaleTransform(1.01, 1.01, 1.01));
 				a *= 1.01;
 			}
+			
+			
 
-			glfwGetWindowSize(window, &w, &h);
-			size = glm::vec2(w, h);
-			glfwGetCursorPos(window, &xpos, &ypos);
-			ypos = h - ypos;
-			avg = scene.GetVertexAvg(scene.ActiveModel);
-			x = w * (avg.x) / 1280.0;
-			//x = (avg.x);
-			y = h * (avg.y) / 720.0;
-			z = avg.z;
-			if ((size.x != old_size.x || size.y != old_size.y)
-				&& size.x != 0 && size.y != 0) //window resizing
-			{
-				scene.transformModel(glm::mat4x4(old_size.x / size.x, 0, 0, 0,
-					0, old_size.y / size.y, 0, 0,
-					0, 0, 1, 0,
-					0, 0, 0, 1));
-				old_size.x = size.x;
-				old_size.y = size.y;
-			}
-		if (x != xpos || y != ypos)//follow the mouse
-		{
-			scene.transformModel(cam.GetTranslateTransform(xpos - x,ypos - y,0));
-			x1 =(xpos);
-			y1 =(ypos);
-		}
-
-		scene.DrawScene(); //task3 - part2
+		scene.DrawScene( w/1280.0 , h/720.0); //task3 - part2
 		
 		//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*
 		//cam.GetrotationTransform(1, 0)*cam.GetTranslateTransform(b, b, b) );

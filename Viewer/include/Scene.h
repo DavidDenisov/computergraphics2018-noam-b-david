@@ -13,26 +13,31 @@ using namespace std;
 
 class Scene {
 private:
+	int num;
 	vector<Model*> models;
 	vector<Light*> lights;
 	vector<Camera*> cameras;
+	vector<glm::vec4> colors;
 	Renderer *renderer;
 public:
-
+	void draw(string s);
+	~Scene(){}
 	Scene();
 	Scene(Renderer *renderer);
 	void transformProjection(int a, int b, int c, int d, int e, int f);
+	void setColor(int i,glm::vec4 color);
+	glm::vec4  getColor(int i);
 	void transformModel(glm::mat4x4 transform);
 	// Loads an obj file into the scene.
 	void LoadOBJModel(string fileName);
-
+	void Scene::load_cam();
 	void Scene::transformCam(glm::mat4x4 transform);
 
 	void RemoveModel(int num);
 	// Draws the current scene.
 	void Draw();
 
-	void DrawScene();
+	void DrawScene(int a,int b);
 	// Draws an example.
 	void DrawDemo();
 
