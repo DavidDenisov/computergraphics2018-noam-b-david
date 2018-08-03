@@ -82,7 +82,7 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
 	
 	
 
-	//now draw the points (and always before put them in vec2) !!!
+	//now draw the triangles (and always before put them in vec2) !!!
 	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
 	for (int face = 0; face < size - 2; face = face + 3)
 	{
@@ -101,10 +101,27 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
 		this->drawLine(b, c, color);
 		this->drawLine(c, a, color);
 	}
+	//also, draw the Bounding box, if needed
+	/*
+	
+	a'_______  b'
+  d'/|_____c'/|
+	||      | |
+	||a_____|_|b
+	|/______|/
+	d       c
+	
+	*/
+	
+	// box = {a, b, c, d, a', b', c', d'}
+	glm::vec4 box[8];
+	const glm::vec4* vP = vertexPositions;
+	
 
-		
+
+
 	delete transVerticesPositions; //they take a lot of memory and will not be used again
-	delete	drawVertexPositions;
+	delete drawVertexPositions;
 	delete vertexPositions;
 }
 

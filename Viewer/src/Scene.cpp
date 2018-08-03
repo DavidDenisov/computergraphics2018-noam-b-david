@@ -189,7 +189,6 @@ void Scene::draw(string s)
 	//renderer->SwapBuffers();
 }
 
-
 const vector<MeshModel*> Scene::getModels()
 {
 	return this->models;

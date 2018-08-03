@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+
 #include <sstream>
 #define FACE_ELEMENTS 3
 
@@ -88,11 +89,58 @@ glm::vec2 vec2fFromStream(std::istream& issLine)
 MeshModel::MeshModel(const string& fileName)
 {
 	LoadFile(fileName);
+	setBound();
+	willDrawBox = 0;
 }
 
 
 
+void MeshModel::setBound()
+{
+	glm::vec4* vP = vertexPositions;
+	
+	float xMaxV = vP[0].x, xMinV = vP[0].x;
+	float yMaxV = vP[0].y, yMinV = vP[0].y;
+	float zMaxV = vP[0].z, zMinV = vP[0].z;
+	
+	for (int i = 0; i < vertexPosNum; i++)
+	{
+		//x:
+		if (vP[i].x >= xMaxV)
+		{
+			xMaxV = vP[i].x;
+			this->xMax = i;
+		}
+		if (vP[i].x <= xMinV)
+		{
+			xMinV = vP[i].x;
+			this->xMin = i;
+		}
+		//y:
+		if (vP[i].y >= xMaxV)
+		{
+			yMaxV = vP[i].y;
+			this->yMax = i;
+		}
+		if (vP[i].y <= xMinV)
+		{
+			yMinV = vP[i].y;
+			this->yMin = i;
+		}
+		//z:
+		if (vP[i].z >= xMaxV)
+		{
+			zMaxV = vP[i].z;
+			this->zMax = i;
+		}
+		if (vP[i].z <= xMinV)
+		{
+			zMinV = vP[i].z;
+			this->zMin = i;
+		}
 
+	}
+}
 int MeshModel::getVertexPosNum()
 {
 	return this->vertexPosNum;
