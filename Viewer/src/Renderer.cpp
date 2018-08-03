@@ -14,14 +14,14 @@ void Renderer::SetProjection(const glm::mat4x4& projection)
 	myProjection = projection;
 }
 Renderer::Renderer() : width(1280), height(720),
-myCameraTransform(1.0f), myProjection(1.0f), oTransform(1.0f), nTransform(1.0f)
+myCameraTransform(1.0f), myProjection(1.0f), worldTransform(1.0f), nTransform(1.0f)
 {
 	initOpenGLRendering();
 	createBuffers(1280,720);
 }
 
 Renderer::Renderer(int w, int h) : width(w), height(h),
-myCameraTransform(1.0f), myProjection(1.0f), oTransform(1.0f), nTransform(1.0f)
+myCameraTransform(1.0f), myProjection(1.0f), worldTransform(1.0f), nTransform(1.0f)
 {
 	initOpenGLRendering();
 	createBuffers(w,h);
@@ -41,9 +41,14 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 	colorBuffer[INDEX(width, i, j, 2)] = color.z;
 }
 
+void Renderer::SetObjectMatrices(const glm::mat4x4& worldTransform, const glm::mat4x4& nTransform)
+{
+	this->worldTransform = worldTransform;
+	this->nTransform = nTransform;
+}
 
 void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
-	glm::vec4 color,int w,int h)
+	glm::vec4 color,int w,int h, glm::mat4x4 windowresizing)
 {
 	//we recieve the object to draw with a vector of verticesPositions
 	//we will draw these triangles but first will do the transformations
@@ -52,34 +57,44 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
 	//first do the transformations:
 
 	//the model-view matrix
-	glm::mat4x4 mv = oTransform * glm::inverse(myCameraTransform); // T = M * C^-1
+	glm::mat4x4 mv = worldTransform  * glm::inverse(myCameraTransform); // T = M * C^-1
 
 	//now the project transformation:
 	glm::mat4x4 T = myProjection * mv; //first transform on the 3d world, then projet it
 
 	glm::vec4* transVerticesPositions = new glm::vec4[size];
 	glm::vec2* drawVertexPositions = new glm::vec2[size];
+
 	for (int i = 0; i < size; i++)
 	{
 		//first transform all the points (including projection)
 		transVerticesPositions[i] = T * vertexPositions[i];
+		transVerticesPositions[i] = transVerticesPositions[i] 
+			/transVerticesPositions[i].w; //normallize them
+		
+		//now the points are NDC. normalized Device Coordinates
+		//now do window coordinates transformation
+		transVerticesPositions[i] = windowresizing * transVerticesPositions[i];
+		//
+		
 	}
 
 	
+	
 
-	//now draw the points (and always before put them in vec2)
+	//now draw the points (and always before put them in vec2) !!!
 	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
 	for (int face = 0; face < size - 2; face = face + 3)
 	{
+		
+		a.x = transVerticesPositions[face].x;
+		a.y = transVerticesPositions[face].y;
 
-		a.x = transVerticesPositions[face].x / w;
-		a.y = transVerticesPositions[face].y / h;
+		b.x = transVerticesPositions[face + 1].x;
+		b.y = transVerticesPositions[face + 1].y;
 
-		b.x = transVerticesPositions[face + 1].x / w;
-		b.y = transVerticesPositions[face + 1].y / h;
-
-		c.x = transVerticesPositions[face + 2].x / w;
-		c.y = transVerticesPositions[face + 2].y / h;
+		c.x = transVerticesPositions[face + 2].x;
+		c.y = transVerticesPositions[face + 2].y;
 
 		//draw triangle [a,b,c]
 		this->drawLine(a, b, color);
@@ -270,7 +285,6 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, glm::vec4 color)
 
 
 }
-
 void Renderer::printLineNaive()
 {
 	float m = 0.7f, b = 10.0f; //slope
@@ -320,6 +334,8 @@ void Renderer::SetDemoBuffer()
 		}
 	}
 }
+
+
 
 
 

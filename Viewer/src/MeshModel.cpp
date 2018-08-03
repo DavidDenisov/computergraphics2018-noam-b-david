@@ -14,6 +14,12 @@ void MeshModel::transformModel(glm::mat4x4 transform)
 	//for (int i = 0; i < getVertexPosNum(); i++)
 		//vertexPositions[i] = vertexPositions[i] * transform;
 }
+void MeshModel::transformWorld(glm::mat4x4 transform)
+{
+	worldTransform = transform * worldTransform;
+}
+
+
 // A struct for processing a single line in a wafefront obj file:
 // https://en.wikipedia.org/wiki/Wavefront_.obj_file
 struct FaceIdx
@@ -91,18 +97,32 @@ int MeshModel::getVertexPosNum()
 {
 	return this->vertexPosNum;
 }
+glm::mat4x4& MeshModel::getWorldTransform()
+{
+	return this->worldTransform;
+}
+glm::mat4x4& MeshModel::getNormalTransform()
+{
+	return this->normalTransform;
+}
 
 void MeshModel::LoadFile(const string& fileName)
 {
 	ifstream ifile(fileName.c_str());
 	vector<FaceIdx> faces;
 	vector<glm::vec4> vertices;
+	vector<glm::vec4> normals;
 	//trying to memory problems around stack
 	string lineType;
 	istringstream* issLine;
 	string curLine;
 
 	float x, y, z;
+
+	//take nameModel from fileName
+	int lastIndex = fileName.find_last_of("/");
+	// -5 so it won't have the .obj suffix
+	this->nameModel = fileName.substr(lastIndex + 1, fileName.length() - lastIndex - 5);
 
 	// while not end of file
 	while (!ifile.eof())
@@ -120,10 +140,13 @@ void MeshModel::LoadFile(const string& fileName)
 		// based on the type parse data
 		if (lineType == "v") /*BUG*/ //--changed to "v" because it's a vertex
 		{
-			//read the 3d point and make it 4d (for later trans)
-			vertices.push_back( glm::vec4(vec3fFromStream(*issLine),1.0f) );
-			
-			//std::cout << "vertex\n"; //testing
+			//read the 3d point and make it 4d (homogenous)
+			vertices.push_back( glm::vec4(vec3fFromStream(*issLine), 1.0f) );
+		}
+		else if (lineType == "vn")
+		{
+			//should have w = 0?
+			normals.push_back( glm::vec4(vec3fFromStream(*issLine), 0.0f) );
 		}
 		else if (lineType == "f") /*BUG*/ //--changed to "f" because it's a face
 		{
@@ -151,15 +174,23 @@ void MeshModel::LoadFile(const string& fileName)
 
 	this->vertexPosNum = FACE_ELEMENTS * faces.size();
 	this->vertexPositions = new glm::vec4[FACE_ELEMENTS * faces.size()]; /*BUG*/ //--changed array size
+	this->normalPositions = new glm::vec4[FACE_ELEMENTS * faces.size()];
 	// iterate through all stored faces and create triangles
 	int k=0;
 	glm::vec4 *avoidDeleting;
+	
 	for (vector<FaceIdx>::iterator it = faces.begin(); it != faces.end(); ++it)
 	{
 		for (int i = 0; i < FACE_ELEMENTS; i++)
 		{
 			//--get  vertices[  face's vertex's index minus 1 ]
-			this->vertexPositions[k++] = vertices[(*it).v[i] - 1]; /*BUG*/ //fixed? 
+			this->vertexPositions[k] = vertices[(*it).v[i] - 1]; /*BUG*/ //fixed?
+			//--get  normals[  face's normal's index minus 1 ]
+			this->normalPositions[k] = normals[(*it).vn[i] - 1]; //**********
+
+			k++;
+
+			//now each normal is in the same place of his vertex (k)
 		}
 	}
 

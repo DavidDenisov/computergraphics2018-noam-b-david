@@ -52,6 +52,10 @@ void Scene::transformModel(glm::mat4x4 transform)
 {
 	models[ActiveModel]->transformModel(transform);
 }
+void Scene::transformWorld(glm::mat4x4 transform)
+{
+	models[this->ActiveModel]->transformWorld(transform);
+}
 void Scene::transformProjection(int a, int b, int c, int d, int e, int f)
 {
 	cameras[ActiveCamera]->Frustum(a, b, c, d, e, f);
@@ -114,6 +118,11 @@ void Scene::LoadOBJModel(string fileName)
 	models.push_back(model);
 	colors.push_back(glm::vec4(0,1,0,1));
 }
+void Scene::LoadPrim()
+{
+	MeshModel *primModel = new PrimMeshModel();
+	models.push_back(primModel);
+}
 
 void Scene::setcur_cam(int i)
 {
@@ -129,18 +138,46 @@ void Scene::DrawScene(int w,int h)
 
 	// 1. Send the renderer the current camera transform and the projection
 	
-	renderer->SetCameraTransform(cameras.at(ActiveCamera)->get_Transform());
+	renderer->SetCameraTransform(cameras.at(ActiveCamera)->get_Transform()); // ** update by lookat!
 	renderer->SetProjection(cameras.at(ActiveCamera)->get_projection());
+	glm::mat4x4 windowresizing = cameras[0]->GetTranslateTransform(w/2,h/2,0)
+		*cameras[0]->GetScaleTransform(w / 2, h / 2, 1);
 	// 2. Tell all models to draw themselves
-
 	//renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
 	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
-	for(int i=0;i<models.size();i++)
-		renderer->DrawTriangles(models.at(i)->Draw(),
-		models.at(i)->getVertexPosNum(),colors[i],w,h);
+	for (int i = 0; i < models.size(); i++)
+	{
+		//first set worldTransformation & nTransformation of the object in renderer
+		renderer->SetObjectMatrices(models.at(i)->getWorldTransform(),
+			models.at(i)->getNormalTransform());
+		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum()
+			, colors[i], w, h, windowresizing);
+	}
 	renderer->SwapBuffers();
 }
+/*
+void Scene::Draw()
+{
+	// 1. Send the renderer the current camera transform and the projection
+	glm::mat4x4 default = glm::mat4x4
+	(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+	renderer->SetCameraTransform(default);
+	renderer->SetProjection(default);
+	// 2. Tell all models to draw themselves
+	//renderer->SetDemoBuffer();
+	//renderer->printLineNaive(); //Naive draw line
+	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
+	renderer->DrawTriangles(models.at(ActiveModel)->Draw(),
+	models.at(ActiveModel)->getVertexPosNum());
+	renderer->SwapBuffers();
+}
+*/
 
 void Scene::draw(string s)
 {
@@ -151,7 +188,9 @@ void Scene::draw(string s)
 	this->RemoveModel(i);
 	//renderer->SwapBuffers();
 }
-const vector<Model*> Scene::getModels()
+
+
+const vector<MeshModel*> Scene::getModels()
 {
 	return this->models;
 }

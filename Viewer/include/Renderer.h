@@ -24,7 +24,7 @@ private:
 	// Added more attributes. all you need to keep to drawTriangle
 	glm::mat4x4 myCameraTransform; 
 	glm::mat4x4 myProjection;
-	glm::mat4x4 oTransform;
+	glm::mat4x4 worldTransform;
 	glm::mat4x4 nTransform;
 
 	// Draws a pixel in location p with color color
@@ -51,7 +51,8 @@ public:
 
 	// Draws wireframe triangles to the color buffer
 
-	void DrawTriangles(const glm::vec4* vertexPositionVECTOR, int size, glm::vec4 color,int a,int b);
+	void DrawTriangles(const glm::vec4* vertexPositionVECTOR, int size, glm::vec4 color
+		,int w,int h, glm::mat4x4 windowresizing);
 
 	// Sets the camera transformations with relation to world coordinates
 	void SetCameraTransform(const glm::mat4x4& cTransform);
@@ -61,7 +62,7 @@ public:
 
 	// Sets the transformations for model and normals. The object transformations 
 	// decide the spacial relations of the object with respect to the world.
-	void SetObjectMatrices(const glm::mat4x4& oTransform, const glm::mat4x4& nTransform);
+	void SetObjectMatrices(const glm::mat4x4& worldTransform, const glm::mat4x4& nTransform);
 
 	// Swaps between the back buffer and front buffer, as explained in class.
 	// https://en.wikipedia.org/wiki/Multiple_buffering#Double_buffering_in_computer_graphics

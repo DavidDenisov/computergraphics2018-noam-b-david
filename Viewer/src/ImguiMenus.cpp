@@ -12,7 +12,7 @@
 vector<glm::vec3> zero;
 float f11 = 0, f12 = 0, f13 = 0;
 float f21 = 0, f22 = 0, f23 = 0;
-float f31 = 1, f32 = 1, f33 = 1;
+float f31 = 0, f32 = 0, f33 = 0;
 float old_f31 = 1, old_f32 = 1, old_f33 = 1;
 float d1=0, d2 = 0, d3 = 0;
 bool rad = new bool;
@@ -220,14 +220,17 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 			camewid[scene->getCameras().size()-1] = FALSE;
 			showcame[scene->getCameras().size() - 1] = FALSE;
 		}
+		str = "the active camera is camera number " + to_string(
+			scene->getCameras()[scene ->ActiveModel]->num+1);
+		ImGui::Text(const_cast<char*>(str.c_str()));
 		for (int i = 0; i < scene->getCameras().size(); i++)
 		{
 			num = scene->getCameras()[i]->num + 1;
-			str = "show the window of camera number : "+ to_string(num);
+			str = "show the window of camera number "+ to_string(num);
 			ImGui::Checkbox(const_cast<char*>(str.c_str()),&camewid[i]);
 			str = "show camera number : " + to_string(num);
 			ImGui::Checkbox(const_cast<char*>(str.c_str()), &showcame[i]);
-			str = "REMOVE CAMERA NUMBER: " + to_string(num);
+			str = "REMOVE CAMERA NUMBER " + to_string(num);
 			if (scene->getCameras().size()>1)
 			if(ImGui::Button(const_cast<char*>(str.c_str())))
 			{
@@ -349,11 +352,13 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 			transformLIST[i] = glm::vec3(transformLIST[i][0]+ f21
 			, transformLIST[i][1] + f22, transformLIST[i][2] + f23);
 			
-			ImGui::SliderFloat("scale x", &f31, 0.0001f, 1000.0f, "%e");
+			ImGui::SliderFloat("scale x", &f31, -1000.f, 1000.0f, "%e");
 
-			ImGui::SliderFloat("scale y", &f32, 0.0001f, 1000.0f, "%e");
+			ImGui::SliderFloat("scale y", &f32, -1000.f, 1000.0f, "%e");
 
-			ImGui::SliderFloat("scale z", &f33, 0.0001f, 1000.0f, "%e");
+			ImGui::SliderFloat("scale z", &f33, -1000.f, 1000.0f, "%e");
+			glm::vec3 au = glm::vec3(f31, f32, f33);
+			
 
 			scene->transformModel(cam->GetScaleTransform(f31/ old_f31, f32 / old_f32
 				, f33 / old_f33));
