@@ -36,6 +36,8 @@ protected:
 	void setBound(); //find max's and min's indices
 
 public:
+
+	bool window_open = 0;
 	bool folow_the_mouse = 0;
 	bool willDrawBox;
 	MeshModel(const string& fileName);
