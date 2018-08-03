@@ -43,6 +43,10 @@ void Scene::transformModel(glm::mat4x4 transform)
 {
 	models[ActiveModel]->transformModel(transform);
 }
+void Scene::transformWorld(glm::mat4x4 transform)
+{
+	models[this->ActiveModel]->transformWorld(transform);
+}
 void Scene::transformProjection(int a, int b, int c, int d, int e, int f)
 {
 	cameras[ActiveCamera]->Frustum(a, b, c, d, e, f);

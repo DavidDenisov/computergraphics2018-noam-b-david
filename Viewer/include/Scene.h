@@ -24,6 +24,7 @@ public:
 	Scene(Renderer *renderer);
 	void transformProjection(int a, int b, int c, int d, int e, int f);
 	void transformModel(glm::mat4x4 transform);
+	void transformWorld(glm::mat4x4 transform);
 	// Loads an obj file into the scene.
 	void LoadOBJModel(string fileName);
 	void LoadPrim();

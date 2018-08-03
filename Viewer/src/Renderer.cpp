@@ -57,7 +57,24 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 
 	//the model-view matrix
 	glm::mat4x4 mv = worldTransform  * glm::inverse(myCameraTransform); // T = M * C^-1
-
+	//print mv:
+	/*
+	glm::mat4x4 check(glm::vec4(1, 2, 3, 4), glm::vec4(5, 6, 7, 8), glm::vec4(9, 10, 11, 12), glm::vec4(13, 14, 15, 16));
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+			std::cout << check[i][j] << ", ";
+		std::cout << "\n";
+	}
+	std::cout << "mv matrix:\n";
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+			std::cout << mv[i][j] << ", ";
+		std::cout << "\n";
+	}
+	std::cout << "\n\n";
+	*/
 	//now the project transformation:
 	glm::mat4x4 T = myProjection * mv; //first transform on the 3d world, then projet it
 
@@ -67,23 +84,26 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size)
 	{
 		//first transform all the points (including projection)
 		transVerticesPositions[i] = T * vertexPositions[i];
+		transVerticesPositions[i] = transVerticesPositions[i] / transVerticesPositions[i].w; //normallize them
 	}
+
+	//now the points are NDC. normalized Device Coordinates
 
 	
 
-	//now draw the points (and always before put them in vec2)
+	//now draw the points (and always before put them in vec2) !!!
 	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
 	for (int face = 0; face < size - 2; face = face + 3)
 	{
 
-		a.x = transVerticesPositions[face].x/ transVerticesPositions[face].w;
-		a.y = transVerticesPositions[face].y / transVerticesPositions[face].w;
+		a.x = transVerticesPositions[face].x;
+		a.y = transVerticesPositions[face].y;
 
-		b.x = transVerticesPositions[face + 1].x / transVerticesPositions[face+1].w;
-		b.y = transVerticesPositions[face + 1].y / transVerticesPositions[face+1].w;
+		b.x = transVerticesPositions[face + 1].x;
+		b.y = transVerticesPositions[face + 1].y;
 
-		c.x = transVerticesPositions[face + 2].x / transVerticesPositions[face+2].w;
-		c.y = transVerticesPositions[face + 2].y / transVerticesPositions[face+2].w;
+		c.x = transVerticesPositions[face + 2].x;
+		c.y = transVerticesPositions[face + 2].y;
 
 		//draw triangle [a,b,c]
 		this->drawLine(a, b);

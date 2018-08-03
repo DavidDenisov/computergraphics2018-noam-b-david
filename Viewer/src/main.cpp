@@ -42,12 +42,15 @@ int main(int argc, char **argv)
 	Renderer renderer = Renderer(w,h);
 	Scene scene = Scene(&renderer);
 	Camera cam =Camera();
-	glm::vec4 eye, at, up;
+	glm::vec4 eye(0.0f, 0.0f, 0.0f, 0.0f); //left-down corner
+	glm::vec4 at(0.0f, 0.0f, -1.0f, 0.0f); 
+	glm::vec4 up(0.5f, 0.5f, 0.0f, 0.0f);
 	int num = 0;
 	
 	//task3 - part1
 	
 	//cam.LookAt(glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, -1, 0, 1));
+	cam.LookAt(eye, at, up);
 
 	scene.LoadOBJModel
 	("../Data/cow.obj");
@@ -167,6 +170,14 @@ int main(int argc, char **argv)
 			y =(avg.y)/(720.0/h);
 			z = avg.z;
 
+			//update lookAt:
+			if (glfwGetKey(window, 'C') == GLFW_PRESS)
+			{
+				glm::vec4 eye(0, 0, 0.0f, 0.0f), up(0.0f, 1.0f, 0.0f, 0.0f);
+				scene.getCameras().at(scene.ActiveCamera)->LookAt(eye, avg, up);
+			}
+
+
 			if ((size.x != old_size.x || size.y != old_size.y)
 				&& size.x != 0 && size.y != 0) //window resizing
 			{
@@ -176,12 +187,13 @@ int main(int argc, char **argv)
 				old_size.x = size.x;
 				old_size.y = size.y;
 			}
+			
 			if ((x != xpos || y != ypos))//follow the mouse
 			{
 				scene.transformModel(cam.GetTranslateTransform(xpos - x, ypos - y, 0));
 
 			}
-
+			
 			x =  (avg.x) *( 1280.0/ w );
 			y = (avg.y) * (720.0 / h);
 
@@ -242,13 +254,14 @@ int main(int argc, char **argv)
 				old_size.x = size.x;
 				old_size.y = size.y;
 			}
+		
 		if (x != xpos || y != ypos)//follow the mouse
 		{
 			scene.transformModel(cam.GetTranslateTransform(xpos - x,ypos - y,0));
 			x1 =(xpos);
 			y1 =(ypos);
 		}
-
+		
 		scene.DrawScene(); //task3 - part2
 		
 		//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*
