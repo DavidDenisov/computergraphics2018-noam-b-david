@@ -16,9 +16,12 @@ int ActiveCamera=0;
 */
 
 using namespace std;
-void Scene::setColor(int i,glm::vec4 color)
+void Scene::setColor(int i,glm::vec4 color,int type)
 {
-	colors[i] = color;
+	if (type == 0)
+		colors_model[i] = color;
+	else
+		colors_camera[i] = color;
 }
 void Scene::RemoveModel(int num)
 {
@@ -28,7 +31,7 @@ void Scene::RemoveModel(int num)
 	models.erase(models.begin()+num);
 	if (ActiveModel == num)
 		ActiveModel = 0;
-	colors.erase(colors.begin() + num);
+	colors_model.erase(colors_model.begin() + num);
 }
 glm::vec4 Scene::GetVertexAvg(int mod)
 {
@@ -73,6 +76,7 @@ void Scene::transformCam(glm::mat4x4 transform)
 void Scene::load_cam(Camera* cam)
 {
 	Camera* c = new Camera(cam);
+	colors_camera.push_back(glm::vec4(0, 0, 0, 1));
 	c->num = num;
 	num++;
 	cameras.push_back(c);
@@ -80,6 +84,7 @@ void Scene::load_cam(Camera* cam)
 void Scene::load_cam()
 {
 	Camera* c = new Camera();
+	colors_camera.push_back(glm::vec4(0, 0, 0, 1));
 	c->num = num;
 	num++;
 	cameras.push_back(c);
@@ -89,12 +94,15 @@ void Scene::remove_cam(int i)
 	cameras.erase(cameras.begin()+i);
 	if (ActiveCamera == i)
 		ActiveCamera = 0;
+	colors_camera.erase(colors_camera.begin() + i);
 }
 Scene::Scene() : ActiveModel(0), ActiveLight(0), ActiveCamera(0)
 {
 	num = 0;
 	Camera* c = new Camera();
 	cameras.push_back(c);
+	colors_camera.push_back(glm::vec4(0, 0, 0, 1));
+	colors_model.push_back(glm::vec4(0, 0, 0, 1));
 };
 
 Scene::Scene(Renderer *renderer) : renderer(renderer),
@@ -105,18 +113,24 @@ ActiveModel(0), ActiveLight(0), ActiveCamera(0)
 	{
 		Camera* c = new Camera();
 		cameras.push_back(c);
+		colors_camera.push_back(glm::vec4(0, 0, 0, 1));
+		colors_model.push_back(glm::vec4(0, 0, 0, 1));
 	}
 };
 
-glm::vec4 Scene::getColor(int i)
+glm::vec4 Scene::getColor(int i,int type)
 {
-	return colors[i];
+	if (type == 0)
+		return colors_model[i];
+	else
+		return colors_camera[i];
 }
 void Scene::LoadOBJModel(string fileName)
 {
 	MeshModel *model = new MeshModel(fileName);
 	models.push_back(model);
-	colors.push_back(glm::vec4(0,1,0,1));
+	colors_camera.push_back(glm::vec4(0,0,0,1));
+	colors_model.push_back(glm::vec4(0, 0, 0, 1));
 }
 void Scene::LoadPrim()
 {
@@ -152,7 +166,7 @@ void Scene::DrawScene(int w,int h)
 		renderer->SetObjectMatrices(models.at(i)->getWorldTransform(),
 			models.at(i)->getNormalTransform());
 		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum()
-			, colors[i], w, h, windowresizing, models.at(i));
+			, colors_model[i], w, h, windowresizing, models.at(i));
 	}
 	renderer->SwapBuffers();
 }
@@ -188,7 +202,6 @@ void Scene::draw(string s)
 	this->RemoveModel(i);
 	//renderer->SwapBuffers();
 }
-
 const vector<MeshModel*> Scene::getModels()
 {
 	return this->models;

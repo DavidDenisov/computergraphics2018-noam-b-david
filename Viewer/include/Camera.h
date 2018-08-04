@@ -7,13 +7,14 @@
 class Camera
 {
 private:
-	
 	glm::mat4x4 cTransform;
 	glm::mat4x4 projection;
 	glm::mat4x4 rotationTransform(double deg, int axis);
 	glm::mat4x4 ScaleTransform(double x_scale, double y_scale, double z_scale);
 	glm::mat4x4 TranslateTransform(double x_scale, double y_scale, double z_scale);
 public:
+	glm::vec4 up= glm::vec4(0,1,0,1);
+	glm::vec4 pos = glm::vec4(0, 0, 1,1);
 	int num;
 	Camera();
 	Camera(Camera* c);

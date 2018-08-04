@@ -93,14 +93,14 @@ glm::mat4x4 Camera::ScaleTransform(double x_scale, double y_scale, double z_scal
 glm::mat4x4 Camera::rotationTransform(double rad, int axis)
 {
 	//convert from deg to radian
-	if (axis == 0)
+	if (axis == 2)
 	{
 		return glm::mat4x4(cos(rad), sin(rad), 0, 0,
 			-sin(rad), cos(rad), 0, 0,
 			0, 0, 1, 0,
 			0, 0, 0, 1);	
 	}
-	if (axis==1)
+	if (axis==0)
 	{
 
 		 return glm::mat4x4(1, 0, 0, 0,
@@ -108,7 +108,7 @@ glm::mat4x4 Camera::rotationTransform(double rad, int axis)
 			0, -sin(rad), cos(rad), 0,
 			0, 0, 0, 1);
 	}
-	if (axis == 2)
+	if (axis == 1)
 	{
 		return glm::mat4x4(cos(rad), 0, -sin(rad), 0,
 			0, 1, 0, 0,
@@ -154,9 +154,6 @@ void Camera::LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& 
 		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
 		glm::vec4(-eye.x, -eye.y, -eye.z, 1.0f)
 	);
-	std::cout << "u:" << u.x << ", " << u.y << ", " << u.z << ", " << u.w << "\n";
-	std::cout << "v:" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << "\n";
-	std::cout << "n:" << n.x << ", " << n.y << ", " << n.z << ", " << n.w << "\n";
 	this->cTransform = c * translate;
 
 
