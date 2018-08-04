@@ -105,9 +105,9 @@ int main(int argc, char **argv)
 			glfwGetCursorPos(window, &xpos, &ypos);
 			ypos = h - ypos;
 			avg = scene.GetVertexAvg(scene.ActiveModel);
-			x = w * (avg.x) / 1280.0;
+			x = (avg.x);
 			//x = (avg.x);
-			y = (avg.y) / (720.0 / h);
+			y = (avg.y);
 			z = avg.z;
 
 			//update lookAt:
@@ -128,14 +128,13 @@ int main(int argc, char **argv)
 				old_size.y = size.y;
 			}
 
+
 			if ((x != xpos || y != ypos) &&
 				scene.getModels()[scene.ActiveModel]->folow_the_mouse)//follow the mouse
-				scene.transformModel(cam.GetTranslateTransform(xpos - x, ypos - y, 0));
+				scene.transformModel(cam.GetTranslateTransform((xpos/h - x)
+				,(ypos/w - y) ,0 ));
 
 
-
-			x = (avg.x) *(1280.0 / w);
-			y = (avg.y) * (720.0 / h);
 
 
 			if (glfwGetKey(window, 'S') == GLFW_PRESS)

@@ -18,7 +18,8 @@ private:
 	vector<MeshModel*> models;
 	vector<Light*> lights;
 	vector<Camera*> cameras;
-	vector<glm::vec4> colors;
+	vector<glm::vec4> colors_model;
+	vector<glm::vec4> colors_camera;
 	Renderer *renderer;
 public:
 	void draw(string s);
@@ -26,8 +27,8 @@ public:
 	Scene();
 	Scene(Renderer *renderer);
 	void transformProjection(int a, int b, int c, int d, int e, int f);
-	void setColor(int i,glm::vec4 color);
-	glm::vec4  getColor(int i);
+	void setColor(int i,glm::vec4 color,int type);
+	glm::vec4  getColor(int i, int type);
 	void transformModel(glm::mat4x4 transform);
 	void transformWorld(glm::mat4x4 transform);
 	// Loads an obj file into the scene.
@@ -62,7 +63,8 @@ public:
 	const vector<Light*> getLights();
 	const vector<Camera*> getCameras();
 
-
+	bool draw_norm_vertex=FALSE;
+	bool draw_norm_face = FALSE;
 	int ActiveModel;
 	int ActiveLight;
 	int ActiveCamera;
