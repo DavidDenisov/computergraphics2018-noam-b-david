@@ -4,7 +4,6 @@
 #include <iostream>
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
-
 void Renderer::SetCameraTransform(const glm::mat4x4& cTransform)
 {
 	myCameraTransform = cTransform;
@@ -48,7 +47,7 @@ void Renderer::SetObjectMatrices(const glm::mat4x4& worldTransform, const glm::m
 }
 
 void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
-	glm::vec4 color,int w,int h, glm::mat4x4 windowresizing)
+	glm::vec4 color,int w,int h, glm::mat4x4 windowresizing, MeshModel* myModel)
 {
 	//we recieve the object to draw with a vector of verticesPositions
 	//we will draw these triangles but first will do the transformations
@@ -61,7 +60,8 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
 
 	//now the project transformation:
 	glm::mat4x4 T = myProjection * mv; //first transform on the 3d world, then projet it
-
+	
+	
 	glm::vec4* transVerticesPositions = new glm::vec4[size];
 	glm::vec2* drawVertexPositions = new glm::vec2[size];
 
@@ -101,6 +101,11 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
 		this->drawLine(b, c, color);
 		this->drawLine(c, a, color);
 	}
+	
+	
+	
+	
+	
 	//also, draw the Bounding box, if needed
 	/*
 	
@@ -112,17 +117,61 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
 	d       c
 	
 	*/
+	glm::vec4* bounds = new glm::vec4[8];
+	const glm::vec4* vP = myModel->GetVertex(); //get points even before model's transform
+	//a,b,c,d
+	bounds[0] = glm::vec4(vP[myModel->xMin].x, vP[myModel->yMin].y, vP[myModel->zMin].z, 1.0f); //a
+	bounds[1] = glm::vec4(vP[myModel->xMax].x, vP[myModel->yMin].y, vP[myModel->zMin].z, 1.0f); //b
+	bounds[2] = glm::vec4(vP[myModel->xMax].x, vP[myModel->yMin].y, vP[myModel->zMax].z, 1.0f); //c
+	bounds[3] = glm::vec4(vP[myModel->xMin].x, vP[myModel->yMin].y, vP[myModel->zMax].z, 1.0f); //d
+	//a',b',c',d' - exacly the same, just yMin <=> yMax
+	bounds[4] = glm::vec4(vP[myModel->xMin].x, vP[myModel->yMax].y, vP[myModel->zMin].z, 1.0f); //a'
+	bounds[5] = glm::vec4(vP[myModel->xMax].x, vP[myModel->yMax].y, vP[myModel->zMin].z, 1.0f); //b'
+	bounds[6] = glm::vec4(vP[myModel->xMax].x, vP[myModel->yMax].y, vP[myModel->zMax].z, 1.0f); //c'
+	bounds[7] = glm::vec4(vP[myModel->xMin].x, vP[myModel->yMax].y, vP[myModel->zMax].z, 1.0f); //d'
+
+	//do model's trans
+	for (int i = 0; i < 8; i++)
+	{
+		bounds[i] =myModel->getModelTransform() * bounds[i];
+	}
+	//do the same transformations just like on the original points
+	for (int i = 0; i < 8; i++)
+	{
+		bounds[i] = T * bounds[i];
+		bounds[i] = bounds[i] / bounds[i].w; //normallize them
+
+		//now the points are NDC. normalized Device Coordinates
+		//now do window coordinates transformation
+		bounds[i] = windowresizing * bounds[i];
+	}
 	
-	// box = {a, b, c, d, a', b', c', d'}
-	glm::vec4 box[8];
-	const glm::vec4* vP = vertexPositions;
+	//now draw them
+	{
+		//draw a-b-c-d:
+		for (int i = 0; i < 4; i++)
+		{
+			drawLine(bounds[(i) % 4], bounds[(i + 1) % 4], color);
+		}
+		//draw a'-b'-c'-d'
+		for (int i = 4; i < 8; i++)
+		{
+			drawLine(bounds[i % 4 + 4], bounds[(i + 1) % 4 + 4], color);
+		}
+		//draw a-a' b-b' c-c' d-d'
+		for (int i = 0; i < 4; i++)
+		{
+			drawLine(bounds[i], bounds[i + 4], color);
+		}
+	}
+	
 	
 
 
-
-	delete transVerticesPositions; //they take a lot of memory and will not be used again
-	delete drawVertexPositions;
-	delete vertexPositions;
+	delete[] bounds;
+	delete[] transVerticesPositions; //they take a lot of memory and will not be used again
+	delete[] drawVertexPositions;
+	delete[] vertexPositions;
 }
 
 void Renderer::createBuffers(int w, int h)

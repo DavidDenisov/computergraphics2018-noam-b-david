@@ -16,14 +16,6 @@ protected:
 	glm::vec4 *vertexPositions;
 	glm::vec4 *normalPositions;
 	
-	//keep the vertices indices that bounds the object
-	int xMax;
-	int xMin;
-	int yMax;
-	int yMin;
-	int zMax;
-	int zMin;
-	
 	
 	// Add more attributes.
 	int vertexPosNum; // 3 * #vertices
@@ -36,10 +28,10 @@ protected:
 	void setBound(); //find max's and min's indices
 
 public:
-
 	bool window_open = 0;
 	bool folow_the_mouse = 0;
 	bool willDrawBox;
+
 	MeshModel(const string& fileName);
 	void LoadFile(const string& fileName);
 	int getVertexPosNum();
@@ -47,6 +39,16 @@ public:
 	void transformWorld(glm::mat4x4 transform);
 	const glm::vec4* Draw();
 	glm::vec4* GetVertex();
+	glm::mat4x4& getModelTransform();
 	glm::mat4x4& getWorldTransform();
 	glm::mat4x4& getNormalTransform();
+
+
+	//keep the vertices indices that bounds the object
+	int xMax;
+	int xMin;
+	int yMax;
+	int yMin;
+	int zMax;
+	int zMin;
 };

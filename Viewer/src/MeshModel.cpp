@@ -117,33 +117,40 @@ void MeshModel::setBound()
 			this->xMin = i;
 		}
 		//y:
-		if (vP[i].y >= xMaxV)
+		if (vP[i].y >= yMaxV)
 		{
 			yMaxV = vP[i].y;
 			this->yMax = i;
 		}
-		if (vP[i].y <= xMinV)
+		if (vP[i].y <= yMinV)
 		{
 			yMinV = vP[i].y;
 			this->yMin = i;
 		}
 		//z:
-		if (vP[i].z >= xMaxV)
+		if (vP[i].z >= zMaxV)
 		{
 			zMaxV = vP[i].z;
 			this->zMax = i;
 		}
-		if (vP[i].z <= xMinV)
+		if (vP[i].z <= zMinV)
 		{
 			zMinV = vP[i].z;
 			this->zMin = i;
 		}
 
 	}
+	int test = 0;
 }
+
+
 int MeshModel::getVertexPosNum()
 {
 	return this->vertexPosNum;
+}
+glm::mat4x4& MeshModel::getModelTransform()
+{
+	return this->modelTransform;
 }
 glm::mat4x4& MeshModel::getWorldTransform()
 {
@@ -284,6 +291,6 @@ const glm::vec4* MeshModel::Draw()
 	//for testing, dont worry
 	glm::vec4* transVertexPositions = new glm::vec4[(unsigned)(this->getVertexPosNum())];
 	for (int i = 0; i < (int)(this->getVertexPosNum()); i++)
-		transVertexPositions[i] = modelTransform*vertexPositions[i];
+		transVertexPositions[i] = modelTransform * vertexPositions[i];
 	return transVertexPositions;
 }
