@@ -142,7 +142,10 @@ void MeshModel::setBound()
 	}
 	int test = 0;
 }
-
+void MeshModel::setFaceNormal() // ***********
+{
+	
+}
 
 int MeshModel::getVertexPosNum()
 {
@@ -201,7 +204,7 @@ void MeshModel::LoadFile(const string& fileName)
 		else if (lineType == "vn")
 		{
 			//should have w = 0?
-			normals.push_back( glm::vec4(vec3fFromStream(*issLine), 0.0f) );
+			normals.push_back( glm::vec4(vec3fFromStream(*issLine), 1.0f) );
 		}
 		else if (lineType == "f") /*BUG*/ //--changed to "f" because it's a face
 		{
@@ -279,6 +282,10 @@ void MeshModel::LoadFile(const string& fileName)
 glm::vec4* MeshModel::GetVertex()
 {
 	return vertexPositions;
+}
+glm::vec4* MeshModel::getNormalVertex()
+{
+	return this->normalPositions;
 }
 const glm::vec4* MeshModel::Draw()
 {

@@ -55,11 +55,11 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
 
 	//first do the transformations:
 
-	//the model-view matrix
-	glm::mat4x4 mv = worldTransform  * glm::inverse(myCameraTransform); // T = M * C^-1
+	//the view matrix
+	glm::mat4x4 view = worldTransform * glm::inverse(myCameraTransform); // T = M * C^-1
 
 	//now the project transformation:
-	glm::mat4x4 T = myProjection * mv; //first transform on the 3d world, then projet it
+	glm::mat4x4 T = myProjection * view; //first transform on the 3d world, then projet it
 	
 	
 	glm::vec4* transVerticesPositions = new glm::vec4[size];
@@ -75,8 +75,6 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
 		//now the points are NDC. normalized Device Coordinates
 		//now do window coordinates transformation
 		transVerticesPositions[i] = windowresizing * transVerticesPositions[i];
-		//
-		
 	}
 
 	
@@ -117,58 +115,132 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
 	d       c
 	
 	*/
-	glm::vec4* bounds = new glm::vec4[8];
-	const glm::vec4* vP = myModel->GetVertex(); //get points even before model's transform
-	//a,b,c,d
-	bounds[0] = glm::vec4(vP[myModel->xMin].x, vP[myModel->yMin].y, vP[myModel->zMin].z, 1.0f); //a
-	bounds[1] = glm::vec4(vP[myModel->xMax].x, vP[myModel->yMin].y, vP[myModel->zMin].z, 1.0f); //b
-	bounds[2] = glm::vec4(vP[myModel->xMax].x, vP[myModel->yMin].y, vP[myModel->zMax].z, 1.0f); //c
-	bounds[3] = glm::vec4(vP[myModel->xMin].x, vP[myModel->yMin].y, vP[myModel->zMax].z, 1.0f); //d
-	//a',b',c',d' - exacly the same, just yMin <=> yMax
-	bounds[4] = glm::vec4(vP[myModel->xMin].x, vP[myModel->yMax].y, vP[myModel->zMin].z, 1.0f); //a'
-	bounds[5] = glm::vec4(vP[myModel->xMax].x, vP[myModel->yMax].y, vP[myModel->zMin].z, 1.0f); //b'
-	bounds[6] = glm::vec4(vP[myModel->xMax].x, vP[myModel->yMax].y, vP[myModel->zMax].z, 1.0f); //c'
-	bounds[7] = glm::vec4(vP[myModel->xMin].x, vP[myModel->yMax].y, vP[myModel->zMax].z, 1.0f); //d'
 
-	//do model's trans
-	for (int i = 0; i < 8; i++)
+	if (myModel->willDrawBox == 1)
 	{
-		bounds[i] =myModel->getModelTransform() * bounds[i];
-	}
-	//do the same transformations just like on the original points
-	for (int i = 0; i < 8; i++)
-	{
-		bounds[i] = T * bounds[i];
-		bounds[i] = bounds[i] / bounds[i].w; //normallize them
+		glm::vec4* bounds = new glm::vec4[8];
+		const glm::vec4* vP = myModel->GetVertex(); //get points even before model's transform
+		//a,b,c,d
+		bounds[0] = glm::vec4(vP[myModel->xMin].x, vP[myModel->yMin].y, vP[myModel->zMin].z, 1.0f); //a
+		bounds[1] = glm::vec4(vP[myModel->xMax].x, vP[myModel->yMin].y, vP[myModel->zMin].z, 1.0f); //b
+		bounds[2] = glm::vec4(vP[myModel->xMax].x, vP[myModel->yMin].y, vP[myModel->zMax].z, 1.0f); //c
+		bounds[3] = glm::vec4(vP[myModel->xMin].x, vP[myModel->yMin].y, vP[myModel->zMax].z, 1.0f); //d
+		//a',b',c',d' - exacly the same, just yMin <=> yMax
+		bounds[4] = glm::vec4(vP[myModel->xMin].x, vP[myModel->yMax].y, vP[myModel->zMin].z, 1.0f); //a'
+		bounds[5] = glm::vec4(vP[myModel->xMax].x, vP[myModel->yMax].y, vP[myModel->zMin].z, 1.0f); //b'
+		bounds[6] = glm::vec4(vP[myModel->xMax].x, vP[myModel->yMax].y, vP[myModel->zMax].z, 1.0f); //c'
+		bounds[7] = glm::vec4(vP[myModel->xMin].x, vP[myModel->yMax].y, vP[myModel->zMax].z, 1.0f); //d'
 
-		//now the points are NDC. normalized Device Coordinates
-		//now do window coordinates transformation
-		bounds[i] = windowresizing * bounds[i];
+		//do model's trans
+		for (int i = 0; i < 8; i++)
+		{
+			bounds[i] = myModel->getModelTransform() * bounds[i];
+		}
+		//do the same transformations just like on the original points
+		for (int i = 0; i < 8; i++)
+		{
+			bounds[i] = T * bounds[i];
+			bounds[i] = bounds[i] / bounds[i].w; //normallize them
+
+			//now the points are NDC. normalized Device Coordinates
+			//now do window coordinates transformation
+			bounds[i] = windowresizing * bounds[i];
+		}
+
+		//now draw them
+		{
+			//draw a-b-c-d:
+			for (int i = 0; i < 4; i++)
+			{
+				drawLine(bounds[(i) % 4], bounds[(i + 1) % 4], color);
+			}
+			//draw a'-b'-c'-d'
+			for (int i = 4; i < 8; i++)
+			{
+				drawLine(bounds[i % 4 + 4], bounds[(i + 1) % 4 + 4], color);
+			}
+			//draw a-a' b-b' c-c' d-d'
+			for (int i = 0; i < 4; i++)
+			{
+				drawLine(bounds[i], bounds[i + 4], color);
+			}
+		}
+		delete[] bounds;
 	}
 	
-	//now draw them
+	//also, draw vertices' normals, if needed
+
+	//calculate Model-View matrix
+	glm::mat4x4 model = myModel->getModelTransform();
+	glm::mat4x4 mv = view * model;
+	glm::mat4x4 normalMatrix = glm::transpose(glm::inverse(mv)); // (M^-1)^T
+	/*
+	glm::mat3x3 ronM = glm::mat3x3
+	(
+		mv[0][0], mv[0][1], mv[0][2],
+		mv[1][0], mv[1][1], mv[1][2],
+		mv[2][0], mv[2][1], mv[2][2]
+	);
+
+	glm::mat3x3 NewRonM = glm::transpose(glm::inverse(ronM));
+	glm::vec3 killer = glm::vec3(mv[3][0], mv[3][1], mv[3][2]);
+
+
+	glm::mat4x4 normalMatrix = glm::mat4x4
+	(
+		NewRonM[0][0], NewRonM[0][1], NewRonM[0][2], 0.0f,
+		NewRonM[1][0], NewRonM[1][1], NewRonM[1][2], 0.0f,
+		NewRonM[2][0], NewRonM[2][1], NewRonM[2][2], 0.0f,
+		killer[0], killer[1], killer[2], 1.0f
+	);*/
+	normalMatrix = myProjection * normalMatrix; //and projet them as usual
+
+	glm::vec4* normalPositions = myModel->getNormalVertex();
+
+	glm::vec4 *transNormalPositions = new glm::vec4[size];
+
+	for (int i = 0; i < size; i++)
 	{
-		//draw a-b-c-d:
-		for (int i = 0; i < 4; i++)
-		{
-			drawLine(bounds[(i) % 4], bounds[(i + 1) % 4], color);
-		}
-		//draw a'-b'-c'-d'
-		for (int i = 4; i < 8; i++)
-		{
-			drawLine(bounds[i % 4 + 4], bounds[(i + 1) % 4 + 4], color);
-		}
-		//draw a-a' b-b' c-c' d-d'
-		for (int i = 0; i < 4; i++)
-		{
-			drawLine(bounds[i], bounds[i + 4], color);
-		}
+		//first copy the original. don't destory them
+		transNormalPositions[i] = normalPositions[i];
+		transNormalPositions[i].w = 0;
 	}
-	
-	
+
+	for (int i = 0; i < size; i++)
+	{
+		transNormalPositions[i] = normalMatrix * transNormalPositions[i]; //trans them with w=0?
+		
+		//divide by w
+		//transNormalPositions[i] = transNormalPositions[i] / transNormalPositions[i].w;
+		
+		transNormalPositions[i] = windowresizing * transNormalPositions[i];
+	}
+
+	//now draw each normal vertex. from vertex to the normal point
+	for (int i = 0; i < size; i++)
+	{
+		//point
+		a.x = transVerticesPositions[i].x;
+		a.y = transVerticesPositions[i].y;
+		//normal
+		b.x = transNormalPositions[i].x;
+		b.y = transNormalPositions[i].y;
+
+		//normalize them?
+		b = glm::normalize(b);
+		
+
+		//let him start from the point he's normal to
+		b.x = transNormalPositions[i].x + a.x;
+		b.y = transNormalPositions[i].y + a.y;
+
+		drawLine(a, b, glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
+	}
 
 
-	delete[] bounds;
+
+
+	
 	delete[] transVerticesPositions; //they take a lot of memory and will not be used again
 	delete[] drawVertexPositions;
 	delete[] vertexPositions;

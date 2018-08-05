@@ -25,12 +25,14 @@ protected:
 	glm::mat4x4 modelTransform; //transformations according to model's origin
 	glm::mat4x4 normalTransform; //transformations on normals
 
-	void setBound(); //find max's and min's indices
-
+	void setBound(); //find max's and min's indices - in constructor
+	void setFaceNormal(); //build the faces' normals - in constructor
 public:
 	bool window_open = 0;
 	bool folow_the_mouse = 0;
 	bool willDrawBox;
+	bool willDrawVertexNormal;
+	bool willDrawFaceNormal;
 
 	MeshModel(const string& fileName);
 	void LoadFile(const string& fileName);
@@ -39,6 +41,7 @@ public:
 	void transformWorld(glm::mat4x4 transform);
 	const glm::vec4* Draw();
 	glm::vec4* GetVertex();
+	glm::vec4* getNormalVertex();
 	glm::mat4x4& getModelTransform();
 	glm::mat4x4& getWorldTransform();
 	glm::mat4x4& getNormalTransform();
