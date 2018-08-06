@@ -351,29 +351,36 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 	{
 		ImGui::Begin("Models", &modelsWindow);
 
+		if (scene->getModels().size() > 0)
+		{
+			MeshModel* Active = scene->getModels()[scene->ActiveModel];
+			str = "the active model is model " +
+				Active->getNameModel() + " " + to_string(scene->ActiveModel);
+			ImGui::Text(const_cast<char*>(str.c_str()));
+
+			ImGui::Checkbox("show the normals of the vertices of the active MODEL : "
+				, &Active->willDrawVertexNormal);
+
+			ImGui::Checkbox("show the normals of the faces of the active MODEL : "
+				, &Active->willDrawFaceNormal);
+
+			ImGui::Checkbox("draw the box of active MODEL : "
+				, &Active->willDrawBox);
+		}
+
 		if (ImGui::Button("ADD MESH Model"))
 		{
-			loadOBJ(scene);
 			add_model(scene);
+			loadOBJ(scene);
 		}
 
 		if (ImGui::Button("ADD PRIM Model"))
 		{
-			scene->LoadPrim();
 			add_model(scene);
+			scene->LoadPrim();
 		}
 
-		if (scene->getModels().size() > 0)
-		{
-			str = "the active model is model " +
-				scene->getModels()[scene->ActiveModel]->getNameModel() + " " +
-				to_string(scene->ActiveModel);
-			ImGui::Text(const_cast<char*>(str.c_str()));
-		ImGui::Checkbox("show the normals of the vertices of the active MODEL : "
-			, &scene->draw_norm_vertex);
-		ImGui::Checkbox("show the normals of the faces of the active MODEL : "
-			, &scene->draw_norm_face);
-		}
+
 		for (int i = 0; i < scene->getModels().size(); i++)
 		{
 			str = "show the window of MODEL : " 
@@ -676,11 +683,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 				ImGui::InputFloat("scale x", &f31[i], 0.0f, 0.0f);
 				ImGui::InputFloat("scale y", &f32[i], 0.0f, 0.0f);
 				ImGui::InputFloat("scale z", &f33[i], 0.0f, 0.0f);
-
-				scene->transformModel(cam->GetScaleTransform(f31[i]/auo[0],
-					f32[i] / auo[1], f33[i] / auo[2]));
-				zero[i] = cam->GetScaleTransform(f31[i] / auo[0], f32[i] / auo[1],
-					f33[i] / auo[2])*glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
+				if (  ( (f31[i] != 0.f) && (f32[i] != 0.f) && (f33[i] != 0.f))
+					&& ((auo.x != 0.f) && (auo.y != 0.f) && (auo.z != 0.f))  )
+				{
+					scene->transformModel(cam->GetScaleTransform(f31[i] / auo[0],
+						f32[i] / auo[1], f33[i] / auo[2]));
+					zero[i] = cam->GetScaleTransform(f31[i] / auo[0], f32[i] / auo[1],
+						f33[i] / auo[2])*glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
+					scale[i] = glm::vec3(f31[i], f32[i], f33[i]);
+				}
 			}
 			ImGui::End();
 		}

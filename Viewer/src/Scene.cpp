@@ -138,6 +138,11 @@ void Scene::LoadPrim()
 	models.push_back(primModel);
 }
 
+void Scene::set_renderer(Renderer *renderer)
+{
+	this->renderer = renderer;
+}
+
 void Scene::setcur_cam(int i)
 {
 	ActiveCamera = i;

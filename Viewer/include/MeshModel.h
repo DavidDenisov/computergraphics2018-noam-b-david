@@ -31,9 +31,9 @@ public:
 	~MeshModel();
 	bool window_open = 0;
 	bool folow_the_mouse = 0;
-	bool willDrawBox;
-	bool willDrawVertexNormal;
-	bool willDrawFaceNormal;
+	bool willDrawBox=0;
+	bool willDrawVertexNormal = 0;
+	bool willDrawFaceNormal = 0;
 
 	MeshModel(const string& fileName);
 	void LoadFile(const string& fileName);

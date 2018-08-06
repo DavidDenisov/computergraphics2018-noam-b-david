@@ -22,6 +22,7 @@ private:
 	vector<glm::vec4> colors_camera;
 	Renderer *renderer;
 public:
+	void set_renderer(Renderer *renderer);
 	void draw(string s);
 	~Scene(){}
 	Scene();
@@ -63,8 +64,7 @@ public:
 	const vector<Light*> getLights();
 	const vector<Camera*> getCameras();
 
-	bool draw_norm_vertex=FALSE;
-	bool draw_norm_face = FALSE;
+
 	int ActiveModel;
 	int ActiveLight;
 	int ActiveCamera;
