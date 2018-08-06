@@ -15,8 +15,8 @@ void Camera::Ortho(const float left, const float right,
 	
 	projection = scale * moveToOrigin;
 }
-/*
-void Perspective(const float fovy, const float aspect,
+
+void Camera::Perspective(const float fovy, const float aspect,
 	const float zNear, const float zFar)
 {
 	float degToRad = 2 * PI / 360;
@@ -31,7 +31,7 @@ void Perspective(const float fovy, const float aspect,
 	this->Frustum(left, right, bottom, top, zNear, zFar);
 }
 
-void Frustum(const float left, const float right,
+void Camera::Frustum(const float left, const float right,
 	const float bottom, const float top,
 	const float zNear, const float zFar)
 {
@@ -43,9 +43,9 @@ void Frustum(const float left, const float right,
 	glm::vec4 fourthCol(0.0f, 0.0f, -2 * zFar*zNear / (zFar - zNear), 0.0f);
 
 	glm::mat4x4 frutsum(firstCol, secondCol, thirdCol, thirdCol);
-	//projection = frutsum;
+	projection = frutsum;
 }
-*/
+
 void Camera::Transform(glm::mat4x4 t)
 {
 	cTransform = t*cTransform;

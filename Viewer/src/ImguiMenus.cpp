@@ -65,7 +65,7 @@ vector<glm::vec3> transformLIST;
 glm::vec4 clearColor = glm::vec4(0.4f, 0.55f, 0.60f, 1.00f);
 
 glm::vec4 Color = glm::vec4(0.0f, 0.0f, 0.f, 1.00f);
-/*
+
 void zoom(Camera* cam , int place, int projection_type, int zoom)
 {
 	if (projection_type == 0)
@@ -82,7 +82,7 @@ void zoom(Camera* cam , int place, int projection_type, int zoom)
 	}
 
 }
-*/
+
 void add_model(Scene *scene)
 {
 	num = scene->getModels().size();
@@ -250,7 +250,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 {
 	if (first)
 	{
-		first =modwid[0]=camewid[0]= showcame[0] = self_prspective[0] =FALSE;
+		first =modwid[0]=camewid[0]= showcame[0] = self_prspective[0] =cam_look_at[0]=FALSE;
 		rotation.clear();
 		rotation.push_back(glm::vec3(0, 0, 0));
 		scale.push_back(glm::vec3(1, 1, 1));
@@ -813,7 +813,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 					{
 						step = 1 / step;
 					}
-/*
+
 					if (ImGui::Button("zoom in"))
 					{
 						if (orto[i])
@@ -834,7 +834,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 						if (frustom[i])
 							zoom(scene->getCameras()[i], i, 2, step);
 					}
-					*/
+					
 					//scene->draw("../Data/cam.obj");
 				}
 				

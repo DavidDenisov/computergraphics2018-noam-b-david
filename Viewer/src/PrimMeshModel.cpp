@@ -24,11 +24,11 @@ PrimMeshModel::PrimMeshModel() //primitive MeshModel - task2
 	d       c
 	*/
 
-	glm::vec4 a(-0.5f, -0.5f, -0.5f, 0.0f), b(0.5f, -0.5f, -0.5f, 0.0f),
-		c(0.5f, -0.5f, 0.5f, 0.0f), d(-0.5f, -0.5f, 0.5f, 0.0f);
+	glm::vec4 a(-0.5f, -0.5f, -0.5f, 1.0f), b(0.5f, -0.5f, -0.5f, 1.0f),
+		c(0.5f, -0.5f, 0.5f, 1.0f), d(-0.5f, -0.5f, 0.5f, 1.0f);
 
-	glm::vec4 aUp(-0.5f, 0.5f, -0.5f, 0.0f), bUp(0.5f, 0.5f, -0.5f, 0.0f),
-		cUp(0.5f, 0.5f, 0.5f, 0.0f), dUp(-0.5f, 0.5f, 0.5f, 0.0f);
+	glm::vec4 aUp(-0.5f, 0.5f, -0.5f, 1.0f), bUp(0.5f, 0.5f, -0.5f, 1.0f),
+		cUp(0.5f, 0.5f, 0.5f, 1.0f), dUp(-0.5f, 0.5f, 0.5f, 1.0f);
 
 	glm::vec4* vPi = new glm::vec4[36];
 	//build vertices
