@@ -133,23 +133,6 @@ int main(int argc, char **argv)
 				scene.getModels()[scene.ActiveModel]->folow_the_mouse)//follow the mouse
 				scene.transformModel(cam.GetTranslateTransform((xpos/h - x)
 				,(ypos/w - y) ,0 ));
-
-
-
-
-			if (glfwGetKey(window, 'S') == GLFW_PRESS)
-			{
-				scene.transformModel(cam.GetScaleTransform(0.99, 0.99, 0.99));
-				a *= 0.99;
-			}
-
-			if (glfwGetKey(window, 'W') == GLFW_PRESS)
-			{
-				scene.transformModel(cam.GetScaleTransform(1.01, 1.01, 1.01));
-				a *= 1.01;
-			}
-
-
 		}
 
 		scene.DrawScene( w , h); //task3 - part2
@@ -159,7 +142,7 @@ int main(int argc, char **argv)
 		// Start the ImGui frame
 		StartFrame();
 		// imgui stuff here
-		DrawImguiMenus(io,&scene);
+		DrawImguiMenus(io,&scene,window);
         // Rendering + user rendering - finishing the ImGui frame
 		// go to function implementation to add your rendering calls.
 		RenderFrame(window, &renderer);// --> go to line 137
