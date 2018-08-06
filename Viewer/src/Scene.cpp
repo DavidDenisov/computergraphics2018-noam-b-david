@@ -166,7 +166,7 @@ void Scene::DrawScene(int w,int h)
 		renderer->SetObjectMatrices(models.at(i)->getWorldTransform(),
 			models.at(i)->getNormalTransform());
 		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum()
-			, colors_model[i], w, h, windowresizing);
+			, colors_model[i], w, h, windowresizing, models.at(i));
 	}
 	renderer->SwapBuffers();
 }
