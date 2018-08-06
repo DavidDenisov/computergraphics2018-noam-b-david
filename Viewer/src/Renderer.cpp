@@ -338,7 +338,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		}
 		int hello = 0;
 
-
+		delete[] transAvg;
 		delete[] transFaces;
 	}
 
