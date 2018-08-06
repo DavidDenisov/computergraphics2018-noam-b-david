@@ -43,6 +43,8 @@ public:
 	glm::vec4* Draw();
 	glm::vec4* GetVertex();
 	glm::vec4* getNormalVertex();
+	glm::vec4* getNormalFace();
+	glm::vec4* getFaceAvgs();
 	glm::mat4x4& getModelTransform();
 	glm::mat4x4& getWorldTransform();
 	glm::mat4x4& getNormalTransform();

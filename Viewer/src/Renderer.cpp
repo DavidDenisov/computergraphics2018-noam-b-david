@@ -108,19 +108,22 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 	
 	
 	//also, draw the Bounding box, if needed
-	/*
-	
-	a'_______  b'
-  d'/|_____c'/|
-	||      | |
-	||a_____|_|b
-	|/______|/
-	d       c
-	
-	*/
-
 	if (myModel->willDrawBox == 1)
 	{
+
+		/*
+
+	    a'_______b'
+      d'/|_____c'/|
+		||      | |
+		||a_____|_|b
+		|/______|/
+		d       c
+
+		*/
+
+
+
 		glm::vec4* bounds = new glm::vec4[8];
 		const glm::vec4* vP = myModel->GetVertex(); //get points even before model's transform
 		//a,b,c,d
@@ -213,6 +216,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		trackMovement = windowresizing * trackMovement;
 
 		//now draw each normal vertex. from vertex to the normal point
+		float sizeNormals;
 		for (int i = 0; i < size; i++)
 		{
 			//point
@@ -228,7 +232,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 
 			//normalize them? -- let them be the size of 40
 			b = glm::normalize(b);
-			float sizeNormals = 40;
+			sizeNormals = 40;
 			b.x = sizeNormals * b.x;
 			b.y = sizeNormals * b.y;
 
@@ -236,11 +240,104 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			b.x = b.x + a.x;
 			b.y = b.y + a.y;
 
-			drawLine(a, b, glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
+			drawLine(a, b, glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)); //faces' normals with GREEN
 		}
+
+
+
+		delete[] transNormalPositions;
 	}
 
 
+	//also, draw faces' normals, if needed
+	if (myModel->willDrawFaceNormal == 1 || TRUE)
+	{
+		//calculate Model-View matrix
+		glm::mat4x4 model = myModel->getModelTransform();
+		glm::mat4x4 mv = view * model;
+		glm::mat4x4 normalMatrix = glm::transpose(glm::inverse(mv)); // (M^-1)^T
+
+		normalMatrix = myProjection * normalMatrix; //and projet them as usual
+
+
+		glm::vec4 *facesNormal = myModel->getNormalFace();
+		glm::vec4 *facesAvg = myModel->getFaceAvgs();
+		// #faces = #points / 3
+		glm::vec4 *transFaces = new glm::vec4[size / 3];
+		glm::vec4 *transAvg = new glm::vec4[size / 3];
+
+
+		//will help track the movement of the normals
+		glm::vec4 trackMovement = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); //(0,0,0,1)
+
+		//copy them
+		for (int f = 0; f < size / 3; f++)
+		{
+			transFaces[f] = facesNormal[f];
+			transFaces[f].w = 1.0f; //the normals shouldn't move, but we don't want to lose "w trans"
+
+			transAvg[f] = facesAvg[f];
+		}
+
+		//transform them AVGs & normals
+
+		glm::mat4x4 regularTrans = T * model;
+
+		for (int f = 0; f < size / 3; f++)
+		{
+			transFaces[f] = normalMatrix * transFaces[f]; //trans them with w=0?
+			transFaces[f] = transFaces[f] / transFaces[f].w; //divide by w
+			transFaces[f] = windowresizing * transFaces[f];
+
+			//regular points, regular transformation
+			transAvg[f] = regularTrans * transAvg[f]; 
+			transAvg[f] = transAvg[f] / transAvg[f].w; //divide by w
+			transAvg[f] = windowresizing * transAvg[f];
+		}
+
+		//track movement
+		trackMovement = normalMatrix * trackMovement;
+		trackMovement = trackMovement / trackMovement.w;
+		trackMovement = windowresizing * trackMovement;
+
+
+		//now draw each normal vertex. from vertex to the normal point
+		glm::vec2 a = glm::vec2(), b = glm::vec2();
+		float sizeNormals;
+		for (int f = 0; f < size / 3; f++)
+		{
+			//point - face's avg
+			a.x = transAvg[f].x;
+			a.y = transAvg[f].y;
+
+			//normal
+			b.x = transFaces[f].x;
+			b.y = transFaces[f].y;
+
+			//return to the origin (only direction)
+			b.x = b.x - trackMovement.x;
+			b.y = b.y - trackMovement.y;
+
+			
+			//normalize them? -- let them be the size of 40
+			b = glm::normalize(b);
+			sizeNormals = 40;
+			b.x = sizeNormals * b.x;
+			b.y = sizeNormals * b.y;
+			
+
+			//let him start from the point he's normal to
+			b.x = b.x + a.x;
+			b.y = b.y + a.y;
+
+			drawLine(a, b, glm::vec4(1.0f, 1.0f, 1.0f, 0.0f)); //faces' normals with WHITE
+
+		}
+		int hello = 0;
+
+
+		delete[] transFaces;
+	}
 
 	
 	delete[] transVerticesPositions; //they take a lot of memory and will not be used again

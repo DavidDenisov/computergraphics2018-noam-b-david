@@ -105,7 +105,7 @@ MeshModel::MeshModel(const string& fileName)
 {
 	LoadFile(fileName);
 	setBound(); //bounding box
-
+	setFaceNormals(); //faces' normals
 	willDrawBox = 0;
 	willDrawFaceNormal = 0;
 	willDrawFaceNormal = 0;
@@ -116,10 +116,42 @@ void MeshModel::setFaceNormals()
 {
 	//calculate normals' direction (n) and starting point (avg)
 
+	glm::vec4 *vP = this->vertexPositions;
+	//first, calculate avgs
 
-	//first calculate avgs
+	//#vertexPositions divide by 3 - #faces
+	int size = this->vertexPosNum / 3;
+	this->faceAvgs = new glm::vec4[size];
+
+	glm::vec4 avg = glm::vec4();
+	for (int f = 0; f < size; f++)
+	{
+		avg.x = (vP[3*f + 0].x + vP[3*f + 1].x + vP[3*f + 2].x) / 3;
+		avg.y = (vP[3 * f + 0].y + vP[3 * f + 1].y + vP[3 * f + 2].y) / 3;
+		avg.z = (vP[3 * f + 0].x + vP[3 * f + 1].z + vP[3 * f + 2].z) / 3;
+
+		this->faceAvgs[f] = avg;
+	}
 
 
+	//second, calculate normals
+	this->faceNormals = new glm::vec4[size];
+
+	glm::vec3 normal3 = glm::vec3();
+	glm::vec4 normal4 = glm::vec4();
+	glm::vec3 ab = glm::vec3(), ac = glm::vec3();
+	for (int f = 0; f < size; f++)
+	{
+		// normal = AB x AC
+		ab = vP[f + 1] - vP[f]; //b - a
+		ac = vP[f + 2] - vP[f]; //c - a
+		normal3 = glm::cross(ab, ac); //ab x ac
+		
+		normal4 = glm::vec4(normal3.x, normal3.y, normal3.z, 1.0f);
+
+		this->faceNormals[f] = normal4;
+		
+	}
 
 }
 void MeshModel::setBound()
@@ -174,6 +206,14 @@ void MeshModel::setBound()
 int MeshModel::getVertexPosNum()
 {
 	return this->vertexPosNum;
+}
+glm::vec4* MeshModel::getNormalFace()
+{
+	return this->faceNormals;
+}
+glm::vec4* MeshModel::getFaceAvgs()
+{
+	return this->faceAvgs;
 }
 glm::mat4x4& MeshModel::getModelTransform()
 {
