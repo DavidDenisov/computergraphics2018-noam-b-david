@@ -10,15 +10,26 @@
 #include <algorithm>
 bool whil = true;
 float* scale_step=new float;
+float* cam_step = new float;
 
-float*leftLIST = new float;
-float* rightLIST = new float;
-float* bottomLIST = new float;
-float* topLIST = new float;
-float* nearLIST_frustom = new float;
-float* farLIST_frustom = new float;
+float*leftLIST_Frustum = new float;
+float* rightLIST_Frustum = new float;
+float* bottomLIST_Frustum = new float;
+float* topLIST_Frustum = new float;
+float* nearLIST_Frustom = new float;
+float* farLIST_Frustom = new float;
 
+float*leftLIST_Orto = new float;
+float* rightLIST_Orto = new float;
+float* bottomLIST_Orto = new float;
+float* topLIST_Orto = new float;
+float* nearLIST_Orto = new float;
+float* farLIST_Orto = new float;
+
+bool* self_prspective = new bool;
 bool* frustom = new bool;
+bool* orto = new bool;
+bool* prespective = new bool;
 float* nearLIST_Perpective = new float;
 float* farLIST_Perpective = new float;
 float* aspectLIST = new float;
@@ -225,8 +236,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 {
 	if (first)
 	{
-		first = FALSE;
-		modwid[0]=camewid[0]= showcame[0] = FALSE;
+		first =modwid[0]=camewid[0]= showcame[0] = self_prspective[0] =FALSE;
 		rotation.clear();
 		rotation.push_back(glm::vec3(0, 0, 0));
 		scale.push_back(glm::vec3(1, 1, 1));
@@ -235,7 +245,14 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 		f11= new float; f12 = new float; f13 = new float;
 		f21= new float; f22 = new float; f23 = new float;
 		f31= new float; f32 = new float; f33 = new float;
-		//mod_counter = 0;
+		leftLIST_Frustum[0] = rightLIST_Frustum[0] = bottomLIST_Frustum[0]
+		= topLIST_Frustum[0] = nearLIST_Frustom[0] = farLIST_Frustom[0]
+
+		= leftLIST_Orto[0] = rightLIST_Orto[0] = nearLIST_Orto[0]
+		= farLIST_Orto[0] = bottomLIST_Orto[0] = topLIST_Orto[0]
+
+		= nearLIST_Perpective[0] = farLIST_Perpective[0] = aspectLIST[0] = fovyLIST[0] =cam_step[0]= 0;
+		
 	}
 
 	if (scene->getModels().size()>0)
@@ -351,29 +368,36 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 	{
 		ImGui::Begin("Models", &modelsWindow);
 
+		if (scene->getModels().size() > 0)
+		{
+			MeshModel* Active = scene->getModels()[scene->ActiveModel];
+			str = "the active model is model " +
+				Active->getNameModel() + " " + to_string(scene->ActiveModel);
+			ImGui::Text(const_cast<char*>(str.c_str()));
+
+			ImGui::Checkbox("show the normals of the vertices of the active MODEL : "
+				, &Active->willDrawVertexNormal);
+
+			ImGui::Checkbox("show the normals of the faces of the active MODEL : "
+				, &Active->willDrawFaceNormal);
+
+			ImGui::Checkbox("draw the box of active MODEL : "
+				, &Active->willDrawBox);
+		}
+
 		if (ImGui::Button("ADD MESH Model"))
 		{
-			loadOBJ(scene);
 			add_model(scene);
+			loadOBJ(scene);
 		}
 
 		if (ImGui::Button("ADD PRIM Model"))
 		{
-			scene->LoadPrim();
 			add_model(scene);
+			scene->LoadPrim();
 		}
 
-		if (scene->getModels().size() > 0)
-		{
-			str = "the active model is model " +
-				scene->getModels()[scene->ActiveModel]->getNameModel() + " " +
-				to_string(scene->ActiveModel);
-			ImGui::Text(const_cast<char*>(str.c_str()));
-		ImGui::Checkbox("show the normals of the vertices of the active MODEL : "
-			, &scene->draw_norm_vertex);
-		ImGui::Checkbox("show the normals of the faces of the active MODEL : "
-			, &scene->draw_norm_face);
-		}
+
 		for (int i = 0; i < scene->getModels().size(); i++)
 		{
 			str = "show the window of MODEL : " 
@@ -394,10 +418,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 		{
 			
 			num = scene->getCameras().size();
-			camewid[num] = showcame[num] =frustom[num] = frustom[num]= cam_look_at[num]= FALSE;
-			leftLIST[num] = rightLIST[num]=rightLIST[num] = bottomLIST[num] =topLIST[num] =
-			nearLIST_frustom[num] = farLIST_frustom[num] = nearLIST_Perpective[num] =
-			farLIST_Perpective[num] =aspectLIST[num] = fovyLIST[num] = 0;
+			camewid[num] = showcame[num] =frustom[num] = frustom[num]= cam_look_at[num]=orto[num]
+			= prespective[num]= self_prspective[num] = FALSE;
+			leftLIST_Frustum[num] =rightLIST_Frustum[num] = bottomLIST_Frustum[num]
+			=topLIST_Frustum[num] = nearLIST_Frustom[num] = farLIST_Frustom[num] 
+
+			=leftLIST_Orto[num] = rightLIST_Orto[num] = nearLIST_Orto[num] 
+			= farLIST_Orto[num] = bottomLIST_Orto[num] =topLIST_Orto[num] 
+
+			= nearLIST_Perpective[num] = farLIST_Perpective[num] =aspectLIST[num] = fovyLIST[num] =cam_step[num]= 0;
 			scene->load_cam(); 
 		}
 		
@@ -677,10 +706,17 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 				ImGui::InputFloat("scale y", &f32[i], 0.0f, 0.0f);
 				ImGui::InputFloat("scale z", &f33[i], 0.0f, 0.0f);
 
-				scene->transformModel(cam->GetScaleTransform(f31[i]/auo[0],
-					f32[i] / auo[1], f33[i] / auo[2]));
-				zero[i] = cam->GetScaleTransform(f31[i] / auo[0], f32[i] / auo[1],
-					f33[i] / auo[2])*glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
+				if (  ( (f31[i] != 0.f) && (f32[i] != 0.f) && (f33[i] != 0.f)))
+				{
+					scene->transformModel(cam->GetScaleTransform(f31[i] / auo[0],
+						f32[i] / auo[1], f33[i] / auo[2]));
+					zero[i] = cam->GetScaleTransform(f31[i] / auo[0], f32[i] / auo[1],
+						f33[i] / auo[2])*glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
+					scale[i] = glm::vec3(f31[i], f32[i], f33[i]);
+				}
+				else
+					f31[i] = auo.x, f32[i] = auo.y, f33[i] = auo.z;
+				
 			}
 			ImGui::End();
 		}
@@ -695,9 +731,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 				scene->ActiveCamera = i;
 			Color = scene->getColor(i, 1);
 			ImGui::ColorEdit3("color", (float*)&Color);
-			scene->setColor(i, Color,1);
+			scene->setColor(i, Color, 1);
 			ImGui::Checkbox("auto look at", &cam_look_at[i]);
-			if (!cam_look_at[i])
+			ImGui::Checkbox("self prspective", &self_prspective[i]);
+			if (self_prspective[i])
 			{
 				ImGui::Text("up :");
 				ImGui::SliderFloat("up x :", &scene->getCameras()[i]->up[0], -1.0f, 1.0f);
@@ -710,25 +747,28 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 				ImGui::InputFloat("position z :", &scene->getCameras()[i]->pos[2]);
 
 				ImGui::Text("projection :");
-				ImGui::Checkbox("prustom", &frustom[i]);
+				ImGui::Checkbox("frustom", &frustom[i]);
+				if (frustom[i])
+					orto[i] = prespective[i] = FALSE;
+				ImGui::Checkbox("orto", &orto[i]);
+				if (orto[i])
+					frustom[i] = prespective[i] = FALSE;
+				ImGui::Checkbox("prespective", &prespective[i]);
+				if (prespective[i])
+					frustom[i] = orto[i] = FALSE;
 				if (frustom[i])
 				{
-					ImGui::SameLine(
-						ImGui::InputFloat("NEAR :", &nearLIST_frustom[i]),
-						ImGui::InputFloat("FAR :", &farLIST_frustom[i]))
-						;
-					ImGui::SameLine(
-						ImGui::InputFloat("TOP:", &topLIST[i]),
-						ImGui::InputFloat("BOTTOM :", &bottomLIST[i]))
-						;
+					ImGui::InputFloat("NEAR :", &nearLIST_Frustom[i]);
+					ImGui::InputFloat("FAR :", &farLIST_Frustom[i]);
 
-					ImGui::InputFloat("LEFT:", &leftLIST[i]);
-					ImGui::InputFloat("RIGHT :", &rightLIST[i]);
+					ImGui::InputFloat("TOP:", &topLIST_Frustum[i]);
+					ImGui::InputFloat("BOTTOM :", &bottomLIST_Frustum[i]);
 
+					ImGui::InputFloat("LEFT:", &leftLIST_Frustum[i]);
+					ImGui::InputFloat("RIGHT :", &rightLIST_Frustum[i]);
 				}
-				else
+				if (prespective[i])
 				{
-
 					ImGui::InputFloat("NEAR :", &nearLIST_Perpective[i]);
 					ImGui::InputFloat("FAR :", &farLIST_Perpective[i]);
 
@@ -736,12 +776,48 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 						ImGui::InputFloat("ASPECT :", &aspectLIST[i]);
 
 				}
+				if (orto[i])
+				{
+					ImGui::InputFloat("NEAR :", &nearLIST_Orto[i]);
+					ImGui::InputFloat("FAR :", &farLIST_Orto[i]);
+
+					ImGui::InputFloat("TOP:", &topLIST_Orto[i]);
+					ImGui::InputFloat("BOTTOM :", &bottomLIST_Orto[i]);
+
+					ImGui::InputFloat("LEFT:", &leftLIST_Orto[i]);
+					ImGui::InputFloat("RIGHT :", &rightLIST_Orto[i]);
+				}
+			}
+			else
+			{
+				ImGui::Text("projection :");
+				ImGui::Checkbox("frustom", &frustom[i]);
+				if (frustom[i])
+					orto[i] = prespective[i] = FALSE;
+				ImGui::Checkbox("orto", &orto[i]);
+				if (orto[i])
+					frustom[i] = prespective[i] = FALSE;
+				ImGui::Checkbox("prespective", &prespective[i]);
+				if (prespective[i])
+					frustom[i] = orto[i] = FALSE;
+				ImGui::InputFloat("step :", &cam_step[i], 0.0f, 0.0f);
+
+				if (ImGui::Button("zoom in"))
+				{
+					cout << "woooo! I am zooming innnnnnnnnn...";
+				}
+					
+
+				if (ImGui::Button("zoom out"))
+				{
+					cout << "woooo! I am zooming outtttttttttt...";
+				}
+				//scene->draw("../Data/cam.obj");
+
+				
 			}
 			ImGui::End();
 		}
-		if(showcame[i])
-		{
-			//scene->draw("../Data/cam.obj");
-		}
+		
 	}
 }

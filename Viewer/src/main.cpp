@@ -39,14 +39,14 @@ int main(int argc, char **argv)
 		return 1;
 	// Setup renderer and scene
 	
-	Renderer renderer = Renderer(2000,1000);
+	Renderer renderer = Renderer(w , h);
 	Scene scene = Scene(&renderer);
 	Camera cam =Camera();
 	glm::vec4 eye(0.0f, 0.0f, 0.0f, 0.0f); //left-down corner
 	glm::vec4 at(0.0f, 0.0f, -1.0f, 0.0f); 
 	glm::vec4 up(0.5f, 0.5f, 0.0f, 0.0f);
 	int num = 0;
-	
+	int w2 = w, h2 = h;
 	//task3 - part1
 	
 	
@@ -134,6 +134,10 @@ int main(int argc, char **argv)
 				scene.transformModel(cam.GetTranslateTransform((xpos/h - x)
 				,(ypos/w - y) ,0 ));
 		}
+		glfwGetWindowSize(window, &w, &h);
+		
+		/*if(w2!=w||h2!=h)
+			renderer = Renderer(w, h);*/
 
 		scene.DrawScene(float(w),float(h)); //task3 - part2
 		
