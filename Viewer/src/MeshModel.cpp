@@ -20,6 +20,21 @@ void MeshModel::transformWorld(glm::mat4x4 transform)
 	worldTransform = transform * worldTransform;
 }
 
+MeshModel::~MeshModel()
+{
+	/*
+	glm::vec4 *vertexPositions;
+	glm::vec4 *normalPositions;
+	glm::vec4 *faceNormals;
+	glm::vec4 *faceAvgs;
+	*/
+
+	delete[] vertexPositions;
+	delete[] normalPositions;
+	//delete[] faceNormals;
+	//delete[] faceAvgs;
+}
+
 
 // A struct for processing a single line in a wafefront obj file:
 // https://en.wikipedia.org/wiki/Wavefront_.obj_file

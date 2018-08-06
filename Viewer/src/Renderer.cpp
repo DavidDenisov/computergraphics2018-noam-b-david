@@ -75,6 +75,9 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		//now the points are NDC. normalized Device Coordinates
 		//now do window coordinates transformation
 		transVerticesPositions[i] = windowresizing * transVerticesPositions[i];
+		/*
+		transVerticesPositions[i].x = w/2 * transVerticesPositions[i].x + w/2;
+		*/
 	}
 
 	

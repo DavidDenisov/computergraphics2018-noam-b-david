@@ -147,7 +147,7 @@ void Scene::setcur_model(int i)
 {
 	ActiveModel = i;
 }
-void Scene::DrawScene(int w,int h)
+void Scene::DrawScene(float w,float h)
 {
 
 	// 1. Send the renderer the current camera transform and the projection

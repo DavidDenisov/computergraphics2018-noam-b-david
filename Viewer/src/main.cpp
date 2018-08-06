@@ -135,7 +135,7 @@ int main(int argc, char **argv)
 				,(ypos/w - y) ,0 ));
 		}
 
-		scene.DrawScene( w , h); //task3 - part2
+		scene.DrawScene(float(w),float(h)); //task3 - part2
 		
 		//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*
 		//cam.GetrotationTransform(1, 0)*cam.GetTranslateTransform(b, b, b) );

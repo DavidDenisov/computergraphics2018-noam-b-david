@@ -41,7 +41,7 @@ public:
 	// Draws the current scene.
 	void Draw();
 
-	void DrawScene(int a,int b);
+	void DrawScene(float w, float h);
 	// Draws an example.
 	void DrawDemo();
 
