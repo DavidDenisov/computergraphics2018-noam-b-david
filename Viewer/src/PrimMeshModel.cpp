@@ -57,12 +57,12 @@ PrimMeshModel::PrimMeshModel() //primitive MeshModel - task2
 
 
 	glm::vec4
-		upN(0.0f, 1.0f, 0.0f, 0.0f),
-		downN(0.0f, -1.0f, 0.0f, 0.0f),
-		rightN(1.0f, 0.0f, 0.0f, 0.0f),
-		leftN(-1.0f, 0.0f, 0.0f, 0.0f),
-		forwardN(0.0f, 0.0f, 1.0f, 0.0f),
-		backwardN(0.0f, 0.0f, -1.0f, 0.0f);
+		upN(0.0f, 1.0f, 0.0f, 1.0f),
+		downN(0.0f, -1.0f, 0.0f, 1.0f),
+		rightN(1.0f, 0.0f, 0.0f, 1.0f),
+		leftN(-1.0f, 0.0f, 0.0f, 1.0f),
+		forwardN(0.0f, 0.0f, 1.0f, 1.0f),
+		backwardN(0.0f, 0.0f, -1.0f, 1.0f);
 
 	glm::vec4* norm = new glm::vec4[36];
 	//build normals
@@ -106,6 +106,15 @@ PrimMeshModel::PrimMeshModel() //primitive MeshModel - task2
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
 
+
+
+
+
+
+
+
+
+	//"external" code. faces' normals, boundary box, and such
 
 	setBound();
 	willDrawBox = 0;

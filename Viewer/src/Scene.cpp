@@ -154,8 +154,9 @@ void Scene::DrawScene(int w,int h)
 	
 	renderer->SetCameraTransform(cameras.at(ActiveCamera)->get_Transform()); // ** update by lookat!
 	renderer->SetProjection(cameras.at(ActiveCamera)->get_projection());
-	glm::mat4x4 windowresizing = cameras[0]->GetTranslateTransform(w/2,h/2,0)
-		*cameras[0]->GetScaleTransform(w / 2, h / 2, 1);
+	glm::mat4x4 windowresizing = cameras[0]->GetTranslateTransform(w/2,h/2,0) 
+		*cameras[0]->GetScaleTransform(w / 2, h / 2, 1); //window coordinates
+
 	// 2. Tell all models to draw themselves
 	//renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line

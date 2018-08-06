@@ -46,7 +46,7 @@ void Renderer::SetObjectMatrices(const glm::mat4x4& worldTransform, const glm::m
 	this->nTransform = nTransform;
 }
 
-void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
+void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 	glm::vec4 color,int w,int h, glm::mat4x4 windowresizing, MeshModel* myModel)
 {
 	//we recieve the object to draw with a vector of verticesPositions
@@ -168,75 +168,74 @@ void Renderer::DrawTriangles(const glm::vec4* vertexPositions, int size,
 		delete[] bounds;
 	}
 	
+
+
 	//also, draw vertices' normals, if needed
-
-	//calculate Model-View matrix
-	glm::mat4x4 model = myModel->getModelTransform();
-	glm::mat4x4 mv = view * model;
-	glm::mat4x4 normalMatrix = glm::transpose(glm::inverse(mv)); // (M^-1)^T
-	/*
-	glm::mat3x3 ronM = glm::mat3x3
-	(
-		mv[0][0], mv[0][1], mv[0][2],
-		mv[1][0], mv[1][1], mv[1][2],
-		mv[2][0], mv[2][1], mv[2][2]
-	);
-
-	glm::mat3x3 NewRonM = glm::transpose(glm::inverse(ronM));
-	glm::vec3 killer = glm::vec3(mv[3][0], mv[3][1], mv[3][2]);
-
-
-	glm::mat4x4 normalMatrix = glm::mat4x4
-	(
-		NewRonM[0][0], NewRonM[0][1], NewRonM[0][2], 0.0f,
-		NewRonM[1][0], NewRonM[1][1], NewRonM[1][2], 0.0f,
-		NewRonM[2][0], NewRonM[2][1], NewRonM[2][2], 0.0f,
-		killer[0], killer[1], killer[2], 1.0f
-	);*/
-	normalMatrix = myProjection * normalMatrix; //and projet them as usual
-
-	glm::vec4* normalPositions = myModel->getNormalVertex();
-
-	glm::vec4 *transNormalPositions = new glm::vec4[size];
-
-	for (int i = 0; i < size; i++)
+	if (myModel->willDrawVertexNormal == 1)
 	{
-		//first copy the original. don't destory them
-		transNormalPositions[i] = normalPositions[i];
-		transNormalPositions[i].w = 0;
+		//calculate Model-View matrix
+		glm::mat4x4 model = myModel->getModelTransform();
+		glm::mat4x4 mv = view * model;
+		glm::mat4x4 normalMatrix = glm::transpose(glm::inverse(mv)); // (M^-1)^T
+
+		normalMatrix = myProjection * normalMatrix; //and projet them as usual
+
+		glm::vec4* normalPositions = myModel->getNormalVertex();
+
+		glm::vec4 *transNormalPositions = new glm::vec4[size];
+
+		//will help track the movement of the normals
+		glm::vec4 trackMovement = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); //(0,0,0,1)
+
+		for (int i = 0; i < size; i++)
+		{
+			//first copy the original. don't destory them
+			transNormalPositions[i] = normalPositions[i];
+			transNormalPositions[i].w = 1; //the normals shouldn't move, but we don't want to lose "w trans"
+		}
+
+		for (int i = 0; i < size; i++)
+		{
+			transNormalPositions[i] = normalMatrix * transNormalPositions[i]; //trans them with w=0?
+
+			//divide by w
+			transNormalPositions[i] = transNormalPositions[i] / transNormalPositions[i].w;
+
+			transNormalPositions[i] = windowresizing * transNormalPositions[i];
+		}
+
+		//track movement
+		trackMovement = normalMatrix * trackMovement;
+		trackMovement = trackMovement / trackMovement.w;
+		trackMovement = windowresizing * trackMovement;
+
+		//now draw each normal vertex. from vertex to the normal point
+		for (int i = 0; i < size; i++)
+		{
+			//point
+			a.x = transVerticesPositions[i].x;
+			a.y = transVerticesPositions[i].y;
+			//normal
+			b.x = transNormalPositions[i].x;
+			b.y = transNormalPositions[i].y;
+
+			//return to the origin (only direction)
+			b.x = b.x - trackMovement.x;
+			b.y = b.y - trackMovement.y;
+
+			//normalize them? -- let them be the size of 40
+			b = glm::normalize(b);
+			float sizeNormals = 40;
+			b.x = sizeNormals * b.x;
+			b.y = sizeNormals * b.y;
+
+			//let him start from the point he's normal to
+			b.x = b.x + a.x;
+			b.y = b.y + a.y;
+
+			drawLine(a, b, glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
+		}
 	}
-
-	for (int i = 0; i < size; i++)
-	{
-		transNormalPositions[i] = normalMatrix * transNormalPositions[i]; //trans them with w=0?
-		
-		//divide by w
-		//transNormalPositions[i] = transNormalPositions[i] / transNormalPositions[i].w;
-		
-		transNormalPositions[i] = windowresizing * transNormalPositions[i];
-	}
-
-	//now draw each normal vertex. from vertex to the normal point
-	for (int i = 0; i < size; i++)
-	{
-		//point
-		a.x = transVerticesPositions[i].x;
-		a.y = transVerticesPositions[i].y;
-		//normal
-		b.x = transNormalPositions[i].x;
-		b.y = transNormalPositions[i].y;
-
-		//normalize them?
-		b = glm::normalize(b);
-		
-
-		//let him start from the point he's normal to
-		b.x = transNormalPositions[i].x + a.x;
-		b.y = transNormalPositions[i].y + a.y;
-
-		drawLine(a, b, glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
-	}
-
 
 
 

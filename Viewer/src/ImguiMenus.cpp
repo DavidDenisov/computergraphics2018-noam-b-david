@@ -584,6 +584,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 						cam->GetrotationTransform(d3, 2)*
 						cam->GetTranslateTransform(-zero[i][0], -zero[i][1], -zero[i][2])
 					);
+					//it doesn't affect...? he's zero anyway...
 					zero[i] = cam->GetTranslateTransform(zero[i][0], zero[i][1], zero[i][2])*
 						cam->GetrotationTransform(d1, 0)*
 						cam->GetrotationTransform(d2, 1)*
@@ -607,6 +608,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 						glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
 
 				}
+
 
 				if (glfwGetKey(window, 'S') == GLFW_PRESS)
 					scale_by_key(scene, cam, 'S', step, i);

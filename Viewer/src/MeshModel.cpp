@@ -89,12 +89,24 @@ glm::vec2 vec2fFromStream(std::istream& issLine)
 MeshModel::MeshModel(const string& fileName)
 {
 	LoadFile(fileName);
-	setBound();
+	setBound(); //bounding box
+
 	willDrawBox = 0;
+	willDrawFaceNormal = 0;
+	willDrawFaceNormal = 0;
 }
 
 
+void MeshModel::setFaceNormals()
+{
+	//calculate normals' direction (n) and starting point (avg)
 
+
+	//first calculate avgs
+
+
+
+}
 void MeshModel::setBound()
 {
 	glm::vec4* vP = vertexPositions;
@@ -142,10 +154,7 @@ void MeshModel::setBound()
 	}
 	int test = 0;
 }
-void MeshModel::setFaceNormal() // ***********
-{
-	
-}
+
 
 int MeshModel::getVertexPosNum()
 {
@@ -287,7 +296,7 @@ glm::vec4* MeshModel::getNormalVertex()
 {
 	return this->normalPositions;
 }
-const glm::vec4* MeshModel::Draw()
+glm::vec4* MeshModel::Draw()
 {
 	/*
 	should use "DrawTriangles" function(?)
