@@ -175,14 +175,15 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 	}
 	
 
-
+	glm::mat4x4 model;
+	glm::mat4x4 normalMatrix;
 	//also, draw vertices' normals, if needed
 	if (myModel->willDrawVertexNormal == 1)
 	{
 		//calculate Model-View matrix
-		glm::mat4x4 model = myModel->getModelTransform();
+		model = myModel->getModelTransform();
 		glm::mat4x4 mv = view * model;
-		glm::mat4x4 normalMatrix = glm::transpose(glm::inverse(mv)); // (M^-1)^T
+		normalMatrix = glm::transpose(glm::inverse(mv)); // (M^-1)^T
 
 		normalMatrix = myProjection * normalMatrix; //and projet them as usual
 
@@ -250,7 +251,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 
 
 	//also, draw faces' normals, if needed
-	if (myModel->willDrawFaceNormal == 1 || TRUE)
+	if (myModel->willDrawFaceNormal == 1)
 	{
 		//calculate Model-View matrix
 		glm::mat4x4 model = myModel->getModelTransform();
@@ -277,6 +278,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			transFaces[f].w = 1.0f; //the normals shouldn't move, but we don't want to lose "w trans"
 
 			transAvg[f] = facesAvg[f];
+			int kula = 0;
 		}
 
 		//transform them AVGs & normals
@@ -320,7 +322,8 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 
 			
 			//normalize them? -- let them be the size of 40
-			b = glm::normalize(b);
+			if(b.x != 0.0f || b.y != 0.0f)
+				b = glm::normalize(b);
 			sizeNormals = 40;
 			b.x = sizeNormals * b.x;
 			b.y = sizeNormals * b.y;
@@ -331,7 +334,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			b.y = b.y + a.y;
 
 			drawLine(a, b, glm::vec4(1.0f, 1.0f, 1.0f, 0.0f)); //faces' normals with WHITE
-
+			int checking = 0;
 		}
 		int hello = 0;
 
