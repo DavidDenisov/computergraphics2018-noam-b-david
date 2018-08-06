@@ -5,6 +5,7 @@
 # define PI 3.141592653589793238462643383279502884L /* pi */
 
 using namespace std;
+
 void Camera::Ortho(const float left, const float right,
 	const float bottom, const float top,
 	const float zNear, const float zFar)
@@ -14,8 +15,8 @@ void Camera::Ortho(const float left, const float right,
 	
 	projection = scale * moveToOrigin;
 }
-
-void Camera::Perspective(const float fovy, const float aspect,
+/*
+void Perspective(const float fovy, const float aspect,
 	const float zNear, const float zFar)
 {
 	float degToRad = 2 * PI / 360;
@@ -30,10 +31,11 @@ void Camera::Perspective(const float fovy, const float aspect,
 	this->Frustum(left, right, bottom, top, zNear, zFar);
 }
 
-void Camera::Frustum(const float left, const float right,
+void Frustum(const float left, const float right,
 	const float bottom, const float top,
 	const float zNear, const float zFar)
 {
+
 	glm::vec4 firstCol(2 * zNear / (right - left), 0.0f, 0.0f, 0.0f);
 	glm::vec4 secondCol(0.0f, 2 * zNear / (top - bottom), 0.0f, 0.0f);
 	glm::vec4 thirdCol((right + left) / (right - left),
@@ -41,9 +43,9 @@ void Camera::Frustum(const float left, const float right,
 	glm::vec4 fourthCol(0.0f, 0.0f, -2 * zFar*zNear / (zFar - zNear), 0.0f);
 
 	glm::mat4x4 frutsum(firstCol, secondCol, thirdCol, thirdCol);
-	projection = frutsum;
+	//projection = frutsum;
 }
-
+*/
 void Camera::Transform(glm::mat4x4 t)
 {
 	cTransform = t*cTransform;

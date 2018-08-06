@@ -61,7 +61,7 @@ void Scene::transformWorld(glm::mat4x4 transform)
 }
 void Scene::transformProjection(int a, int b, int c, int d, int e, int f)
 {
-	cameras[ActiveCamera]->Frustum(a, b, c, d, e, f);
+	//cameras[ActiveCamera]->Frustum(a, b, c, d, e, f);
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)

@@ -34,6 +34,7 @@ public:
 	// Creates lookAt transformation.
 	void LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up );
 
+
 	// Sets orthographic projection matrix.
 	void Ortho( const float left, const float right,
 		const float bottom, const float top,

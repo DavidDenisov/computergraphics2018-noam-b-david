@@ -65,6 +65,24 @@ vector<glm::vec3> transformLIST;
 glm::vec4 clearColor = glm::vec4(0.4f, 0.55f, 0.60f, 1.00f);
 
 glm::vec4 Color = glm::vec4(0.0f, 0.0f, 0.f, 1.00f);
+/*
+void zoom(Camera* cam , int place, int projection_type, int zoom)
+{
+	if (projection_type == 0)
+		cam->Frustum(leftLIST_Frustum[place]*zoom, rightLIST_Frustum[place] * zoom, bottomLIST_Frustum[place] * zoom
+		,topLIST_Frustum[place] * zoom, nearLIST_Frustom[place] * zoom, farLIST_Frustom[place] * zoom);
+	else
+	{
+		if (projection_type == 1)
+		cam->Perspective(fovyLIST[place] * zoom, aspectLIST[place] * zoom, nearLIST_Perpective[place] * zoom
+			, farLIST_Perpective[place] * zoom);
+		else
+		cam->Ortho(leftLIST_Orto[place] * zoom, rightLIST_Orto[place] * zoom, bottomLIST_Orto[place] * zoom
+		, topLIST_Orto[place] * zoom, nearLIST_Orto[place] * zoom, farLIST_Orto[place] * zoom);
+	}
+
+}
+*/
 void add_model(Scene *scene)
 {
 	num = scene->getModels().size();
@@ -155,14 +173,10 @@ void rotate_by_key(Scene *scene,Camera* cam,int key,bool in_place3,float f,int i
 	
 	scene->transformModel(mat);
 	zero[i] = glm::vec4(x,y,z,1) * mat;
-	if(!rad)
-		rotation[i] += vector3;
-	else
-	{
-		rotation[i][0] += vector3[0];
-		rotation[i][1] += vector3[1];
-		rotation[i][2] += vector3[2];
-	}
+	rotation[i][0] += vector3[0];
+	rotation[i][1] += vector3[1];
+	rotation[i][2] += vector3[2];
+	
 
 	f11[i] = rotation[i][0];
 	f12[i] = rotation[i][1];
@@ -228,7 +242,7 @@ void loadOBJ(Scene *scene)
 	else if (result == NFD_CANCEL) {
 	}
 	else {
-	std:cout << "why...?";
+	cout << "why...?";
 	}
 	delete outPath;
 }
@@ -562,7 +576,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 						d2 = (a[1] - f12[i])*(PI / 180.0);
 						ImGui::SliderFloat("rotation z degrees", &f13[i], 0.0f, 360.0f);
 						d3 = (a[2] - f13[i])*(PI / 180.0);
-						ratio= (PI / 180.0);
+						ratio= (PI/ 180.0);
 
 						whil = true;
 						while (whil)
@@ -603,67 +617,55 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 				}
 				
 				ImGui::Checkbox("rotate in place", &in_place1);
-
+				glm::mat4x4 mat = cam->GetrotationTransform(d1, 0)*
+				cam->GetrotationTransform(d2, 1)*
+				cam->GetrotationTransform(d3, 2);
 				if (in_place1)
 				{
 					scene->transformModel(
-						cam->GetTranslateTransform(zero[i][0], zero[i][1], zero[i][2])*
-						cam->GetrotationTransform(d1, 0)*
-						cam->GetrotationTransform(d2, 1)*
-						cam->GetrotationTransform(d3, 2)*
+						cam->GetTranslateTransform(zero[i][0], zero[i][1], zero[i][2])* mat *
 						cam->GetTranslateTransform(-zero[i][0], -zero[i][1], -zero[i][2])
 					);
-					//it doesn't affect...? he's zero anyway...
-					zero[i] = cam->GetTranslateTransform(zero[i][0], zero[i][1], zero[i][2])*
-						cam->GetrotationTransform(d1, 0)*
-						cam->GetrotationTransform(d2, 1)*
-						cam->GetrotationTransform(d3, 2)*
+					//it doesn't affect...? he's zero anyway... (he is not a zero he represents the zero of the model)
+					zero[i] = cam->GetTranslateTransform(zero[i][0], zero[i][1], zero[i][2])
+						*mat*
 						cam->GetTranslateTransform(-zero[i][0], -zero[i][1], -zero[i][2])*
 						glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
-
 
 				}
 				else
 				{
-
-					scene->transformModel(
-						cam->GetrotationTransform(d1, 0)*
-						cam->GetrotationTransform(d2, 1)*
-						cam->GetrotationTransform(d3, 2)
-					);
-					zero[i] = cam->GetrotationTransform(d1, 0)*
-						cam->GetrotationTransform(d2, 1)*
-						cam->GetrotationTransform(d3, 2) *
-						glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
-
+					scene->transformModel(mat);
+					zero[i] = mat*glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
+					
 				}
 
 
 				if (glfwGetKey(window, 'S') == GLFW_PRESS)
-					scale_by_key(scene, cam, 'S', step, i);
+					scale_by_key(scene, cam, 'S', step*ratio, i);
 
 
 				if (glfwGetKey(window, 'W') == GLFW_PRESS)
-					scale_by_key(scene, cam, 'W', step, i);
+					scale_by_key(scene, cam, 'W', step*ratio, i);
 
 				if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 					rotate_by_key(scene, cam, GLFW_KEY_DOWN, in_place1, step*ratio,i);
 
 				if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-					rotate_by_key(scene, cam, GLFW_KEY_UP, in_place1, step*ratio,i);
+					rotate_by_key(scene, cam, GLFW_KEY_UP, in_place1,step*ratio,i);
 
 				if (glfwGetKey(window,GLFW_KEY_RIGHT) == GLFW_PRESS)
 					rotate_by_key(scene, cam, GLFW_KEY_RIGHT, in_place1, step*ratio,i);
 
 				if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-					rotate_by_key(scene, cam, GLFW_KEY_LEFT, in_place1, step*ratio,i);
+					rotate_by_key(scene, cam, GLFW_KEY_LEFT, in_place1,step*ratio,i);
 
 				if (glfwGetKey(window, 'A') == GLFW_PRESS)
 					rotate_by_key(scene, cam, 'A', in_place1, step*ratio,i);
 
 
 				if (glfwGetKey(window, 'D') == GLFW_PRESS)
-					rotate_by_key(scene, cam, 'D', in_place1, step*ratio,i);
+					rotate_by_key(scene, cam, 'D', in_place1,step*ratio,i);
 
 				if (glfwGetKey(window, 'Y') == GLFW_PRESS)
 					translate_by_key(scene, cam, 'Y', step, i);
@@ -683,7 +685,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 				if (glfwGetKey(window, 'H') == GLFW_PRESS)
 					translate_by_key(scene, cam, 'H', step, i);
 
-				rotation[i] = glm::vec3(f11[i], f12[i], f13[i]);
+				rotation[i] = glm::vec3(f11[i] ,f12[i] ,f13[i] );
 
 				glm::vec3 auo = glm::vec3(f21[i], f22[i], f23[i]);
 				ImGui::InputFloat("transpose x", &f21[i], 0.0f, 0.0f);
@@ -800,20 +802,41 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 				ImGui::Checkbox("prespective", &prespective[i]);
 				if (prespective[i])
 					frustom[i] = orto[i] = FALSE;
+				
+
+				
 				ImGui::InputFloat("step :", &cam_step[i], 0.0f, 0.0f);
-
-				if (ImGui::Button("zoom in"))
+				if (cam_step[i] != 0.f)
 				{
-					cout << "woooo! I am zooming innnnnnnnnn...";
-				}
-					
+					float step = cam_step[i];
+					if (step < 1)
+					{
+						step = 1 / step;
+					}
+/*
+					if (ImGui::Button("zoom in"))
+					{
+						if (orto[i])
+							zoom(scene->getCameras()[i], i, 2, 1 / step);
+						if (prespective[i])
+							zoom(scene->getCameras()[i], i, 1, 1 / step);
+						if (frustom[i])
+							zoom(scene->getCameras()[i], i, 2, 1 / step);
+					}
 
-				if (ImGui::Button("zoom out"))
-				{
-					cout << "woooo! I am zooming outtttttttttt...";
-				}
-				//scene->draw("../Data/cam.obj");
 
+					if (ImGui::Button("zoom out"))
+					{
+						if (orto[i])
+							zoom(scene->getCameras()[i], i, 2, step);
+						if (prespective[i])
+							zoom(scene->getCameras()[i], i, 1, step);
+						if (frustom[i])
+							zoom(scene->getCameras()[i], i, 2, step);
+					}
+					*/
+					//scene->draw("../Data/cam.obj");
+				}
 				
 			}
 			ImGui::End();
