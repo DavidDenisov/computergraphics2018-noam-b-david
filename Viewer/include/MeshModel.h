@@ -15,8 +15,8 @@ protected:
 	MeshModel() {} //for PrimMeshModel()
 	glm::vec4 *vertexPositions;
 	glm::vec4 *normalPositions;
-	
-	
+	glm::vec4 *faceNormals;
+	glm::vec4 *faceAvgs;
 	// Add more attributes.
 	int vertexPosNum; // 3 * #vertices
 	
@@ -25,8 +25,8 @@ protected:
 	glm::mat4x4 modelTransform; //transformations according to model's origin
 	glm::mat4x4 normalTransform; //transformations on normals
 
-	void setBound(); //find max's and min's indices - in constructor
-	void setFaceNormal(); //build the faces' normals - in constructor
+	void setFaceNormals(); //build the faces' normals - in constructor
+	void setBound(); //find max's and min's indices - in constructor 
 public:
 	bool window_open = 0;
 	bool folow_the_mouse = 0;
@@ -39,7 +39,7 @@ public:
 	int getVertexPosNum();
 	void transformModel(glm::mat4x4 transform);
 	void transformWorld(glm::mat4x4 transform);
-	const glm::vec4* Draw();
+	glm::vec4* Draw();
 	glm::vec4* GetVertex();
 	glm::vec4* getNormalVertex();
 	glm::mat4x4& getModelTransform();
