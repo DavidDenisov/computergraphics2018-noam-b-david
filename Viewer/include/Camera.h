@@ -1,6 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
-
+#include "MeshModel.h"
 /*
  * Camera class. This class takes care of all the camera transformations and manipulations.
  */
@@ -9,11 +9,15 @@ class Camera
 private:
 	glm::mat4x4 cTransform;
 	glm::mat4x4 projection;
+	MeshModel* camBox;
+
+
+
 	glm::mat4x4 rotationTransform(double deg, int axis);
 	glm::mat4x4 ScaleTransform(double x_scale, double y_scale, double z_scale);
 	glm::mat4x4 TranslateTransform(double x_scale, double y_scale, double z_scale);
 public:
-	glm::vec4 up= glm::vec4(0,1,0,1);
+	glm::vec4 up = glm::vec4(0,1,0,1);
 	glm::vec4 pos = glm::vec4(0, 0, 1,1);
 	int num;
 	Camera();
@@ -26,6 +30,9 @@ public:
 		, glm::vec3 Translate_val,glm::vec2 rotat_val);
 	glm::mat4x4 get_projection();
 	glm::mat4x4 get_Transform();
+
+	MeshModel* getCamBox();
+
 	void Transform(glm::mat4x4 t);
 
 	// Sets the camera transformations with relation to world coordinates

@@ -65,6 +65,8 @@ public:
 	const vector<Camera*> getCameras();
 
 
+	int willCamerasRender = 0;
+
 	int ActiveModel;
 	int ActiveLight;
 	int ActiveCamera;

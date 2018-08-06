@@ -73,6 +73,12 @@ glm::mat4x4 Camera::GetTranslateTransform(double x_scale, double y_scale, double
 {
 	return TranslateTransform(x_scale, y_scale, z_scale);
 }
+
+MeshModel* Camera::getCamBox()
+{
+	return this->camBox;
+}
+
 glm::mat4x4 Camera::TranslateTransform(double x_scale, double y_scale, double z_scale)
 {
 	/*return glm::mat4x4(1, 0, 0, x_scale,
@@ -84,7 +90,6 @@ glm::mat4x4 Camera::TranslateTransform(double x_scale, double y_scale, double z_
 		0, 0, 1, 0,
 		x_scale, y_scale, z_scale, 1);
 }
-
 glm::mat4x4 Camera::ScaleTransform(double x_scale, double y_scale, double z_scale)
 {
 	return glm::mat4x4(x_scale, 0, 0, 0,

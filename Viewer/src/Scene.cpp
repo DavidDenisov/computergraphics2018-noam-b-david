@@ -174,6 +174,21 @@ void Scene::DrawScene(float w,float h)
 		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum()
 			, colors_model[i], w, h, windowresizing, models.at(i));
 	}
+
+	//render cameras as well, if needed
+	
+	if (willCamerasRender == 1)
+	{
+		//exacly the same code like models' drawing just "cameras[i]->getCamBox()" for models[i]
+		for (int i = 0; i < cameras.size(); i++)
+		{
+			renderer->SetObjectMatrices(cameras[i]->getCamBox()->getWorldTransform(),
+				cameras[i]->getCamBox()->getNormalTransform());
+			renderer->DrawTriangles(cameras[i]->getCamBox()->Draw(), cameras[i]->getCamBox()->getVertexPosNum()
+				, colors_camera[i], w, h, windowresizing, cameras[i]->getCamBox());
+		}
+	}
+
 	renderer->SwapBuffers();
 }
 /*
