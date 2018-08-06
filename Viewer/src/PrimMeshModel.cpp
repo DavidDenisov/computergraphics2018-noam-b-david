@@ -116,6 +116,9 @@ PrimMeshModel::PrimMeshModel() //primitive MeshModel - task2
 
 	//"external" code. faces' normals, boundary box, and such
 
-	setBound();
+	setBound(); //bounding box
+	setFaceNormals(); //faces' normals
 	willDrawBox = 0;
+	willDrawFaceNormal = 0;
+	willDrawFaceNormal = 0;
 }
