@@ -117,6 +117,7 @@ void MeshModel::setFaceNormals()
 	//calculate normals' direction (n) and starting point (avg)
 
 	glm::vec4 *vP = this->vertexPositions;
+	glm::vec4 *vN = this->normalPositions;
 	//first, calculate avgs
 
 	//#vertexPositions divide by 3 - #faces
@@ -126,9 +127,9 @@ void MeshModel::setFaceNormals()
 	glm::vec4 avg = glm::vec4();
 	for (int f = 0; f < size; f++)
 	{
-		avg.x = (vP[3*f + 0].x + vP[3*f + 1].x + vP[3*f + 2].x) / 3;
-		avg.y = (vP[3 * f + 0].y + vP[3 * f + 1].y + vP[3 * f + 2].y) / 3;
-		avg.z = (vP[3 * f + 0].x + vP[3 * f + 1].z + vP[3 * f + 2].z) / 3;
+		avg.x = (vP[(3 * f) + 0].x + vP[(3 * f) + 1].x + vP[(3 * f) + 2].x) / 3;
+		avg.y = (vP[(3 * f) + 0].y + vP[(3 * f) + 1].y + vP[(3 * f) + 2].y) / 3;
+		avg.z = (vP[(3 * f) + 0].z + vP[(3 * f) + 1].z + vP[(3 * f) + 2].z) / 3;
 		avg.w = 1.0f; //dont forget the w!
 		this->faceAvgs[f] = avg;
 	}
@@ -137,11 +138,12 @@ void MeshModel::setFaceNormals()
 	//second, calculate normals
 	this->faceNormals = new glm::vec4[size];
 
-	glm::vec3 normal3 = glm::vec3();
+	//glm::vec3 normal3 = glm::vec3();
 	glm::vec4 normal4 = glm::vec4();
-	glm::vec3 ab = glm::vec3(), ac = glm::vec3();
+	//glm::vec3 ab = glm::vec3(), ac = glm::vec3();
 	for (int f = 0; f < size; f++)
 	{
+		/*
 		// normal = AB x AC --- multiply them by A LOT so it wouldn't reach 0
 		ab = 1000.0f * vP[3 * f + 1] - 1000.0f * vP[3 * f]; //b - a
 		ac = 1000.0f * vP[3 * f + 2] - 1000.0f * vP[3 * f]; //c - a
@@ -150,7 +152,14 @@ void MeshModel::setFaceNormals()
 		normal4 = glm::vec4(normal3.x, normal3.y, normal3.z, 1.0f); //w=1
 
 		this->faceNormals[f] = normal4;
-		
+		*/
+
+		normal4.x = (vN[3 * f + 0].x + vN[3 * f + 1].x + vN[3 * f + 2].x) / 3;
+		normal4.y = (vN[3 * f + 0].y + vN[3 * f + 1].y + vN[3 * f + 2].y) / 3;
+		normal4.z = (vN[3 * f + 0].z + vP[3 * f + 1].z + vN[3 * f + 2].z) / 3;
+		normal4.w = 1.0f; //dont forget the w!
+		this->faceNormals[f] = normal4;
+
 	}
 
 }

@@ -89,6 +89,14 @@ PrimMeshModel::PrimMeshModel() //primitive MeshModel - task2
 
 	this->normalPositions = norm;
 	//object in the center of the world, identity trans
+	this->modelTransform = glm::mat4x4
+	(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+
 	this->worldTransform = glm::mat4x4
 	(
 		1.0f, 0.0f, 0.0f, 0.0f,
