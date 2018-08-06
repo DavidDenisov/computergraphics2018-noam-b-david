@@ -337,6 +337,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 					cam->GetrotationTransform(d3, 2)*
 					cam->GetTranslateTransform(-zero[i][0],-zero[i][1],-zero[i][2])
 					);
+					//it doesn't affect...? he's zero anyway...
 					zero[i] = cam->GetTranslateTransform(zero[i][0], zero[i][1], zero[i][2])*
 						cam->GetrotationTransform(d1, 0)*
 						cam->GetrotationTransform(d2, 1)*
@@ -361,18 +362,20 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene)
 		
 			rotation[i] = glm::vec3(f11[i], f12[i], f13[i]);
 
-			glm::vec3 auo=glm::vec3(f21[i], f22[i], f23[i]);
+			//auo - before changes
+			glm::vec3 auo=glm::vec3(f21[i], f22[i], f23[i]); 
 			ImGui::InputFloat("transpose x", &f21[i], 0.0f, 0.0f);
 			
 			ImGui::InputFloat("transpose y", &f22[i], 0.0f, 0.0f);
 		
 			ImGui::InputFloat("transpose z", &f23[i], 0.0f, 0.0f);
-
+			//update zero
 			zero[i] = glm::vec3(zero[i][0] + f21[i]-auo[0], 
 				zero[i][1] + f22[i] - auo[1], zero[i][2] + f23[i] - auo[2]);
-
+			//translate the model
 			scene->transformModel(cam->GetTranslateTransform
 			(f21[i] - auo[0], f22[i] - auo[1], f23[i] - auo[2]));
+			//update the transformLIST
 			transformLIST[i] = glm::vec3(transformLIST[i][0]+ f21[i]-auo[0]
 			, transformLIST[i][1] + f22[i]-auo[1], transformLIST[i][2] + f23[i] - auo[2]);
 			
