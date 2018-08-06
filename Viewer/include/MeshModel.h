@@ -28,6 +28,7 @@ protected:
 	void setBound(); //find max's and min's indices - in constructor
 	void setFaceNormal(); //build the faces' normals - in constructor
 public:
+	~MeshModel();
 	bool window_open = 0;
 	bool folow_the_mouse = 0;
 	bool willDrawBox;

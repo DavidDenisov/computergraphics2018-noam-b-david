@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+bool whil = true;
 float* scale_step=new float;
 
 float*leftLIST = new float;
@@ -53,6 +54,38 @@ vector<glm::vec3> transformLIST;
 glm::vec4 clearColor = glm::vec4(0.4f, 0.55f, 0.60f, 1.00f);
 
 glm::vec4 Color = glm::vec4(0.0f, 0.0f, 0.f, 1.00f);
+void add_model(Scene *scene)
+{
+	num = scene->getModels().size();
+	modwid[num] = FALSE;
+	rotation.push_back(glm::vec3(0, 0, 0));
+	scale.push_back(glm::vec3(1, 1, 1));
+	transformLIST.push_back(glm::vec3(0, 0, 0));
+	zero.push_back(glm::vec3(0, 0, 0));
+	f11[num] = 0.0f; f12[num] = 0.0f; f13[num] = 0.0f;
+	f21[num] = 0.0f; f22[num] = 0.0f; f23[num] = 0.0f;
+	f31[num] = 1.0f; f32[num] = 1.0f; f33[num] = 1.0f;
+	deg[num] = TRUE;
+	rad[num] = FALSE;
+	scale_step[num] = 0.f;
+}
+void remove_model(Scene *scene,int place)
+{
+	if ((place > 0) || (place>scene->getModels().size()))
+		return;
+	scene->RemoveModel(place);
+	modwid[place] = FALSE;
+	rotation.erase(rotation.begin() + place);
+	scale.erase(scale.begin() + place);
+	transformLIST.erase(transformLIST.begin() + place);
+	zero.erase(zero.begin() + place);
+	f11[num] = 0.0f; f12[num] = 0.0f; f13[num] = 0.0f;
+	f21[num] = 0.0f; f22[num] = 0.0f; f23[num] = 0.0f;
+	f31[num] = 1.0f; f32[num] = 1.0f; f33[num] = 1.0f;
+	deg[num] = TRUE;
+	rad[num] = FALSE;
+	scale_step[num] = 0.f;
+}
 void rotate_by_key(Scene *scene,Camera* cam,int key,bool in_place3,float f,int i)
 {
 	glm::mat4x4 mat = glm::mat4x4(1, 0, 0, 0,
@@ -180,13 +213,13 @@ void loadOBJ(Scene *scene)
 		//replace all '\' to '/' in the path
 		replace(filename.begin(), filename.end(), '\\', '/');
 		scene->LoadOBJModel(filename);
-		free(outPath);
 	}
 	else if (result == NFD_CANCEL) {
 	}
 	else {
 	std:cout << "why...?";
 	}
+	delete outPath;
 }
 void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 {
@@ -318,21 +351,16 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 	{
 		ImGui::Begin("Models", &modelsWindow);
 
-		if (ImGui::Button("ADD Model"))
+		if (ImGui::Button("ADD MESH Model"))
 		{
 			loadOBJ(scene);
-			modwid[mod_counter] = FALSE;
-			rotation.push_back(glm::vec3(0, 0, 0));
-			scale.push_back(glm::vec3(1, 1, 1));
-			transformLIST.push_back(glm::vec3(0, 0, 0));
-			zero.push_back(glm::vec3(0, 0, 0));
-			f11[mod_counter] = 0.0f; f12[mod_counter] = 0.0f; f13[mod_counter] = 0.0f;
-			f21[mod_counter] = 0.0f; f22[mod_counter] = 0.0f; f23[mod_counter] = 0.0f;
-			f31[mod_counter] = 1.0f; f32[mod_counter] = 1.0f; f33[mod_counter] = 1.0f;
-			deg[mod_counter] = TRUE;
-			rad[mod_counter] = FALSE;
-			scale_step[scene->getModels().size()-1] = 0.f;
-			//mod_counter++;
+			add_model(scene);
+		}
+
+		if (ImGui::Button("ADD PRIM Model"))
+		{
+			scene->LoadPrim();
+			add_model(scene);
 		}
 
 		if (scene->getModels().size() > 0)
@@ -354,13 +382,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 			str = "REMOVE MODEL : " + scene->getModels()[i]->getNameModel()
 			+ " " + to_string(i);
 			if (ImGui::Button(const_cast<char*>(str.c_str())))
-			{
-				scene->RemoveModel(i);
-				rotation.erase(rotation.begin() + i);
-				scale.erase(scale.begin() + i);
-				transformLIST.erase(transformLIST.begin() + i);
-				modwid[i] = FALSE;
-			}
+				remove_model(scene,i);
 		}
 		ImGui::End();
 		
@@ -404,7 +426,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 	{
 		if (modwid[i])
 		{
-			string str = "MODEL : " + scene->getModels()[i]->getNameModel()+to_string(i);
+			str = "MODEL : " + scene->getModels()[i]->getNameModel()+to_string(i);
 			ImGui::Begin(const_cast<char*>(str.c_str()), &modelsWindow);
 			if (ImGui::Button("make active"))
 				scene->ActiveModel = i;
@@ -447,8 +469,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 					{
 						rad[i] = FALSE;
 						deg[i] = TRUE;
-						for (int i = 0; i < mod_counter; i++)
-							f11[i] = f12[i] = f13[i] = 0;
+						for (int j = 0; j < mod_counter; j++)
+							f11[j] = f12[j] = f13[j] = 0;
 					}
 					else
 					{
@@ -458,7 +480,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 						d2 = a[1] - f12[i];
 						ImGui::SliderFloat("rotation z rad", &f13[i], 0.0f, 2 * PI);
 						d3 = a[2] - f13[i];
-						bool whil = true;
+						whil = true;
 						while (whil)
 						{
 							whil = FALSE;
@@ -500,8 +522,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 					if (ImGui::Button("rad"))
 					{
 						deg[i] = FALSE; rad[i] = TRUE;
-						for (int i = 0; i < mod_counter; i++)
-							f11[i] = f12[i] = f13[i] = 0;
+						for (int j = 0; j < mod_counter; j++)
+							f11[j] = f12[j] = f13[j] = 0;
 					}
 					else
 					{
@@ -513,7 +535,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 						d3 = (a[2] - f13[i])*(PI / 180.0);
 						ratio= (PI / 180.0);
 
-						bool whil = true;
+						whil = true;
 						while (whil)
 						{
 							whil = FALSE;
@@ -665,51 +687,54 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 	{
 		if (camewid[i])
 		{
-			string str = "camera number : " + to_string(i);
+			str = "camera number : " + to_string(i);
 			ImGui::Begin(const_cast<char*>(str.c_str()), &modelsWindow);
 			if (ImGui::Button("make active"))
 				scene->ActiveCamera = i;
 			Color = scene->getColor(i, 1);
 			ImGui::ColorEdit3("color", (float*)&Color);
 			scene->setColor(i, Color,1);
-			ImGui::Text("up :");
-			ImGui::SliderFloat("up x :", &scene->getCameras()[i]->up[0], -1.0f, 1.0f);
-			ImGui::SliderFloat("up y :", &scene->getCameras()[i]->up[1], -1.0f, 1.0f);
-			ImGui::SliderFloat("up z :", &scene->getCameras()[i]->up[2], -1.0f, 1.0f);
-
-			ImGui::Text( "position :");
-			ImGui::InputFloat("position x :", &scene->getCameras()[i]->pos[0]);
-			ImGui::InputFloat("position y :", &scene->getCameras()[i]->pos[1]);
-			ImGui::InputFloat("position z :", &scene->getCameras()[i]->pos[2]);
-		
-			ImGui::Text("projection :");
-			ImGui::Checkbox("prustom", &frustom[i]);
-			if (frustom[i])
+			ImGui::Checkbox("auto look at", &cam_look_at[i]);
+			if (!cam_look_at[i])
 			{
-				ImGui::SameLine(
-				ImGui::InputFloat("NEAR :", &nearLIST_frustom[i]),
-				ImGui::InputFloat("FAR :", &farLIST_frustom[i]))
-				;
-				ImGui::SameLine(
-					ImGui::InputFloat("TOP:", &topLIST[i]),
-					ImGui::InputFloat("BOTTOM :", &bottomLIST[i]))
-					;
+				ImGui::Text("up :");
+				ImGui::SliderFloat("up x :", &scene->getCameras()[i]->up[0], -1.0f, 1.0f);
+				ImGui::SliderFloat("up y :", &scene->getCameras()[i]->up[1], -1.0f, 1.0f);
+				ImGui::SliderFloat("up z :", &scene->getCameras()[i]->up[2], -1.0f, 1.0f);
 
-				ImGui::InputFloat("LEFT:", &leftLIST[i]);
+				ImGui::Text("position :");
+				ImGui::InputFloat("position x :", &scene->getCameras()[i]->pos[0]);
+				ImGui::InputFloat("position y :", &scene->getCameras()[i]->pos[1]);
+				ImGui::InputFloat("position z :", &scene->getCameras()[i]->pos[2]);
+
+				ImGui::Text("projection :");
+				ImGui::Checkbox("prustom", &frustom[i]);
+				if (frustom[i])
+				{
+					ImGui::SameLine(
+						ImGui::InputFloat("NEAR :", &nearLIST_frustom[i]),
+						ImGui::InputFloat("FAR :", &farLIST_frustom[i]))
+						;
+					ImGui::SameLine(
+						ImGui::InputFloat("TOP:", &topLIST[i]),
+						ImGui::InputFloat("BOTTOM :", &bottomLIST[i]))
+						;
+
+					ImGui::InputFloat("LEFT:", &leftLIST[i]);
 					ImGui::InputFloat("RIGHT :", &rightLIST[i]);
-			
-			}
-			else
-			{
-				
-				ImGui::InputFloat("NEAR :", &nearLIST_Perpective[i]);
-					ImGui::InputFloat("FAR :", &farLIST_Perpective[i]);
-			
-					ImGui::InputFloat("FOVY :", &fovyLIST[i]),
-					ImGui::InputFloat("ASPECT :", &aspectLIST[i]);
-				
-			}
 
+				}
+				else
+				{
+
+					ImGui::InputFloat("NEAR :", &nearLIST_Perpective[i]);
+					ImGui::InputFloat("FAR :", &farLIST_Perpective[i]);
+
+					ImGui::InputFloat("FOVY :", &fovyLIST[i]),
+						ImGui::InputFloat("ASPECT :", &aspectLIST[i]);
+
+				}
+			}
 			ImGui::End();
 		}
 		if(showcame[i])
