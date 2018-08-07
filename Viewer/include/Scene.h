@@ -22,6 +22,7 @@ private:
 	vector<glm::vec4> colors_camera;
 	Renderer *renderer;
 public:
+	void setModeltransform(glm::mat4x4 transform);
 	void set_renderer(Renderer *renderer);
 	void draw(string s);
 	~Scene(){}

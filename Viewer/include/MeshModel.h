@@ -34,7 +34,7 @@ public:
 	bool willDrawBox=0;
 	bool willDrawVertexNormal = 0;
 	bool willDrawFaceNormal = 0;
-
+	void setModeltransform(glm::mat4x4 transform);
 	MeshModel(const string& fileName);
 	void LoadFile(const string& fileName);
 	int getVertexPosNum();

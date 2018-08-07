@@ -16,6 +16,12 @@ int ActiveCamera=0;
 */
 
 using namespace std;
+/*
+void  Scene::transformcam(glm::mat4x4 transform, int place)
+{
+	this->cameras[place]->transform_transform(transform);
+}*/
+
 void  Scene::transformProjectionCam(glm::mat4x4 transform, int place)
 {
 	this->cameras[place]->set_projection(transform);
@@ -56,6 +62,10 @@ glm::vec4 Scene::GetVertexAvg(int mod)
 glm::vec4* Scene::GetVertex(int mod)
 {
 	return models[mod]->GetVertex();
+}
+void Scene::setModeltransform(glm::mat4x4 transform)
+{
+	models[ActiveModel]->setModeltransform(transform);
 }
 void Scene::transformModel(glm::mat4x4 transform)
 {
@@ -189,13 +199,17 @@ void Scene::DrawScene(float w,float h)
 	
 	if (willCamerasRender == 1)
 	{
-		//exacly the same code like models' drawing just "cameras[i]->getCamBox()" for models[i]
+		//exacly the same code like models' drawing just "cameras[i]->getCamBox()" for models[i] 
+		//and not rendering the active camera
 		for (int i = 0; i < cameras.size(); i++)
 		{
-			renderer->SetObjectMatrices(cameras[i]->getCamBox()->getWorldTransform(),
-				cameras[i]->getCamBox()->getNormalTransform());
-			renderer->DrawTriangles(cameras[i]->getCamBox()->Draw(), cameras[i]->getCamBox()->getVertexPosNum()
-				, colors_camera[i], w, h, windowresizing, cameras[i]->getCamBox());
+			if (ActiveCamera != i)
+			{
+				renderer->SetObjectMatrices(cameras[i]->getCamBox()->getWorldTransform(),
+					cameras[i]->getCamBox()->getNormalTransform());
+				renderer->DrawTriangles(cameras[i]->getCamBox()->Draw(), cameras[i]->getCamBox()->getVertexPosNum()
+					, colors_camera[i], w, h, windowresizing, cameras[i]->getCamBox());
+			}
 		}
 	}
 

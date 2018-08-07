@@ -12,11 +12,13 @@ MeshModel::MeshModel()
 {
 
 }
+void MeshModel::setModeltransform(glm::mat4x4 transform)
+{
+	modelTransform = transform ;
+}
 void MeshModel::transformModel(glm::mat4x4 transform)
 {
 	modelTransform = transform* modelTransform;
-	//for (int i = 0; i < getVertexPosNum(); i++)
-		//vertexPositions[i] = vertexPositions[i] * transform;
 }
 void MeshModel::transformWorld(glm::mat4x4 transform)
 {

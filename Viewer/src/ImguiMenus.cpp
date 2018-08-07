@@ -179,37 +179,93 @@ void translate_by_key(Scene *scene, Camera* cam, int key,float f,int i)
 		0, 0, 1, 0,
 		0, 0, 0, 1);
 	if (key == 'Y')
-		mat = cam->GetTranslateTransform(f, 0, 0)*mat;
+		mat = cam->GetTranslateTransform(f, 0, 0)*mat; //right
 	if (key == 'R')
-		mat = cam->GetTranslateTransform(-f, 0, 0)*mat;
+		mat = cam->GetTranslateTransform(-f, 0, 0)*mat; //left
 	if (key == 'T')
-		mat = cam->GetTranslateTransform(0, f, 0)*mat;
+		mat = cam->GetTranslateTransform(0, f, 0)*mat; //up
 	if (key == 'G')
-		mat = cam->GetTranslateTransform(0, -f, 0)*mat;
+		mat = cam->GetTranslateTransform(0, -f, 0)*mat; //down
 	if (key == 'F')
-		mat = cam->GetTranslateTransform(0, 0,f)*mat;
+		mat = cam->GetTranslateTransform(0, 0,f)*mat; //backward (closer)
 	if (key == 'H')
-		mat = cam->GetTranslateTransform(0, 0, -f)*mat;
+		mat = cam->GetTranslateTransform(0, 0, -f)*mat; //forward (farther)
 
 	scene->transformModel(mat);
-	zero[i] = glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1) * mat;
-	transformLIST[i] = glm::vec4(transformLIST[i][0], transformLIST[i][1], transformLIST[i][2], 1) * mat;
+	zero[i] = mat*glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1) ;
+	transformLIST[i] = mat*glm::vec4(transformLIST[i][0], transformLIST[i][1], transformLIST[i][2], 1);
 }
 
-void scale_by_key(Scene *scene, Camera* cam, int key,float f,int i)
+void scale_by_key(Scene *scene, Camera* cam, int key,float f,int i,bool inplace)
 {
 	if (f == 0)
 		return;
 	if ((key != 'S') && (key!= 'W'))
 		return;
-	if(f<1.f)
-		f = 1 / f;
 	if (key == 'S')
 		f = 1/f;
-	glm::mat4x4 mat = cam->GetScaleTransform(f, f, f);
-	scene->transformModel(mat);
-	zero[i] = glm::vec4(zero[i][0],zero[i][1],zero[i][2],1) * mat;
-	scale[i] = glm::vec4(scale[i][0], scale[i][1], scale[i][2],1) * mat;
+	
+	glm::mat4x4 mat=cam->GetScaleTransform(f, f, f);  //scale-trans ,world
+	if (inplace) //model
+	{
+		glm::mat4x4 transToCenter = cam->GetTranslateTransform(-zero[i][0], -zero[i][1], -zero[i][2]);
+		mat = glm::inverse(transToCenter)* cam->GetScaleTransform(f, f, f) * transToCenter;
+	}
+		
+	scene->transformModel(mat); //do the trans
+	
+	
+	//update zero & scale data
+	zero[i] = mat * glm::vec4(zero[i][0],zero[i][1],zero[i][2],1);
+	scale[i] = mat * glm::vec4(scale[i][0], scale[i][1], scale[i][2], 1);
+}
+void cam_translate_by_key(Scene *scene, Camera* cam, int key, float f, int i)
+{
+	glm::mat4x4 mat = glm::mat4x4(1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1);
+	if (key == 'Y')
+		mat = cam->GetTranslateTransform(f, 0, 0)*mat; //right
+	if (key == 'R')
+		mat = cam->GetTranslateTransform(-f, 0, 0)*mat; //left
+	if (key == 'T')
+		mat = cam->GetTranslateTransform(0, f, 0)*mat; //up
+	if (key == 'G')
+		mat = cam->GetTranslateTransform(0, -f, 0)*mat; //down
+	if (key == 'F')
+		mat = cam->GetTranslateTransform(0, 0, f)*mat; //backward (closer)
+	if (key == 'H')
+		mat = cam->GetTranslateTransform(0, 0, -f)*mat; //forward (farther)
+
+	cam->update_transform(mat);
+	zero_cam[i] = mat * glm::vec4(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2], 1);
+	transformLIST_cam[i] = mat * glm::vec4(transformLIST_cam[i][0], transformLIST_cam[i][1],
+		transformLIST_cam[i][2], 1);
+}
+
+void cam_scale_by_key(Scene *scene, Camera* cam, int key, float f, int i,bool inplace)
+{
+	if (f == 0)
+		return;
+	if ((key != 'S') && (key != 'W'))
+		return;
+	if (key == 'S')
+		f = 1 / f;
+
+	glm::mat4x4 mat = cam->GetScaleTransform(f, f, f);  //scale-trans ,world
+	if (inplace) //model
+	{
+		glm::mat4x4 transToCenter = cam->GetTranslateTransform(-zero[i][0], -zero[i][1], -zero[i][2]);
+		mat = glm::inverse(transToCenter)* cam->GetScaleTransform(f, f, f) * transToCenter;
+	}
+
+	cam->update_transform(mat); //do the trans
+
+
+	//update zero & scale data
+	zero_cam[i] = mat * glm::vec4(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2], 1);
+	scale_cam[i] = mat * glm::vec4(scale_cam[i][0], scale_cam[i][1], scale_cam[i][2], 1);
 }
 const glm::vec4& GetClearColor()
 {
@@ -234,27 +290,27 @@ void loadOBJ(Scene *scene)
 	}
 	delete outPath;
 }
-void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
+void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 {
 	if (first)
 	{
-		first =modwid[0]=camewid[0]= showcame[0] = self_prspective[0] =cam_look_at[0]=FALSE;
+		first = modwid[0] = camewid[0] = showcame[0] = self_prspective[0] = cam_look_at[0] = FALSE;
 		rotation.clear();
 		rotation.push_back(glm::vec3(0, 0, 0));
 		scale.push_back(glm::vec3(1, 1, 1));
-		transformLIST.push_back(glm::vec3(0, 0, 1));
+		transformLIST.push_back(glm::vec3(0, 0, 0));
 		zero.push_back(glm::vec3(0, 0, 0));
 
-		f11= new float; f12 = new float; f13 = new float;
-		f21= new float; f22 = new float; f23 = new float;
-		f31= new float; f32 = new float; f33 = new float;
+		f11 = new float; f12 = new float; f13 = new float;
+		f21 = new float; f22 = new float; f23 = new float;
+		f31 = new float; f32 = new float; f33 = new float;
 		leftLIST_Frustum[0] = rightLIST_Frustum[0] = bottomLIST_Frustum[0]
-		= topLIST_Frustum[0] = nearLIST_Frustom[0] = farLIST_Frustom[0]
+			= topLIST_Frustum[0] = nearLIST_Frustom[0] = farLIST_Frustom[0]
 
-		= leftLIST_Orto[0] = rightLIST_Orto[0] = nearLIST_Orto[0]
-		= farLIST_Orto[0] = bottomLIST_Orto[0] = topLIST_Orto[0]
+			= leftLIST_Orto[0] = rightLIST_Orto[0] = nearLIST_Orto[0]
+			= farLIST_Orto[0] = bottomLIST_Orto[0] = topLIST_Orto[0]
 
-		= nearLIST_Perpective[0] = farLIST_Perpective[0] = aspectLIST[0] = fovyLIST[0] =cam_step[0]= 0;
+			= nearLIST_Perpective[0] = farLIST_Perpective[0] = aspectLIST[0] = fovyLIST[0] = cam_step[0] = 0;
 		in_place[0] = in_place1[0] = FALSE;
 		scale_cam.push_back(glm::vec3(1, 1, 1));
 		transformLIST_cam.push_back(glm::vec3(0, 0, 1));
@@ -263,14 +319,14 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 		c_f11[0] = c_f12[0] = c_f13[0] = 0.f;
 		zero_cam.push_back(glm::vec3(0, 0, 1));
 		cam_rad[0] = FALSE;
-		
+
 	}
 
-	if (scene->getModels().size()>0)
+	if (scene->getModels().size() > 0)
 		for (int i = 0; i < scene->getCameras().size(); i++)
-			if(cam_look_at[i])
-			scene->getCameras()[i]->LookAt(scene->getCameras()[i]->pos,
-				scene->GetVertexAvg(scene->ActiveModel), scene->getCameras()[i]->up);
+			if (cam_look_at[i])
+				scene->getCameras()[i]->LookAt(scene->getCameras()[i]->pos,
+					scene->GetVertexAvg(scene->ActiveModel), scene->getCameras()[i]->up);
 
 	string str;
 	ImGui::SetNextWindowPos(ImVec2(0, 20), ImGuiCond_Once);
@@ -331,7 +387,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 					if (result == NFD_OKAY) {
 						ImGui::Text("Hello from another window!");
 						std::cout << "success\n";
-						
+
 						std::string filename(outPath);
 						std::cout << filename << std::endl;
 						//replace all '\' to '/' in the path
@@ -345,12 +401,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 						std::cout << "Models[1] " << scene->getModels()[1]->getNameModel() << std::endl;
 
 
-						free(outPath);
+						//free(outPath);
 					}
 					else if (result == NFD_CANCEL) {
 					}
 					else {
-						std:cout << "why...?";
+					std:cout << "why...?";
 					}
 
 				}
@@ -410,33 +466,33 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 
 		for (int i = 0; i < scene->getModels().size(); i++)
 		{
-			str = "show the window of MODEL : " 
-				+ scene->getModels()[i]->getNameModel() +" "+ to_string(i);
+			str = "show the window of MODEL : "
+				+ scene->getModels()[i]->getNameModel() + " " + to_string(i);
 			ImGui::Checkbox(const_cast<char*>(str.c_str()), &modwid[i]);
 			str = "REMOVE MODEL : " + scene->getModels()[i]->getNameModel()
-			+ " " + to_string(i);
+				+ " " + to_string(i);
 			if (ImGui::Button(const_cast<char*>(str.c_str())))
-				remove_model(scene,i);
+				remove_model(scene, i);
 		}
 		ImGui::End();
-		
+
 	}
 	if (camerasWindow)
 	{
 		ImGui::Begin("Cameras", &modelsWindow);
 		if (ImGui::Button("ADD CAMERA"))
 		{
-			
-			num = scene->getCameras().size();
-			camewid[num] = showcame[num] =frustom[num] = frustom[num]= cam_look_at[num]=orto[num]
-			= prespective[num]= self_prspective[num] = FALSE;
-			leftLIST_Frustum[num] =rightLIST_Frustum[num] = bottomLIST_Frustum[num]
-			=topLIST_Frustum[num] = nearLIST_Frustom[num] = farLIST_Frustom[num] 
 
-			=leftLIST_Orto[num] = rightLIST_Orto[num] = nearLIST_Orto[num] 
-			= farLIST_Orto[num] = bottomLIST_Orto[num] =topLIST_Orto[num]
+			num = scene->getCameras().size();
+			camewid[num] = showcame[num] = frustom[num] = frustom[num] = cam_look_at[num] = orto[num]
+				= prespective[num] = self_prspective[num] = FALSE;
+			leftLIST_Frustum[num] = rightLIST_Frustum[num] = bottomLIST_Frustum[num]
+				= topLIST_Frustum[num] = nearLIST_Frustom[num] = farLIST_Frustom[num]
+
+				= leftLIST_Orto[num] = rightLIST_Orto[num] = nearLIST_Orto[num]
+				= farLIST_Orto[num] = bottomLIST_Orto[num] = topLIST_Orto[num]
 				=
-		nearLIST_Perpective[num] = farLIST_Perpective[num] =aspectLIST[num] = fovyLIST[num] =cam_step[num]= 0;
+				nearLIST_Perpective[num] = farLIST_Perpective[num] = aspectLIST[num] = fovyLIST[num] = cam_step[num] = 0;
 			scale_cam.push_back(glm::vec3(1, 1, 1));
 			transformLIST_cam.push_back(glm::vec3(0, 0, 0));
 			rotation_cam.push_back(glm::vec3(0, 0, 0));
@@ -444,76 +500,97 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 			c_f11[num] = c_f12[num] = c_f13[num] = 0.f;
 			zero_cam.push_back(glm::vec3(0, 0, 1));
 			cam_rad[num] = FALSE;
-			scene->load_cam(); 
+			scene->load_cam();
 		}
-		
+
 		str = "the active camera is camera number " + to_string(
-			scene->getCameras()[scene ->ActiveModel]->num+1);
+			scene->getCameras()[scene->ActiveModel]->num + 1);
 		ImGui::Text(const_cast<char*>(str.c_str()));
 		ImGui::Checkbox("show the cameras boxes : ", &scene->willCamerasRender);
 		for (int i = 0; i < scene->getCameras().size(); i++)
 		{
 			num = scene->getCameras()[i]->num + 1;
-			str = "show the window of camera number "+ to_string(num);
-			ImGui::Checkbox(const_cast<char*>(str.c_str()),&camewid[i]);
+			str = "show the window of camera number " + to_string(num);
+			ImGui::Checkbox(const_cast<char*>(str.c_str()), &camewid[i]);
 			str = "REMOVE CAMERA NUMBER " + to_string(num);
-			if (scene->getCameras().size()>1)
-			if(ImGui::Button(const_cast<char*>(str.c_str())))
-			{
-				scene->remove_cam(i);
-				camewid[i] = FALSE;
-			}
+			if (scene->getCameras().size() > 1)
+				if (ImGui::Button(const_cast<char*>(str.c_str())))
+				{
+					scene->remove_cam(i);
+					camewid[i] = FALSE;
+				}
 		}
 		ImGui::End();
-		
+
 	}
 	for (int i = 0; i < scene->getModels().size(); i++)
 	{
 		if (modwid[i])
 		{
-			str = "MODEL : " + scene->getModels()[i]->getNameModel()+to_string(i);
+			str = "MODEL : " + scene->getModels()[i]->getNameModel() + to_string(i);
 			ImGui::Begin(const_cast<char*>(str.c_str()), &modelsWindow);
 			if (ImGui::Button("make active"))
 				scene->ActiveModel = i;
 
-				if (!scene->getModels()[i]->folow_the_mouse)
-					if (ImGui::Button("folow the mouse"))
-						scene->getModels()[i]->folow_the_mouse = TRUE;
+			if (!scene->getModels()[i]->folow_the_mouse)
+				if (ImGui::Button("folow the mouse"))
+					scene->getModels()[i]->folow_the_mouse = TRUE;
 
-				if (scene->getModels()[i]->folow_the_mouse)
-					if (ImGui::Button("STOP FOLOWING THE MOUSE"))
-						scene->getModels()[i]->folow_the_mouse = FALSE;
-
-
-				Color = scene->getColor(i, 0);
-				ImGui::ColorEdit3("color", (float*)&Color);
-				scene->setColor(i, Color, 0);
-
-				ImGui::InputFloat("step", &scale_step[i], 0.0f, 0.0f);
-				float step = scale_step[i];
-				float ratio = 1;
-				a = rotation[i];
-
-				if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-					f12[i] = f12[i] + step;
-
-				if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-					f12[i] = f12[i] - step;
-
-				if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-					f13[i] = f13[i] + step;
-
-				if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-					f13[i] = f13[i] - step;
-
-				if (glfwGetKey(window, 'A') == GLFW_PRESS)
-					f11[i] = f11[i] - step;
+			if (scene->getModels()[i]->folow_the_mouse)
+				if (ImGui::Button("STOP FOLOWING THE MOUSE"))
+					scene->getModels()[i]->folow_the_mouse = FALSE;
 
 
-				if (glfwGetKey(window, 'D') == GLFW_PRESS)
-					f11[i] = f11[i] + step;
-				if (i == scene->ActiveModel)
-				{
+			Color = scene->getColor(i, 0);
+			ImGui::ColorEdit3("color", (float*)&Color);
+			scene->setColor(i, Color, 0);
+
+			str = "zero: x:" + to_string(zero[i][0]) + ", y : "
+				+ to_string(zero[i][1]) + ",  z : " + to_string(zero[i][2]) + " .";
+			ImGui::Text(const_cast<char*>(str.c_str()));
+
+			a = scale[i];
+			str = "SCALE: ratio of x:" + to_string(a[0]) + "to 1 , ratio of y : "
+				+ to_string(a[1]) + "to 1 ,ratio of z : " + to_string(a[2]) + "to 1.";
+			ImGui::Text(const_cast<char*>(str.c_str()));
+
+			a = transformLIST[i];
+			str = "TRANSPOSE: x:" + to_string(a[0]) + ", y : "
+				+ to_string(a[1]) + ",  z : " + to_string(a[2]) + " .";
+			ImGui::Text(const_cast<char*>(str.c_str()));
+
+			a = rotation[i];
+			str = "ROTATE in degrees: x:" + to_string(a[0]) + " , y : "
+				+ to_string(a[1]) + ",  z : " + to_string(a[2]) + ".";
+			ImGui::Text(const_cast<char*>(str.c_str()));
+
+			ImGui::InputFloat("step", &scale_step[i], 0.0f, 0.0f);
+			float step = scale_step[i];
+			float ratio = 1;
+
+			a = rotation[i];
+
+			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+				f12[i] = f12[i] + step;
+
+			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+				f12[i] = f12[i] - step;
+
+			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+				f13[i] = f13[i] + step;
+
+			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+				f13[i] = f13[i] - step;
+
+			if (glfwGetKey(window, 'A') == GLFW_PRESS)
+				f11[i] = f11[i] - step;
+
+
+			if (glfwGetKey(window, 'D') == GLFW_PRESS)
+				f11[i] = f11[i] + step;
+
+			if (i == scene->ActiveModel)
+			{
 				Camera* cam = scene->getCameras()[0];
 				if (rad[i])
 				{
@@ -521,9 +598,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 					{
 						rad[i] = FALSE;
 						deg[i] = TRUE;
-						for (int j = 0; j <scene->getModels().size(); j++)
-							f11[j] = f12[j] = f13[j] = 0;
-						rotation[i] = glm::vec3(0, 0, 0);
+						scene->setModeltransform(glm::mat4x4(1, 0, 0, 0,
+							0, 1, 0, 0,
+							0, 0, 1, 0,
+							0, 0, 0, 1));
+						scene->transformModel(cam->GetScaleTransform(scale[i][0], scale[i][1], scale[i][2]));
+						scene->transformModel(cam->GetTranslateTransform(
+							transformLIST[i][0], transformLIST[i][1], transformLIST[i][2]));
+						f11[i] = f12[i] = f13[i] = 0;
+						//rotation[i] = glm::vec3(0, 0, 0);
 					}
 					else
 					{
@@ -539,27 +622,27 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 							whil = FALSE;
 							if (f11[i] < 0.f)
 								f11[i] += 2 * PI, whil = TRUE;
-							
+
 
 							if (f12[i] < 0.f)
 								f12[i] += 2 * PI, whil = TRUE;
-							
+
 
 							if (f13[i] < 0.f)
 								f13[i] += 2 * PI, whil = TRUE;
-							
+
 
 							if (f11[i] > 2 * PI)
 								f11[i] -= 2 * PI, whil = TRUE;
-							
+
 
 							if (f12[i] > 2 * PI)
 								f12[i] -= 2 * PI, whil = TRUE;
-							
+
 
 							if (f13[i] > 2 * PI)
 								f13[i] -= 2 * PI, whil = TRUE;
-							
+
 
 						}
 					}
@@ -569,8 +652,14 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 					if (ImGui::Button("rad"))
 					{
 						deg[i] = FALSE; rad[i] = TRUE;
-						for (int j = 0; j < scene->getModels().size(); j++)
-							f11[j] = f12[j] = f13[j] = 0;
+						scene->setModeltransform(glm::mat4x4(1, 0, 0, 0,
+							0, 1, 0, 0,
+							0, 0, 1, 0,
+							0, 0, 0, 1));
+						scene->transformModel(cam->GetScaleTransform(scale[i][0], scale[i][1], scale[i][2]));
+						scene->transformModel(cam->GetTranslateTransform(
+							transformLIST[i][0], transformLIST[i][1], transformLIST[i][2]));
+						f11[i] = f12[i] = f13[i] = 0;
 						rotation[i] = glm::vec3(0, 0, 0);
 					}
 					else
@@ -581,48 +670,49 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 						d2 = (a[1] - f12[i])*(PI / 180.0);
 						ImGui::SliderFloat("rotation z degrees", &f13[i], 0.0f, 360.0f);
 						d3 = (a[2] - f13[i])*(PI / 180.0);
-						ratio= PI/ 180.0;
+						ratio = PI / 180.0;
 						whil = true;
 						while (whil)
 						{
 							whil = FALSE;
-							if (f11[i] < 0.f)			
+							if (f11[i] < 0.f)
 								f11[i] += 360.f, whil = TRUE;
-							
 
-							if (f12[i] < 0.f)	
+
+							if (f12[i] < 0.f)
 								f12[i] += 360.f, whil = TRUE;
-							
 
-							if (f13[i] < 0.f)	
+
+							if (f13[i] < 0.f)
 								f13[i] += 360.f, whil = TRUE;
-							
 
-							if (f11[i] > 360.f)	
+
+							if (f11[i] > 360.f)
 								f11[i] -= 360.f, whil = TRUE;
-							
+
 
 							if (f12[i] > 360.f)
 								f12[i] -= 360.f, whil = TRUE;
-						
+
 
 							if (f13[i] > 360.f)
 								f13[i] -= 360.f, whil = TRUE;
-							
+
 						}
 					}
 
 				}
-				
-				ImGui::Checkbox("rotate in place", &in_place[i]);
+
+				ImGui::Checkbox("transform in place", &in_place[i]);
 				glm::mat4x4 mat =
-				cam->GetrotationTransform(d1, 0)*
-				cam->GetrotationTransform(d2, 1)*
-				cam->GetrotationTransform(d3, 2);
-				if (in_place1[i])
+					cam->GetrotationTransform(d1, 0)*
+					cam->GetrotationTransform(d2, 1)*
+					cam->GetrotationTransform(d3, 2);
+				//rotations - model & world -- works
+				if (in_place[i])
 				{
 					scene->transformModel(
-						cam->GetTranslateTransform(zero[i][0], zero[i][1], zero[i][2])* mat *
+						cam->GetTranslateTransform(zero[i][0], zero[i][1], zero[i][2]) * mat *
 						cam->GetTranslateTransform(-zero[i][0], -zero[i][1], -zero[i][2])
 					);
 					//it doesn't affect...? he's zero anyway... (he is not a zero he represents the zero of the model)
@@ -635,19 +725,17 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 				else
 				{
 					scene->transformModel(mat);
-					zero[i] = mat*glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);				
+					zero[i] = mat * glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
 				}
 
+				//scaling & translations:
 
 				if (glfwGetKey(window, 'S') == GLFW_PRESS)
-					scale_by_key(scene, cam, 'S', step*ratio, i);
+					scale_by_key(scene, cam, 'S', step, i, in_place[i]);
 
 
 				if (glfwGetKey(window, 'W') == GLFW_PRESS)
-					scale_by_key(scene, cam, 'W', step*ratio, i);
-
-
-
+					scale_by_key(scene, cam, 'W', step, i, in_place[i]);
 
 				if (glfwGetKey(window, 'Y') == GLFW_PRESS)
 					translate_by_key(scene, cam, 'Y', step, i);
@@ -667,48 +755,90 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 				if (glfwGetKey(window, 'H') == GLFW_PRESS)
 					translate_by_key(scene, cam, 'H', step, i);
 
-				rotation[i] = glm::vec3(f11[i],f12[i],f13[i]);
+				rotation[i] = glm::vec3(f11[i], f12[i], f13[i]);
+				/*
+						if (in_place[i])
+						{
+						glm::vec3 auo = glm::vec3(f21[i], f22[i], f23[i]);
+						ImGui::InputFloat("transpose x", &f21[i], 0.0f, 0.0f);
 
-				glm::vec3 auo = glm::vec3(f21[i], f22[i], f23[i]);
-				ImGui::InputFloat("transpose x", &f21[i], 0.0f, 0.0f);
+						ImGui::InputFloat("transpose y", &f22[i], 0.0f, 0.0f);
 
-				ImGui::InputFloat("transpose y", &f22[i], 0.0f, 0.0f);
+						ImGui::InputFloat("transpose z", &f23[i], 0.0f, 0.0f);
 
-				ImGui::InputFloat("transpose z", &f23[i], 0.0f, 0.0f);
+						zero[i] = glm::vec3(zero[i][0] + f21[i] - auo[0],
+							zero[i][1] + f22[i] - auo[1], zero[i][2] + f23[i] - auo[2]);
 
-				zero[i] = glm::vec3(zero[i][0] + f21[i] - auo[0],
-					zero[i][1] + f22[i] - auo[1], zero[i][2] + f23[i] - auo[2]);
+						scene->transformModel(cam->GetTranslateTransform
+						(f21[i] - auo[0], f22[i] - auo[1], f23[i] - auo[2]));
+						transformLIST[i] = glm::vec3(transformLIST[i][0] + f21[i] - auo[0]
+							, transformLIST[i][1] + f22[i] - auo[1], transformLIST[i][2] + f23[i] - auo[2]);
 
-				scene->transformModel(cam->GetTranslateTransform
-				(f21[i] - auo[0], f22[i] - auo[1], f23[i] - auo[2]));
-				transformLIST[i] = glm::vec3(transformLIST[i][0] + f21[i] - auo[0]
-					, transformLIST[i][1] + f22[i] - auo[1], transformLIST[i][2] + f23[i] - auo[2]);
+						auo = glm::vec3(f31[i], f32[i], f33[i]);
 
-				auo = glm::vec3(f31[i], f32[i], f33[i]);
+						ImGui::InputFloat("scale x", &f31[i], 0.0f, 0.0f);
+						ImGui::InputFloat("scale y", &f32[i], 0.0f, 0.0f);
+						ImGui::InputFloat("scale z", &f33[i], 0.0f, 0.0f);
 
-				ImGui::InputFloat("scale x", &f31[i], 0.0f, 0.0f);
-				ImGui::InputFloat("scale y", &f32[i], 0.0f, 0.0f);
-				ImGui::InputFloat("scale z", &f33[i], 0.0f, 0.0f);
+						if (((f31[i] != 0.f) && (f32[i] != 0.f) && (f33[i] != 0.f)))
+						{
+							scene->transformModel(cam->GetScaleTransform(f31[i] / auo[0],
+								f32[i] / auo[1], f33[i] / auo[2]));
+							zero[i] = cam->GetScaleTransform(f31[i] / auo[0], f32[i] / auo[1],
+								f33[i] / auo[2])*glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
 
-				if (  ( (f31[i] != 0.f) && (f32[i] != 0.f) && (f33[i] != 0.f)))
-				{
-					scene->transformModel(cam->GetScaleTransform(f31[i] / auo[0],
-						f32[i] / auo[1], f33[i] / auo[2]));
-					zero[i] = cam->GetScaleTransform(f31[i] / auo[0], f32[i] / auo[1],
-						f33[i] / auo[2])*glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
-					transformLIST[i][0] = transformLIST[i][0] * (f31[i] / auo[0]);
-					transformLIST[i][1] = transformLIST[i][1] * (f32[i] / auo[1]);
-					transformLIST[i][2] = transformLIST[i][2] * (f33[i] / auo[2]);
-					f21[i] = f21[i] * (f31[i] / auo[0]);
-					f22[i] = f22[i] * (f32[i] / auo[1]);
-					f23[i] = f23[i] * (f33[i] / auo[2]);
-					scale[i] = glm::vec3(f31[i], f32[i], f33[i]);
-				}
-				else
-					f31[i] = auo.x, f32[i] = auo.y, f33[i] = auo.z;
-				
+							scale[i] = glm::vec3(f31[i], f32[i], f33[i]);
+						}
+						else
+							f31[i] = auo.x, f32[i] = auo.y, f33[i] = auo.z;
+					}
+					else
+					{
+						glm::vec3 auo = glm::vec3(f21[i], f22[i], f23[i]);
+						ImGui::InputFloat("transpose x", &f21[i], 0.0f, 0.0f);
+
+						ImGui::InputFloat("transpose y", &f22[i], 0.0f, 0.0f);
+
+						ImGui::InputFloat("transpose z", &f23[i], 0.0f, 0.0f);
+
+						zero[i] = glm::vec3(zero[i][0] + f21[i] - auo[0],
+							zero[i][1] + f22[i] - auo[1], zero[i][2] + f23[i] - auo[2]);
+
+						scene->transformModel(cam->GetTranslateTransform
+						(f21[i] - auo[0], f22[i] - auo[1], f23[i] - auo[2]));
+						transformLIST[i] = glm::vec3(transformLIST[i][0] + f21[i] - auo[0]
+							, transformLIST[i][1] + f22[i] - auo[1], transformLIST[i][2] + f23[i] - auo[2]);
+
+						auo = glm::vec3(f31[i], f32[i], f33[i]);
+
+						ImGui::InputFloat("scale x", &f31[i], 0.0f, 0.0f);
+						ImGui::InputFloat("scale y", &f32[i], 0.0f, 0.0f);
+						ImGui::InputFloat("scale z", &f33[i], 0.0f, 0.0f);
+
+						if (((f31[i] != 0.f) && (f32[i] != 0.f) && (f33[i] != 0.f)))
+						{
+							scene->transformModel(cam->GetScaleTransform(f31[i] / auo[0],
+								f32[i] / auo[1], f33[i] / auo[2]));
+							zero[i] = cam->GetScaleTransform(f31[i] / auo[0], f32[i] / auo[1],
+								f33[i] / auo[2])*glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1);
+
+							transformLIST[i][0] = transformLIST[i][0] * (f31[i] / auo[0]);
+							transformLIST[i][1] = transformLIST[i][1] * (f32[i] / auo[1]);
+							transformLIST[i][2] = transformLIST[i][2] * (f33[i] / auo[2]);
+
+							f21[i] = f21[i] * (f31[i] / auo[0]);
+							f22[i] = f22[i] * (f32[i] / auo[1]);
+							f23[i] = f23[i] * (f33[i] / auo[2]);
+
+							scale[i] = glm::vec3(f31[i], f32[i], f33[i]);
+						}
+						else
+							f31[i] = auo.x, f32[i] = auo.y, f33[i] = auo.z;
+							*/
+
+
+				ImGui::End();
 			}
-			ImGui::End();
 		}
 	}
 	for (int i = 0; i < scene->getCameras().size(); i++)
@@ -781,6 +911,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 			}
 			else
 			{
+				//projections
 				ImGui::Text("projection :");
 				ImGui::Checkbox("frustom", &frustom[i]);
 				if (frustom[i])
@@ -798,10 +929,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 				if (cam_step[i] != 0.f)
 				{
 					float step = cam_step[i];
-					if (step < 1)
-					{
-						step = 1 / step;
-					}
 
 					if (ImGui::Button("zoom in"))
 					{
@@ -832,53 +959,56 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 				str = "TRANSPOSE: x:" + to_string(a[0]) + ", y : "
 					+ to_string(a[1]) + ",  z : " + to_string(a[2]) + " .";
 				ImGui::Text(const_cast<char*>(str.c_str()));
-				
+
 				a = rotation_cam[i];
 				str = "ROTATE in degrees: x:" + to_string(a[0]) + " , y : "
 					+ to_string(a[1]) + ",  z : " + to_string(a[2]) + ".";
 				ImGui::Text(const_cast<char*>(str.c_str()));
 
-			
-				glm::vec3 auo = glm::vec3(transformLIST_cam[i][0]
-				,transformLIST_cam[i][1], transformLIST_cam[i][2]);
+				/*
+					glm::vec3 auo = glm::vec3(transformLIST_cam[i][0]
+					,transformLIST_cam[i][1], transformLIST_cam[i][2]);
 
-				ImGui::InputFloat("transpose x", &transformLIST_cam[i][0], 0.0f, 0.0f);
+					ImGui::InputFloat("transpose x", &transformLIST_cam[i][0], 0.0f, 0.0f);
 
-				ImGui::InputFloat("transpose y", &transformLIST_cam[i][1], 0.0f, 0.0f);
+					ImGui::InputFloat("transpose y", &transformLIST_cam[i][1], 0.0f, 0.0f);
 
-				ImGui::InputFloat("transpose z", &transformLIST_cam[i][2], 0.0f, 0.0f);
-				
+					ImGui::InputFloat("transpose z", &transformLIST_cam[i][2], 0.0f, 0.0f);
 
-				zero_cam[i] = glm::vec3(zero_cam[i][0] + transformLIST_cam[i][0] - auo[0],
-			zero_cam[i][1] + transformLIST_cam[i][1] - auo[1], zero_cam[i][2] + transformLIST_cam[i][2] - auo[2]);
-				cam->camTranslateTransform(transformLIST_cam[i][0] - auo[0], transformLIST_cam[i][1] - auo[1],
-				transformLIST_cam[i][2] - auo[2]);
 
-				
+					zero_cam[i] = glm::vec3(zero_cam[i][0] + transformLIST_cam[i][0] - auo[0],
+				zero_cam[i][1] + transformLIST_cam[i][1] - auo[1], zero_cam[i][2] + transformLIST_cam[i][2] - auo[2]);
+					cam->camTranslateTransform(transformLIST_cam[i][0] - auo[0], transformLIST_cam[i][1] - auo[1],
+					transformLIST_cam[i][2] - auo[2]);
 
-				auo = glm::vec3(c_f1[i], c_f2[i], c_f3[i]);
-				ImGui::InputFloat("scale x", &c_f1[i], 0.0f, 0.0f);
-				ImGui::InputFloat("scale y", &c_f2[i], 0.0f, 0.0f);
-				ImGui::InputFloat("scale z", &c_f3[i], 0.0f, 0.0f);
-				if (((c_f1[i] != 0.f) && (c_f2[i] != 0.f) && (c_f3[i] != 0.f)))
-				{
-					cam->camScaleTransform(c_f1[i] / auo[0],
-						c_f2[i] / auo[1], c_f3[i] / auo[2]);
-					zero_cam[i] = cam->GetScaleTransform(c_f1[i] / auo[0], c_f2[i] / auo[1],
-						c_f3[i] / auo[2])*glm::vec4(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2], 1);
-					transformLIST_cam[i][0] = transformLIST_cam[i][0]/(c_f1[i] / auo[0]);
-					transformLIST_cam[i][1] = transformLIST_cam[i][1]/(c_f1[i] / auo[0]);
-					transformLIST_cam[i][2] = transformLIST_cam[i][2]/(c_f1[i] / auo[0]);
-					scale_cam[i] = glm::vec3(c_f1[i], c_f2[i], c_f3[i]);
-				}
-				else
-					c_f1[i] = auo.x, c_f2[i] = auo.y, c_f3[i] = auo.z;
 
+
+					auo = glm::vec3(c_f1[i], c_f2[i], c_f3[i]);
+					ImGui::InputFloat("scale x", &c_f1[i], 0.0f, 0.0f);
+					ImGui::InputFloat("scale y", &c_f2[i], 0.0f, 0.0f);
+					ImGui::InputFloat("scale z", &c_f3[i], 0.0f, 0.0f);
+
+					if (((c_f1[i] != 0.f) && (c_f2[i] != 0.f) && (c_f3[i] != 0.f)))
+					{
+						cam->camScaleTransform(c_f1[i] / auo[0],
+							c_f2[i] / auo[1], c_f3[i] / auo[2]);
+						zero_cam[i] = cam->GetScaleTransform(c_f1[i] / auo[0], c_f2[i] / auo[1],
+							c_f3[i] / auo[2])*glm::vec4(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2], 1);
+						transformLIST_cam[i][0] = transformLIST_cam[i][0]/(c_f1[i] / auo[0]);
+						transformLIST_cam[i][1] = transformLIST_cam[i][1]/(c_f1[i] / auo[0]);
+						transformLIST_cam[i][2] = transformLIST_cam[i][2]/(c_f1[i] / auo[0]);
+						scale_cam[i] = glm::vec3(c_f1[i], c_f2[i], c_f3[i]);
+					}
+					else
+						c_f1[i] = auo.x, c_f2[i] = auo.y, c_f3[i] = auo.z;
+					*/
 				float step = cam_step[i];
 				float ratio = 1;
 				a = rotation_cam[i];
-				if (step != 0.f&&scene->ActiveCamera==i)
+				if (step != 0.f&&scene->ActiveCamera == i)
 				{
+
+
 					if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 						c_f12[i] = c_f12[i] + step;
 
@@ -896,9 +1026,33 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 
 					if (glfwGetKey(window, 'D') == GLFW_PRESS)
 						c_f11[i] = c_f11[i] + step;
-					
+
+					if (glfwGetKey(window, 'S') == GLFW_PRESS)
+						cam_scale_by_key(scene, cam, 'S', step, i, in_place[i]);
+
+
+					if (glfwGetKey(window, 'W') == GLFW_PRESS)
+						cam_scale_by_key(scene, cam, 'W', step, i, in_place[i]);
+
+					if (glfwGetKey(window, 'Y') == GLFW_PRESS)
+						cam_translate_by_key(scene, cam, 'Y', step, i);
+
+					if (glfwGetKey(window, 'R') == GLFW_PRESS)
+						cam_translate_by_key(scene, cam, 'R', step, i);
+
+					if (glfwGetKey(window, 'T') == GLFW_PRESS)
+						cam_translate_by_key(scene, cam, 'T', step, i);
+
+					if (glfwGetKey(window, 'G') == GLFW_PRESS)
+						cam_translate_by_key(scene, cam, 'G', step, i);
+
+					if (glfwGetKey(window, 'F') == GLFW_PRESS)
+						cam_translate_by_key(scene, cam, 'F', step, i);
+
+					if (glfwGetKey(window, 'H') == GLFW_PRESS)
+						cam_translate_by_key(scene, cam, 'H', step, i);
+
 				}
-				
 				if (cam_rad[i])
 				{
 					if (ImGui::Button("deg"))
@@ -910,11 +1064,11 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 					else
 					{
 						ImGui::SliderFloat("rotation x rad", &c_f11[i], 0.0f, 2 * PI);
-						d1 = c_f11[i];
+						d1 = c_f11[i]-a[0];
 						ImGui::SliderFloat("rotation y rad", &c_f12[i], 0.0f, 2 * PI);
-						d2 = c_f12[i];
+						d2 = c_f12[i]-a[1];
 						ImGui::SliderFloat("rotation z rad", &c_f13[i], 0.0f, 2 * PI);
-						d3 = c_f13[i];
+						d3 = c_f13[i]-a[2];
 						whil = true;
 						while (whil)
 						{
@@ -953,11 +1107,11 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 					else
 					{
 						ImGui::SliderFloat("rotation x degrees", &c_f11[i], 0.0f, 360.0f);
-						d1 = c_f11[i]*(PI / 180.0);
+						d1 = (c_f11[i]-a[0]) * (PI / 180.0);
 						ImGui::SliderFloat("rotation y degrees", &c_f12[i], 0.0f, 360.0f);
-						d2 = c_f12[i]*(PI / 180.0);
+						d2 =(c_f12[i]-a[1]) * (PI / 180.0);
 						ImGui::SliderFloat("rotation z degrees", &c_f13[i], 0.0f, 360.0f);
-						d3 =  c_f13[i]*(PI / 180.0);
+						d3 = (c_f13[i]-a[2]) * (PI / 180.0);
 						ratio = PI / 180.0;
 						whil = true;
 						while (whil)
@@ -991,11 +1145,11 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 					cam->GetrotationTransform(d2, 1)*
 					cam->GetrotationTransform(d3, 2);
 				rotation_cam[i] = glm::vec3(c_f11[i], c_f12[i], c_f13[i]);
-				if (in_place1)
+				if (in_place1[i])
 				{
-					scene->transformProjectionCam(
+					cam->update_transform(
 						cam->GetTranslateTransform(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2])* mat *
-						cam->GetTranslateTransform(-zero_cam[i][0], -zero_cam[i][1], -zero_cam[i][2]),i
+						cam->GetTranslateTransform(-zero_cam[i][0], -zero_cam[i][1], -zero_cam[i][2])
 					);
 					zero_cam[i] = cam->GetTranslateTransform(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2])
 						*mat*
@@ -1004,14 +1158,14 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene,GLFWwindow* window)
 				}
 				else
 				{
-					scene->transformProjectionCam(mat,i);
+					cam->update_transform(mat);
 					zero_cam[i] = mat * glm::vec4(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2], 1);
 				}
-				
+
 			}
-		ImGui::End();
+			ImGui::End();
 		}
-		
-	}	
-	
+
+	}
+
 }

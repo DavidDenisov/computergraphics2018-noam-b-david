@@ -14,6 +14,10 @@ void Camera::set_projection(glm::mat4x4 projection)
 {
 	this->projection = projection;
 }
+void Camera::update_transform(glm::mat4x4 transform)
+{
+	this->cTransform = transform * cTransform;
+}
 void Camera::camrotationTransform(double deg, int axis)
 {
 	cTransform = cTransform * rotationTransform(deg,axis);
@@ -81,15 +85,15 @@ glm::mat4x4 Camera::creatTransform(glm::vec3 Scale_val
 	d= translate * scale*rotate; // shouldn't be b * a * c? because translate you do last...
 	return d;
 }
-glm::mat4x4 Camera::GetrotationTransform(double deg, int axis)
+glm::mat4x4 Camera::GetrotationTransform(long double deg, int axis)
 {
 	return rotationTransform(deg,axis);
 }
-glm::mat4x4 Camera::GetScaleTransform(double x_scale, double y_scale, double z_scale)
+glm::mat4x4 Camera::GetScaleTransform(long double x_scale, long double y_scale, long double z_scale)
 {
 	return ScaleTransform(x_scale, y_scale, z_scale);
 }
-glm::mat4x4 Camera::GetTranslateTransform(double x_scale, double y_scale, double z_scale)
+glm::mat4x4 Camera::GetTranslateTransform(long double x_scale, long double y_scale, long double z_scale)
 {
 	return TranslateTransform(x_scale, y_scale, z_scale);
 }
@@ -99,7 +103,7 @@ MeshModel* Camera::getCamBox()
 	return this->camBox;
 }
 
-glm::mat4x4 Camera::TranslateTransform(double x_scale, double y_scale, double z_scale)
+glm::mat4x4 Camera::TranslateTransform(long double x_scale, long double y_scale, long double z_scale)
 {
 	/*return glm::mat4x4(1, 0, 0, x_scale,
 		0, 1, 0, y_scale,
@@ -110,16 +114,15 @@ glm::mat4x4 Camera::TranslateTransform(double x_scale, double y_scale, double z_
 		0, 0, 1, 0,
 		x_scale, y_scale, z_scale, 1);
 }
-glm::mat4x4 Camera::ScaleTransform(double x_scale, double y_scale, double z_scale)
+glm::mat4x4 Camera::ScaleTransform(long double x_scale, long double y_scale, long double z_scale)
 {
 	return glm::mat4x4(x_scale, 0, 0, 0,
 		0, y_scale, 0, 0,
 		0, 0, z_scale, 0,
 		0, 0, 0, 1);
 }
-glm::mat4x4 Camera::rotationTransform(double rad, int axis)
+glm::mat4x4 Camera::rotationTransform(long double rad, int axis)
 {
-	//convert from deg to radian
 	if (axis == 2)
 	{
 		return glm::mat4x4(cos(rad), sin(rad), 0, 0,

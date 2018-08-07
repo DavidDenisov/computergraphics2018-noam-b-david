@@ -11,9 +11,9 @@ private:
 	glm::mat4x4 projection;
 	MeshModel* camBox;
 	
-	glm::mat4x4 rotationTransform(double deg, int axis);
-	glm::mat4x4 ScaleTransform(double x_scale, double y_scale, double z_scale);
-	glm::mat4x4 TranslateTransform(double x_scale, double y_scale, double z_scale);
+	glm::mat4x4 rotationTransform(long double deg, int axis);
+	glm::mat4x4 ScaleTransform(long double x_scale, long double y_scale, long double z_scale);
+	glm::mat4x4 TranslateTransform(long double x_scale, long double y_scale, long double z_scale);
 public:
 	void set_camBox(MeshModel* p);
 	void set_projection(glm::mat4x4 projection);
@@ -23,10 +23,10 @@ public:
 	Camera();
 	Camera(Camera* c);
 	~Camera();
-	glm::mat4x4 GetrotationTransform(double deg, int axis);
-	glm::mat4x4 GetScaleTransform(double x_scale, double y_scale, double z_scale);
-	glm::mat4x4 GetTranslateTransform(double x_scale, double y_scale, double z_scale);
-
+	glm::mat4x4 GetrotationTransform(long double deg, int axis);
+	glm::mat4x4 GetScaleTransform(long double x_scale, long double y_scale, long double z_scale);
+	glm::mat4x4 GetTranslateTransform(long double x_scale, long double y_scale, long double z_scale);
+	void update_transform(glm::mat4x4 transform);
 	void camrotationTransform(double deg, int axis);
 	void camScaleTransform(double x_scale, double y_scale, double z_scale);
 	void camTranslateTransform(double x_scale, double y_scale, double z_scale);
