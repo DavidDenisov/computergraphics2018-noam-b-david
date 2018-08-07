@@ -12,7 +12,6 @@ using namespace std;
 class MeshModel : public Model
 {
 protected:
-	MeshModel() {} //for PrimMeshModel()
 	glm::vec4 *vertexPositions;
 	glm::vec4 *normalPositions;
 	glm::vec4 *faceNormals;
@@ -28,6 +27,7 @@ protected:
 	void setFaceNormals(); //build the faces' normals - in constructor
 	void setBound(); //find max's and min's indices - in constructor 
 public:
+	MeshModel();//for PrimMeshModel()
 	~MeshModel();
 	bool window_open = 0;
 	bool folow_the_mouse = 0;

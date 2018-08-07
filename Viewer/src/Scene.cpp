@@ -16,6 +16,11 @@ int ActiveCamera=0;
 */
 
 using namespace std;
+void  Scene::transformProjectionCam(glm::mat4x4 transform, int place)
+{
+	this->cameras[place]->set_projection(transform);
+}
+
 void Scene::setColor(int i,glm::vec4 color,int type)
 {
 	if (type == 0)
@@ -25,6 +30,7 @@ void Scene::setColor(int i,glm::vec4 color,int type)
 }
 void Scene::RemoveModel(int num)
 {
+
 	delete[] models[num];
 	//free(models[num]);
 	cout << 3;
@@ -100,9 +106,13 @@ Scene::Scene() : ActiveModel(0), ActiveLight(0), ActiveCamera(0)
 {
 	num = 0;
 	Camera* c = new Camera();
-	cameras.push_back(c);
+	
 	colors_camera.push_back(glm::vec4(0, 0, 0, 1));
-	colors_model.push_back(glm::vec4(0, 0, 0, 1));
+	//colors_model.push_back(glm::vec4(0, 0, 0, 1));
+
+	MeshModel *primModel = new PrimMeshModel();
+	c->set_camBox(primModel);
+	cameras.push_back(c);
 };
 
 Scene::Scene(Renderer *renderer) : renderer(renderer),
@@ -114,7 +124,7 @@ ActiveModel(0), ActiveLight(0), ActiveCamera(0)
 		Camera* c = new Camera();
 		cameras.push_back(c);
 		colors_camera.push_back(glm::vec4(0, 0, 0, 1));
-		colors_model.push_back(glm::vec4(0, 0, 0, 1));
+		//colors_model.push_back(glm::vec4(0, 0, 0, 1));
 	}
 };
 
@@ -129,12 +139,12 @@ void Scene::LoadOBJModel(string fileName)
 {
 	MeshModel *model = new MeshModel(fileName);
 	models.push_back(model);
-	colors_camera.push_back(glm::vec4(0,0,0,1));
 	colors_model.push_back(glm::vec4(0, 0, 0, 1));
 }
 void Scene::LoadPrim()
 {
 	MeshModel *primModel = new PrimMeshModel();
+	colors_model.push_back(glm::vec4(0, 0, 0, 1));
 	models.push_back(primModel);
 }
 
@@ -172,7 +182,7 @@ void Scene::DrawScene(float w,float h)
 		renderer->SetObjectMatrices(models.at(i)->getWorldTransform(),
 			models.at(i)->getNormalTransform());
 		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum()
-			, colors_model[i], w, h, windowresizing, models.at(i));
+			,colors_model[i], w, h, windowresizing, models.at(i));
 	}
 
 	//render cameras as well, if needed

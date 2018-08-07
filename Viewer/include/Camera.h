@@ -4,19 +4,19 @@
 /*
  * Camera class. This class takes care of all the camera transformations and manipulations.
  */
-class Camera
+class Camera 
 {
 private:
 	glm::mat4x4 cTransform;
 	glm::mat4x4 projection;
 	MeshModel* camBox;
-
-
-
+	
 	glm::mat4x4 rotationTransform(double deg, int axis);
 	glm::mat4x4 ScaleTransform(double x_scale, double y_scale, double z_scale);
 	glm::mat4x4 TranslateTransform(double x_scale, double y_scale, double z_scale);
 public:
+	void set_camBox(MeshModel* p);
+	void set_projection(glm::mat4x4 projection);
 	glm::vec4 up = glm::vec4(0,1,0,1);
 	glm::vec4 pos = glm::vec4(0, 0, 1,1);
 	int num;
@@ -26,6 +26,10 @@ public:
 	glm::mat4x4 GetrotationTransform(double deg, int axis);
 	glm::mat4x4 GetScaleTransform(double x_scale, double y_scale, double z_scale);
 	glm::mat4x4 GetTranslateTransform(double x_scale, double y_scale, double z_scale);
+
+	void camrotationTransform(double deg, int axis);
+	void camScaleTransform(double x_scale, double y_scale, double z_scale);
+	void camTranslateTransform(double x_scale, double y_scale, double z_scale);
 	glm::mat4x4 creatTransform(glm::vec3 Scale_val
 		, glm::vec3 Translate_val,glm::vec2 rotat_val);
 	glm::mat4x4 get_projection();

@@ -8,9 +8,12 @@
 #define FACE_ELEMENTS 3
 
 using namespace std;
-void MeshModel::transformModel(glm::mat4x4 transform)
+MeshModel::MeshModel()
 {
 
+}
+void MeshModel::transformModel(glm::mat4x4 transform)
+{
 	modelTransform = transform* modelTransform;
 	//for (int i = 0; i < getVertexPosNum(); i++)
 		//vertexPositions[i] = vertexPositions[i] * transform;
@@ -31,8 +34,8 @@ MeshModel::~MeshModel()
 
 	delete[] vertexPositions;
 	delete[] normalPositions;
-	//delete[] faceNormals;
-	//delete[] faceAvgs;
+	delete[] faceNormals;
+	delete[] faceAvgs;
 }
 
 

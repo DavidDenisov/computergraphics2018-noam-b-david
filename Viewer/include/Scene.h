@@ -36,7 +36,10 @@ public:
 	void LoadOBJModel(string fileName);
 	void Scene::load_cam();
 	void LoadPrim();
-	void Scene::transformCam(glm::mat4x4 transform);
+
+	void transformProjectionCam(glm::mat4x4 transform,int place);
+
+	void transformCam(glm::mat4x4 transform);
 
 	void RemoveModel(int num);
 	// Draws the current scene.
@@ -65,7 +68,7 @@ public:
 	const vector<Camera*> getCameras();
 
 
-	int willCamerasRender = 0;
+	bool willCamerasRender = 0;
 
 	int ActiveModel;
 	int ActiveLight;

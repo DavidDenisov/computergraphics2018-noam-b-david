@@ -1,11 +1,31 @@
 #include "Camera.h"
 #include <iostream>
+#include "PrimMeshModel.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 # define PI 3.141592653589793238462643383279502884L /* pi */
 
 using namespace std;
-
+void Camera::set_camBox(MeshModel* p)
+{
+	camBox = p;
+}
+void Camera::set_projection(glm::mat4x4 projection)
+{
+	this->projection = projection;
+}
+void Camera::camrotationTransform(double deg, int axis)
+{
+	cTransform = cTransform * rotationTransform(deg,axis);
+}
+void Camera::camScaleTransform(double x_scale, double y_scale, double z_scale)
+{
+	cTransform = cTransform * ScaleTransform(x_scale,y_scale,z_scale);
+}
+void Camera::camTranslateTransform(double x_scale, double y_scale, double z_scale)
+{
+	cTransform = cTransform * TranslateTransform(x_scale, y_scale, z_scale);
+}
 void Camera::Ortho(const float left, const float right,
 	const float bottom, const float top,
 	const float zNear, const float zFar)
@@ -130,12 +150,18 @@ Camera::Camera()
 		0, 1, 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1);
+	pos = glm::vec4(0, 0, 1, 1);
+	up = glm::vec4(0, 1, 0, 1);
+	camBox = new PrimMeshModel();
 }
 Camera::Camera(Camera* c)
 {
 	num=c->num+1;
 	projection = c->get_projection();
 	cTransform = c->get_Transform();
+	pos = glm::vec4(0, 0, 1, 1);
+	up = glm::vec4(0, 1, 0, 1);
+	camBox = new PrimMeshModel();
 }
 glm::mat4x4 Camera::get_projection() { return projection; }
 glm::mat4x4 Camera::get_Transform() { return cTransform; }
