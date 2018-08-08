@@ -154,14 +154,11 @@ void Scene::LoadOBJModel(string fileName)
 void Scene::LoadPrim()
 {
 	MeshModel *primModel = new PrimMeshModel();
-	colors_model.push_back(glm::vec4(0, 0, 0, 1));
 	models.push_back(primModel);
+	colors_model.push_back(glm::vec4(0, 0, 0, 1));
 }
 
-void Scene::set_renderer(Renderer *renderer)
-{
-	this->renderer = renderer;
-}
+
 
 void Scene::setcur_cam(int i)
 {
