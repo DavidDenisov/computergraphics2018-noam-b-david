@@ -1008,7 +1008,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (prespective[i])
 				{
 					frustom[i] = orto[i] = FALSE;
-					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, -1, 1);
+					cam->Frustum(-(0.5*wF)/hF, (0.5*wF) / hF, -0.5, 0.5, -0.5, 0.5);
 				}
 
 
