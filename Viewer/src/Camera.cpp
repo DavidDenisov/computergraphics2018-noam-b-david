@@ -189,7 +189,7 @@ void Camera::LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& 
 	
 	//each vector is a column
 	glm::mat4x4 c = glm::mat4x4(u, v, n, w);
-	glm::mat4x4 translate //translate(-eye)
+	glm::mat4x4 translate //translate(eye) -- for camera is translate(eye), for model is c^-1 (-eye)
 	(
 		glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),
 		glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),
@@ -197,9 +197,6 @@ void Camera::LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& 
 		glm::vec4(-eye.x, -eye.y, -eye.z, 1.0f)
 	);
 	this->cTransform = c * translate;
-
-
-
 }
 
 

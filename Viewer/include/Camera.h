@@ -17,9 +17,13 @@ private:
 public:
 	void set_camBox(MeshModel* p);
 	void set_projection(glm::mat4x4 projection);
-	glm::vec4 up = glm::vec4(0,1,0,1);
-	glm::vec4 pos = glm::vec4(0, 0, 1,1);
+	glm::vec4 up = glm::vec4(0, 1, 0, 1);
+	glm::vec4 pos = glm::vec4(0, 0, 1, 1);
+	//fake "at". will keep track on where does the camera look at
+	glm::vec4 at = glm::vec4(0, 0, 0, 1); 
 	int num;
+
+
 	Camera();
 	Camera(Camera* c);
 	~Camera();
