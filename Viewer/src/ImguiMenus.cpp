@@ -98,7 +98,7 @@ void zoom(Camera* cam , int place, int projection_type, int zoom)
 void add_model(Scene *scene)
 {
 	num = scene->getModels().size();
-	modwid[num] =in_place[num] = in_place1[num] = FALSE;
+	modwid[num] =in_place[num] = FALSE;
 	rotation.push_back(glm::vec3(0, 0, 0));
 	scale.push_back(glm::vec3(1, 1, 1));
 	transformLIST.push_back(glm::vec3(0, 0, 0));
@@ -112,7 +112,7 @@ void add_model(Scene *scene)
 }
 void remove_model(Scene *scene,int place)
 {
-	if ((place > 0) || (place>scene->getModels().size()))
+	if ((place < 0) || (place>scene->getModels().size()))
 		return;
 	scene->RemoveModel(place);
 	modwid[place] = FALSE;
@@ -626,33 +626,31 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				+ to_string(a[1]) + ",  z : " + to_string(a[2]) + ".";
 			ImGui::Text(const_cast<char*>(str.c_str()));
 
-			ImGui::InputFloat("step", &scale_step[i], 0.0f, 0.0f);
-			float step = scale_step[i];
-			float ratio = 1;
-
-			a = rotation[i];
-
-			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-				f12[i] = f12[i] + step;
-
-			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-				f12[i] = f12[i] - step;
-
-			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-				f13[i] = f13[i] + step;
-
-			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-				f13[i] = f13[i] - step;
-
-			if (glfwGetKey(window, 'A') == GLFW_PRESS)
-				f11[i] = f11[i] - step;
-
-
-			if (glfwGetKey(window, 'D') == GLFW_PRESS)
-				f11[i] = f11[i] + step;
-
 			if (i == scene->ActiveModel)
 			{
+				ImGui::InputFloat("step", &scale_step[i], 0.0f, 0.0f);
+				float step = scale_step[i];
+				float ratio = 1;
+
+				a = rotation[i];
+				if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+					f12[i] = f12[i] + step;
+
+				if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+					f12[i] = f12[i] - step;
+
+				if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+					f13[i] = f13[i] + step;
+
+				if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+					f13[i] = f13[i] - step;
+
+				if (glfwGetKey(window, 'A') == GLFW_PRESS)
+					f11[i] = f11[i] - step;
+
+
+				if (glfwGetKey(window, 'D') == GLFW_PRESS)
+					f11[i] = f11[i] + step;
 				Camera* cam = scene->getCameras()[0];
 				if (rad[i])
 				{
@@ -898,10 +896,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 							f31[i] = auo.x, f32[i] = auo.y, f33[i] = auo.z;
 							*/
 
-
-				ImGui::End();
 			}
+			ImGui::End();
 		}
+
 	}
 	for (int i = 0; i < scene->getCameras().size(); i++)
 	{
