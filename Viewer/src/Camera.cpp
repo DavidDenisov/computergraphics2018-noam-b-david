@@ -6,6 +6,13 @@
 # define PI 3.141592653589793238462643383279502884L /* pi */
 
 using namespace std;
+void Camera::reset_projection()
+{
+	projection = glm::mat4x4(1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1);
+}
 void Camera::set_camBox(MeshModel* p)
 {
 	camBox = p;
@@ -36,7 +43,6 @@ void Camera::Ortho(const float left, const float right,
 { 
 	glm::mat4x4 moveToOrigin = TranslateTransform(-(right + left) / 2, -(top + bottom) / 2, -(zNear + zFar) / 2);
 	glm::mat4x4 scale = ScaleTransform(2 / (right - left), 2 / (top - bottom), 2 / (zFar-zNear));
-	
 	projection = scale * moveToOrigin;
 }
 

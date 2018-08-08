@@ -23,6 +23,7 @@ public:
 	Camera();
 	Camera(Camera* c);
 	~Camera();
+	void reset_projection();
 	glm::mat4x4 GetrotationTransform(long double deg, int axis);
 	glm::mat4x4 GetScaleTransform(long double x_scale, long double y_scale, long double z_scale);
 	glm::mat4x4 GetTranslateTransform(long double x_scale, long double y_scale, long double z_scale);

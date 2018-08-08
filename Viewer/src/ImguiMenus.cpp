@@ -304,13 +304,14 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		f11 = new float; f12 = new float; f13 = new float;
 		f21 = new float; f22 = new float; f23 = new float;
 		f31 = new float; f32 = new float; f33 = new float;
-		leftLIST_Frustum[0] = rightLIST_Frustum[0] = bottomLIST_Frustum[0]
-			= topLIST_Frustum[0] = nearLIST_Frustom[0] = farLIST_Frustom[0]
+		nearLIST_Perpective[num] = bottomLIST_Orto[num] = nearLIST_Orto[num] = leftLIST_Orto[num]
+			= nearLIST_Frustom[num] = bottomLIST_Frustum[num] = leftLIST_Frustum[num] = cam_step[num] = 0.f;
 
-			= leftLIST_Orto[0] = rightLIST_Orto[0] = nearLIST_Orto[0]
-			= farLIST_Orto[0] = bottomLIST_Orto[0] = topLIST_Orto[0]
+		farLIST_Perpective[num] = topLIST_Orto[num] = farLIST_Orto[num] = rightLIST_Orto[num]
+			= farLIST_Frustom[num] = topLIST_Frustum[num] = rightLIST_Frustum[num] = 1.f;
 
-			= nearLIST_Perpective[0] = farLIST_Perpective[0] = aspectLIST[0] = fovyLIST[0] = cam_step[0] = 0;
+		aspectLIST[num] = fovyLIST[num] = 90.f;
+
 		in_place[0] = in_place1[0] = FALSE;
 		scale_cam.push_back(glm::vec3(1, 1, 1));
 		transformLIST_cam.push_back(glm::vec3(0, 0, 1));
@@ -486,13 +487,16 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 			num = scene->getCameras().size();
 			camewid[num] = showcame[num] = frustom[num] = frustom[num] = cam_look_at[num] = orto[num]
 				= prespective[num] = self_prspective[num] = FALSE;
-			leftLIST_Frustum[num] = rightLIST_Frustum[num] = bottomLIST_Frustum[num]
-				= topLIST_Frustum[num] = nearLIST_Frustom[num] = farLIST_Frustom[num]
 
-				= leftLIST_Orto[num] = rightLIST_Orto[num] = nearLIST_Orto[num]
-				= farLIST_Orto[num] = bottomLIST_Orto[num] = topLIST_Orto[num]
-				=
-				nearLIST_Perpective[num] = farLIST_Perpective[num] = aspectLIST[num] = fovyLIST[num] = cam_step[num] = 0;
+			nearLIST_Perpective[num] = bottomLIST_Orto[num] = nearLIST_Orto[num]= leftLIST_Orto[num] 
+				= nearLIST_Frustom[num] = bottomLIST_Frustum[num]=leftLIST_Frustum[num] = 0.f;
+
+			farLIST_Perpective[num] =  topLIST_Orto[num] = farLIST_Orto[num] = rightLIST_Orto[num] 
+				= farLIST_Frustom[num]=topLIST_Frustum[num]= rightLIST_Frustum[num] = 1.f;
+				  
+			aspectLIST[num] = fovyLIST[num]=90.f;
+
+			cam_step[num] = 0;
 			scale_cam.push_back(glm::vec3(1, 1, 1));
 			transformLIST_cam.push_back(glm::vec3(0, 0, 0));
 			rotation_cam.push_back(glm::vec3(0, 0, 0));
@@ -923,7 +927,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (prespective[i])
 					frustom[i] = orto[i] = FALSE;
 
-
+				//cam->reset_projection();
 
 				ImGui::InputFloat("step :", &cam_step[i], 0.0f, 0.0f);
 				if (cam_step[i] != 0.f)
@@ -1144,7 +1148,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 					cam->GetrotationTransform(d1, 0)*
 					cam->GetrotationTransform(d2, 1)*
 					cam->GetrotationTransform(d3, 2);
+
 				rotation_cam[i] = glm::vec3(c_f11[i], c_f12[i], c_f13[i]);
+
 				if (in_place1[i])
 				{
 					cam->update_transform(
@@ -1161,7 +1167,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 					cam->update_transform(mat);
 					zero_cam[i] = mat * glm::vec4(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2], 1);
 				}
-
 			}
 			ImGui::End();
 		}
