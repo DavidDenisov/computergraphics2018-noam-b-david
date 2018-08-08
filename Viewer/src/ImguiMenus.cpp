@@ -195,7 +195,6 @@ void translate_by_key(Scene *scene, Camera* cam, int key,float f,int i)
 	zero[i] = mat*glm::vec4(zero[i][0], zero[i][1], zero[i][2], 1) ;
 	transformLIST[i] = mat*glm::vec4(transformLIST[i][0], transformLIST[i][1], transformLIST[i][2], 1);
 }
-
 void scale_by_key(Scene *scene, Camera* cam, int key,float f,int i,bool inplace)
 {
 	if (f == 0)
@@ -219,7 +218,8 @@ void scale_by_key(Scene *scene, Camera* cam, int key,float f,int i,bool inplace)
 	zero[i] = mat * glm::vec4(zero[i][0],zero[i][1],zero[i][2],1);
 	scale[i] = mat * glm::vec4(scale[i][0], scale[i][1], scale[i][2], 1);
 }
-void cam_translate_by_key(Scene *scene, Camera* cam, int key, float f, int i)
+
+void cam_translate_by_key(Scene *scene, Camera* cam, int key, float f, int i, bool inplace)
 {
 	glm::mat4x4 mat = glm::mat4x4(1, 0, 0, 0,
 		0, 1, 0, 0,
@@ -238,13 +238,43 @@ void cam_translate_by_key(Scene *scene, Camera* cam, int key, float f, int i)
 	if (key == 'H')
 		mat = cam->GetTranslateTransform(0, 0, -f)*mat; //forward (farther)
 
-	cam->update_transform(mat);
+	//cam->update_transform(mat);
+
+	//don't think it'll matter, but shouldn't change what shouldn't be changed
+	if (inplace)
+		cam->getCamBox()->transformModel(mat); //model
+	else
+		cam->getCamBox()->transformWorld(mat); //world
+
+
+	if (!inplace) //if inplace, don't change his pos & at
+	{
+		cam->pos = mat * cam->pos; //move the center
+		cam->at = mat * cam->at; //move the fake "at"
+	}
+	
+	
+
+
+
+	//look at update
+	if (cam_look_at[i]) //if he should look on the active model
+	{
+		const glm::vec4 atModel = glm::vec4(
+			zero[scene->ActiveModel].x, zero[scene->ActiveModel].y, zero[scene->ActiveModel].z, 1.0f);
+		cam->LookAt(cam->pos, atModel, cam->up);
+	}
+	else
+		cam->LookAt(cam->pos, cam->at, cam->up);
+
+
+	//zero_cam & transformLIST update
+
 	zero_cam[i] = mat * glm::vec4(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2], 1);
 	transformLIST_cam[i] = mat * glm::vec4(transformLIST_cam[i][0], transformLIST_cam[i][1],
 		transformLIST_cam[i][2], 1);
 }
-
-void cam_scale_by_key(Scene *scene, Camera* cam, int key, float f, int i,bool inplace)
+void cam_scale_by_key(Scene *scene, Camera* cam, int key, float f, int i, bool inplace)
 {
 	if (f == 0)
 		return;
@@ -254,19 +284,52 @@ void cam_scale_by_key(Scene *scene, Camera* cam, int key, float f, int i,bool in
 		f = 1 / f;
 
 	glm::mat4x4 mat = cam->GetScaleTransform(f, f, f);  //scale-trans ,world
+
+	//camBox update
+	if (inplace)
+		cam->getCamBox()->transformModel(mat); //model
+	else
+		cam->getCamBox()->transformWorld(mat); //world
+
+
 	if (inplace) //model
 	{
-		glm::mat4x4 transToCenter = cam->GetTranslateTransform(-zero[i][0], -zero[i][1], -zero[i][2]);
-		mat = glm::inverse(transToCenter)* cam->GetScaleTransform(f, f, f) * transToCenter;
+		cam->up = mat * cam->up; //because might use minus
+
+		glm::mat4x4 transToCenter = cam->GetTranslateTransform(-cam->pos.x, -cam->pos.y, -cam->pos.z);
+		mat = glm::inverse(transToCenter) * mat * transToCenter;
+
+		cam->pos = mat * cam->pos;
+		cam->at = mat * cam->at;
+		
+	}
+	else //world
+	{
+		cam->pos = mat * cam->pos;
+		cam->at = mat * cam->at;
+		cam->up = mat * cam->up; //because might use minus
 	}
 
-	cam->update_transform(mat); //do the trans
+	
+	
 
+	//look-at update
+	if (cam_look_at[i]) //if he should look on the active model
+	{
+		const glm::vec4 atModel = glm::vec4(
+			zero[scene->ActiveModel].x, zero[scene->ActiveModel].y, zero[scene->ActiveModel].z, 1.0f);
+		cam->LookAt(cam->pos, atModel, cam->up);
+	}
+	else
+		cam->LookAt(cam->pos, cam->at, cam->up);
 
 	//update zero & scale data
+
+	//mat update was done above
 	zero_cam[i] = mat * glm::vec4(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2], 1);
 	scale_cam[i] = mat * glm::vec4(scale_cam[i][0], scale_cam[i][1], scale_cam[i][2], 1);
 }
+
 const glm::vec4& GetClearColor()
 {
 	return clearColor;
@@ -523,6 +586,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		ImGui::End();
 
 	}
+
+
 	for (int i = 0; i < scene->getModels().size(); i++)
 	{
 		if (modwid[i])
@@ -926,6 +991,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 
 
 				ImGui::InputFloat("step :", &cam_step[i], 0.0f, 0.0f);
+
+				//zoom in/out
 				if (cam_step[i] != 0.f)
 				{
 					float step = cam_step[i];
@@ -950,6 +1017,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 							zoom(cam, i, 2, step);
 					}
 				}
+
+
+				//printing data
 				a = scale_cam[i];
 				str = "SCALE: ratio of x:" + to_string(a[0]) + "to 1 , ratio of y : "
 					+ to_string(a[1]) + "to 1 ,ratio of z : " + to_string(a[2]) + "to 1.";
@@ -1005,7 +1075,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				float step = cam_step[i];
 				float ratio = 1;
 				a = rotation_cam[i];
-				if (step != 0.f&&scene->ActiveCamera == i)
+				if (step != 0.f && scene->ActiveCamera == i)
 				{
 
 
@@ -1028,29 +1098,28 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 						c_f11[i] = c_f11[i] + step;
 
 					if (glfwGetKey(window, 'S') == GLFW_PRESS)
-						cam_scale_by_key(scene, cam, 'S', step, i, in_place[i]);
-
+						cam_scale_by_key(scene, cam, 'S', step, i, in_place1[i]); //scale
 
 					if (glfwGetKey(window, 'W') == GLFW_PRESS)
-						cam_scale_by_key(scene, cam, 'W', step, i, in_place[i]);
+						cam_scale_by_key(scene, cam, 'W', step, i, in_place1[i]); //scale
 
 					if (glfwGetKey(window, 'Y') == GLFW_PRESS)
-						cam_translate_by_key(scene, cam, 'Y', step, i);
+						cam_translate_by_key(scene, cam, 'Y', step, i, in_place1[i]); //right
 
 					if (glfwGetKey(window, 'R') == GLFW_PRESS)
-						cam_translate_by_key(scene, cam, 'R', step, i);
+						cam_translate_by_key(scene, cam, 'R', step, i, in_place1[i]); //left
 
 					if (glfwGetKey(window, 'T') == GLFW_PRESS)
-						cam_translate_by_key(scene, cam, 'T', step, i);
+						cam_translate_by_key(scene, cam, 'T', step, i, in_place1[i]); //up
 
 					if (glfwGetKey(window, 'G') == GLFW_PRESS)
-						cam_translate_by_key(scene, cam, 'G', step, i);
+						cam_translate_by_key(scene, cam, 'G', step, i, in_place1[i]); //down
 
 					if (glfwGetKey(window, 'F') == GLFW_PRESS)
-						cam_translate_by_key(scene, cam, 'F', step, i);
+						cam_translate_by_key(scene, cam, 'F', step, i, in_place1[i]);
 
 					if (glfwGetKey(window, 'H') == GLFW_PRESS)
-						cam_translate_by_key(scene, cam, 'H', step, i);
+						cam_translate_by_key(scene, cam, 'H', step, i, in_place1[i]);
 
 				}
 				if (cam_rad[i])
@@ -1145,27 +1214,65 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 					cam->GetrotationTransform(d2, 1)*
 					cam->GetrotationTransform(d3, 2);
 				rotation_cam[i] = glm::vec3(c_f11[i], c_f12[i], c_f13[i]);
+
+
+
+
+				//do the transformation!
 				if (in_place1[i])
 				{
-					cam->update_transform(
-						cam->GetTranslateTransform(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2])* mat *
-						cam->GetTranslateTransform(-zero_cam[i][0], -zero_cam[i][1], -zero_cam[i][2])
-					);
+					glm::mat4x4 moveToCenter = cam->GetTranslateTransform(-cam->pos.x, -cam->pos.y, -cam->pos.z);
+
+
+					//pos doesn't need update
+					cam->at = glm::inverse(moveToCenter) * mat * moveToCenter * cam->at; //update fake "at"
+					cam->up = mat * cam->up; //update "up", he's already at the center
+				}
+				else
+				{
+
+					glm::mat4x4 moveToCenterOLD = cam->GetTranslateTransform(-cam->pos.x, -cam->pos.y, -cam->pos.z);
+					cam->pos = mat * cam->pos; //update center
+					glm::mat4x4 moveFromCenterNEW = cam->GetTranslateTransform(cam->pos.x, cam->pos.y, cam->pos.z);
+
+					cam->at = moveFromCenterNEW * mat * moveToCenterOLD * cam->at; //update fake "at"
+					cam->up = mat * cam->up; //update "up", he's already at the center
+				}
+				
+				//camBox
+				if (in_place1[i])
+					cam->getCamBox()->transformModel(mat); //model
+				else
+					cam->getCamBox()->transformWorld(mat); //world
+
+				
+
+				//look-at update
+				if (cam_look_at[i]) //if he should look on the active model
+				{
+					const glm::vec4 atModel = glm::vec4(
+						zero[scene->ActiveModel].x, zero[scene->ActiveModel].y, zero[scene->ActiveModel].z, 1.0f);
+					cam->LookAt(cam->pos, atModel, cam->up);
+				}
+				else
+					cam->LookAt(cam->pos, cam->at, cam->up);
+
+
+				//update zero_cam (just like pos)
+				if (in_place1[i])
+				{
 					zero_cam[i] = cam->GetTranslateTransform(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2])
-						*mat*
+						* mat *
 						cam->GetTranslateTransform(-zero_cam[i][0], -zero_cam[i][1], -zero_cam[i][2])*
 						glm::vec4(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2], 1);
 				}
 				else
-				{
-					cam->update_transform(mat);
 					zero_cam[i] = mat * glm::vec4(zero_cam[i][0], zero_cam[i][1], zero_cam[i][2], 1);
-				}
+
 
 			}
 			ImGui::End();
 		}
-
 	}
 
 }
