@@ -3,6 +3,8 @@
 #include <imgui/imgui.h>
 #include <iostream>
 
+#include "Camera.h"
+
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 void Renderer::SetCameraTransform(const glm::mat4x4& cTransform)
 {
@@ -47,16 +49,17 @@ void Renderer::SetObjectMatrices(const glm::mat4x4& worldTransform, const glm::m
 }
 
 void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
-	glm::vec4 color,int w,int h, glm::mat4x4 windowresizing, MeshModel* myModel)
+	glm::vec4 color,int w,int h, glm::mat4x4 windowresizing, MeshModel* myModel, Camera* activeCam)
 {
 	//we recieve the object to draw with a vector of verticesPositions
 	//we will draw these triangles but first will do the transformations
 
 
 	//first do the transformations:
-
+	myCameraTransform = activeCam->get_camWorldTransform() * activeCam->get_camModelTransform();
 	//the view matrix
 	glm::mat4x4 view = worldTransform * glm::inverse(myCameraTransform); // T = M * C^-1
+	
 
 	//now the project transformation:
 	glm::mat4x4 T = myProjection * view; //first transform on the 3d world, then projet it

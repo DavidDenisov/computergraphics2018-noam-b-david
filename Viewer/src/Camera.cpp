@@ -159,6 +159,8 @@ Camera::Camera()
 		0, 1, 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1);
+	camModelTransform = camWorldTransform = cTransform;
+
 	pos = glm::vec4(0, 0, 1, 1);
 	up = glm::vec4(0, 1, 0, 1);
 	camBox = new PrimMeshModel();
@@ -168,6 +170,10 @@ Camera::Camera(Camera* c)
 	num=c->num+1;
 	projection = c->get_projection();
 	cTransform = c->get_Transform();
+
+	camModelTransform = c->get_camModelTransform();
+	camWorldTransform = c->get_camWorldTransform();
+
 	pos = glm::vec4(0, 0, 1, 1);
 	up = glm::vec4(0, 1, 0, 1);
 	camBox = new PrimMeshModel();
@@ -200,5 +206,21 @@ void Camera::LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& 
 }
 
 
+glm::mat4x4 Camera::get_camModelTransform()
+{
+	return this->camModelTransform;
+}
+glm::mat4x4 Camera::get_camWorldTransform()
+{
+	return this->camWorldTransform;
+}
+void Camera::update_camModelTransform(glm::mat4x4 transform)
+{
+	this->camModelTransform = transform * this->camModelTransform ;
+}
+void Camera::update_camWorldTransform(glm::mat4x4 transform)
+{
+	this->camWorldTransform = transform * this->camWorldTransform ;
+}
 
 

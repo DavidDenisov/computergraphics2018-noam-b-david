@@ -189,7 +189,7 @@ void Scene::DrawScene(float w,float h)
 		renderer->SetObjectMatrices(models.at(i)->getWorldTransform(),
 			models.at(i)->getNormalTransform());
 		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum()
-			,colors_model[i], w, h, windowresizing, models.at(i));
+			,colors_model[i], w, h, windowresizing, models.at(i), cameras[this->ActiveCamera]);
 	}
 
 	//render cameras as well, if needed
@@ -205,7 +205,7 @@ void Scene::DrawScene(float w,float h)
 				renderer->SetObjectMatrices(cameras[i]->getCamBox()->getWorldTransform(),
 					cameras[i]->getCamBox()->getNormalTransform());
 				renderer->DrawTriangles(cameras[i]->getCamBox()->Draw(), cameras[i]->getCamBox()->getVertexPosNum()
-					, colors_camera[i], w, h, windowresizing, cameras[i]->getCamBox());
+					, colors_camera[i], w, h, windowresizing, cameras[i]->getCamBox(), cameras[this->ActiveCamera]);
 			}
 		}
 	}

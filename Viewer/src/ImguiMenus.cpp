@@ -242,9 +242,16 @@ void cam_translate_by_key(Scene *scene, Camera* cam, int key, float f, int i, bo
 
 	//don't think it'll matter, but shouldn't change what shouldn't be changed
 	if (inplace)
+	{
 		cam->getCamBox()->transformModel(mat); //model
+		cam->update_camModelTransform(mat);
+	}
+
 	else
+	{
 		cam->getCamBox()->transformWorld(mat); //world
+		cam->update_camWorldTransform(mat);
+	}
 
 
 	if (!inplace) //if inplace, don't change his pos & at
@@ -282,9 +289,16 @@ void cam_scale_by_key(Scene *scene, Camera* cam, int key, float f, int i, bool i
 
 	//camBox update
 	if (inplace)
+	{
 		cam->getCamBox()->transformModel(mat); //model
+		cam->update_camModelTransform(mat);
+	}
+
 	else
+	{
 		cam->getCamBox()->transformWorld(mat); //world
+		cam->update_camWorldTransform(mat);
+	}
 
 
 	if (inplace) //model
@@ -985,7 +999,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (frustom[i])
 				{
 					orto[i] = prespective[i] = FALSE;
-					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, -1, 1);
+					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, -2, -1);
 				}
 
 				ImGui::Checkbox("orto", &orto[i]);
@@ -999,7 +1013,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (prespective[i])
 				{
 					frustom[i] = orto[i] = FALSE;
-					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, 1, -1);
+					cam->Perspective(90.0f, h / w, 0.5, 2.0);
 				}
 
 
@@ -1007,7 +1021,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 
 				ImGui::InputFloat("step :", &cam_step[i], 0.0f, 0.0f);
 
-				//zoom in/out
+				// zoom in/out
 				if (cam_step[i] != 0.f)
 				{
 					float step = cam_step[i];
@@ -1237,7 +1251,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (in_place1[i])
 				{
 					glm::mat4x4 moveToCenter = cam->GetTranslateTransform(
-						zero_cam[i][0], zero_cam[i][1], zero_cam[i][2]);
+						-cam->pos.x, -cam->pos.y, -cam->pos.z);
 					cam->update_transform(glm::inverse(moveToCenter) * mat * moveToCenter);
 					cam->up = mat * cam->up; //update "up", he's already at the center
 				}
@@ -1250,9 +1264,17 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				
 				//camBox
 				if (in_place1[i])
+				{
 					cam->getCamBox()->transformModel(mat); //model
+					cam->update_camModelTransform(mat);
+				}
+					
 				else
+				{
 					cam->getCamBox()->transformWorld(mat); //world
+					cam->update_camWorldTransform(mat);
+				}
+					
 
 				
 

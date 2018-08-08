@@ -11,6 +11,11 @@ private:
 	glm::mat4x4 projection;
 	MeshModel* camBox;
 	
+	//last minute changes - try to transform camera like model
+	glm::mat4x4 camModelTransform;
+	glm::mat4x4 camWorldTransform;
+
+
 	glm::mat4x4 rotationTransform(long double deg, int axis);
 	glm::mat4x4 ScaleTransform(long double x_scale, long double y_scale, long double z_scale);
 	glm::mat4x4 TranslateTransform(long double x_scale, long double y_scale, long double z_scale);
@@ -39,6 +44,12 @@ public:
 		, glm::vec3 Translate_val,glm::vec2 rotat_val);
 	glm::mat4x4 get_projection();
 	glm::mat4x4 get_Transform();
+
+	glm::mat4x4 get_camModelTransform();
+	glm::mat4x4 get_camWorldTransform();
+	void update_camModelTransform(glm::mat4x4 transform);
+	void update_camWorldTransform(glm::mat4x4 transform);
+
 
 	MeshModel* getCamBox();
 
