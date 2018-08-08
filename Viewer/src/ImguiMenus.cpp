@@ -1236,7 +1236,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				//do the transformation!
 				if (in_place1[i])
 				{
-					glm::mat4x4 moveToCenter = cam->GetTranslateTransform(-cam->pos.x, -cam->pos.y, -cam->pos.z);
+					glm::mat4x4 moveToCenter = cam->GetTranslateTransform(
+						zero_cam[i][0], zero_cam[i][1], zero_cam[i][2]);
 					cam->update_transform(glm::inverse(moveToCenter) * mat * moveToCenter);
 					cam->up = mat * cam->up; //update "up", he's already at the center
 				}
