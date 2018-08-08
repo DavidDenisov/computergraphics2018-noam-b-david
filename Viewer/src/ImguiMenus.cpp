@@ -983,12 +983,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 			else
 			{
 				//projections
-				int w, h;
-				glfwGetWindowSize(window, &w, &h);
-				float wF = float(w), hF = float(h);
 				ImGui::Text("projection :");
 				ImGui::Checkbox("frustom", &frustom[i]);
 
+				int w, h;
+				glfwGetWindowSize(window, &w, &h);
+				float wF = float(w), hF = float(h);
 				if (frustom[i])
 				{
 					orto[i] = prespective[i] = FALSE;
@@ -1229,6 +1229,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 						}
 					}
 				}
+
 				ImGui::Checkbox("rotate in place", &in_place1[i]);
 				glm::mat4x4 mat =
 					cam->GetrotationTransform(d1, 0)*
@@ -1237,22 +1238,16 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 
 				rotation_cam[i] = glm::vec3(c_f11[i], c_f12[i], c_f13[i]);
 
-
-
-
 				//do the transformation!
 				if (in_place1[i])
 				{
 					glm::mat4x4 moveToCenter = cam->GetTranslateTransform(-cam->pos.x, -cam->pos.y, -cam->pos.z);
-
-
 					//pos doesn't need update
 					cam->at = glm::inverse(moveToCenter) * mat * moveToCenter * cam->at; //update fake "at"
 					cam->up = mat * cam->up; //update "up", he's already at the center
 				}
 				else
 				{
-
 					glm::mat4x4 moveToCenterOLD = cam->GetTranslateTransform(-cam->pos.x, -cam->pos.y, -cam->pos.z);
 					cam->pos = mat * cam->pos; //update center
 					glm::mat4x4 moveFromCenterNEW = cam->GetTranslateTransform(cam->pos.x, cam->pos.y, cam->pos.z);

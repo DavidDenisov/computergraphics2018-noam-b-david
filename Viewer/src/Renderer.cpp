@@ -47,7 +47,7 @@ void Renderer::SetObjectMatrices(const glm::mat4x4& worldTransform, const glm::m
 }
 
 void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
-	glm::vec4 color,int w,int h, glm::mat4x4 windowresizing, MeshModel* myModel)
+	glm::vec4 color,float w,float h, glm::mat4x4 windowresizing, MeshModel* myModel)
 {
 	//we recieve the object to draw with a vector of verticesPositions
 	//we will draw these triangles but first will do the transformations

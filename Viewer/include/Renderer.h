@@ -53,7 +53,7 @@ public:
 	// Draws wireframe triangles to the color buffer
 
 	void DrawTriangles(glm::vec4* vertexPositionVECTOR, int size, glm::vec4 color
-		,int w,int h, glm::mat4x4 windowresizing, MeshModel* myModel);
+		, float w, float h, glm::mat4x4 windowresizing, MeshModel* myModel);
 
 	// Sets the camera transformations with relation to world coordinates
 	void SetCameraTransform(const glm::mat4x4& cTransform);

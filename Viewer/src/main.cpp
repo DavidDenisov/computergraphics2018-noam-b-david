@@ -135,10 +135,6 @@ int main(int argc, char **argv)
 				,(ypos/w - y) ,0 ));
 		}
 		glfwGetWindowSize(window, &w, &h);
-		
-		/*if(w2!=w||h2!=h)
-			renderer = Renderer(w, h);*/
-
 		scene.DrawScene(float(w),float(h)); //task3 - part2
 		
 		//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*

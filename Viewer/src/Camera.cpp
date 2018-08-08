@@ -111,10 +111,6 @@ MeshModel* Camera::getCamBox()
 
 glm::mat4x4 Camera::TranslateTransform(long double x_scale, long double y_scale, long double z_scale)
 {
-	/*return glm::mat4x4(1, 0, 0, x_scale,
-		0, 1, 0, y_scale,
-		0, 0, 1, z_scale,
-		0, 0, 0, 1);*/
 	return glm::mat4x4(1, 0, 0,0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,

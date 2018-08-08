@@ -176,8 +176,8 @@ void Scene::DrawScene(float w,float h)
 	
 	renderer->SetCameraTransform(cameras.at(ActiveCamera)->get_Transform()); // ** update by lookat!
 	renderer->SetProjection(cameras.at(ActiveCamera)->get_projection());
-	glm::mat4x4 windowresizing = cameras[0]->GetTranslateTransform(w/2,h/2,0) 
-		*cameras[0]->GetScaleTransform(w / 2, h / 2, 1); //window coordinates
+	glm::mat4x4 windowresizing = cameras[0]->GetTranslateTransform(w/2.0,h/2,0.0) 
+		*cameras[0]->GetScaleTransform(w / 2.0, h / 2.0, 1.0); //window coordinates
 
 	// 2. Tell all models to draw themselves
 	//renderer->SetDemoBuffer();
