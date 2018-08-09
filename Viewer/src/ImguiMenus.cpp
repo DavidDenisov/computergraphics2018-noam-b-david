@@ -500,7 +500,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 			ImGui::Text(const_cast<char*>(str.c_str()));
 
 			ImGui::Checkbox("show the normals of the vertices of the active MODEL : "
-				, &Active->willDrawVertexNormal);
+				,&Active->willDrawVertexNormal);
 
 			ImGui::Checkbox("show the normals of the faces of the active MODEL : "
 				, &Active->willDrawFaceNormal);
@@ -531,6 +531,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 			if (ImGui::Button(const_cast<char*>(str.c_str())))
 				remove_model(scene, i);
 		}
+
+
 		ImGui::End();
 
 	}

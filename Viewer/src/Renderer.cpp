@@ -232,8 +232,10 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			b.y = b.y - trackMovement.y;
 
 			//normalize them? -- let them be the size of 40
-			b = glm::normalize(b);
+			if(!(b.x == 0.f && b.y == 0.f))
+				b = glm::normalize(b);
 			sizeNormals = 40;
+
 			b.x = sizeNormals * b.x;
 			b.y = sizeNormals * b.y;
 
@@ -247,6 +249,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 
 
 		delete[] transNormalPositions;
+		//delete[] normalPositions;
 	}
 
 
