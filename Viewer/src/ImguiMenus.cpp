@@ -1013,7 +1013,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (prespective[i])
 				{
 					frustom[i] = orto[i] = FALSE;
-					cam->Perspective(90.0f, h / w, 0.5, 2.0);
+					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, -2, -1);
 				}
 
 
@@ -1283,7 +1283,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				{
 					const glm::vec4 atModel = glm::vec4(
 						zero[scene->ActiveModel].x, zero[scene->ActiveModel].y, zero[scene->ActiveModel].z, 1.0f);
-					cam->LookAt(cam->pos, atModel, cam->up);
+					cam->set_camWorldTransform(cam->LookAt(cam->pos, atModel, cam->up));
+					glm::mat4x4 identity
+					(
+						1.0f, 0.0f, 0.0f, 0.0f,
+						0.0f, 1.0f, 0.0f, 0.0f,
+						0.0f, 0.0f, 1.0f, 0.0f,
+						0.0f, 0.0f, 0.0f, 1.0f
+					);
+					cam->set_camModelTransform(identity);
 				}
 
 

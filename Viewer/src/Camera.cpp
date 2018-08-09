@@ -184,7 +184,7 @@ Camera::~Camera()
 {
 }
 
-void Camera::LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up)
+glm::mat4x4 Camera::LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up)
 {
 	glm::vec4 n = glm::normalize(eye - at);
 	//no cross for vec4: convert to vec3 and then again to vec4
@@ -202,7 +202,7 @@ void Camera::LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& 
 		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
 		glm::vec4(-eye.x, -eye.y, -eye.z, 1.0f)
 	);
-	this->cTransform = c * translate;
+	return c * translate;
 }
 
 
@@ -222,5 +222,12 @@ void Camera::update_camWorldTransform(glm::mat4x4 transform)
 {
 	this->camWorldTransform = transform * this->camWorldTransform ;
 }
-
+void Camera::set_camModelTransform(glm::mat4x4 transform)
+{
+	this->camModelTransform = transform;
+}
+void Camera::set_camWorldTransform(glm::mat4x4 transform)
+{
+	this->camWorldTransform = transform;
+}
 
