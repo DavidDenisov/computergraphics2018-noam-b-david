@@ -238,7 +238,7 @@ void cam_translate_by_key(Scene *scene, Camera* cam, int key, float f, int i, bo
 	if (key == 'H')
 		mat = cam->GetTranslateTransform(0, 0, -f)*mat; //forward (farther)
 
-	//cam->update_transform(mat);
+	cam->update_transform(mat);
 
 	//don't think it'll matter, but shouldn't change what shouldn't be changed
 	if (inplace)
@@ -248,10 +248,7 @@ void cam_translate_by_key(Scene *scene, Camera* cam, int key, float f, int i, bo
 
 
 	if (!inplace) //if inplace, don't change his pos & at
-	{
 		cam->pos = mat * cam->pos; //move the center
-		cam->at = mat * cam->at; //move the fake "at"
-	}
 	
 	
 
@@ -264,8 +261,6 @@ void cam_translate_by_key(Scene *scene, Camera* cam, int key, float f, int i, bo
 			zero[scene->ActiveModel].x, zero[scene->ActiveModel].y, zero[scene->ActiveModel].z, 1.0f);
 		cam->LookAt(cam->pos, atModel, cam->up);
 	}
-	else
-		cam->LookAt(cam->pos, cam->at, cam->up);
 
 
 	//zero_cam & transformLIST update
@@ -299,14 +294,14 @@ void cam_scale_by_key(Scene *scene, Camera* cam, int key, float f, int i, bool i
 		glm::mat4x4 transToCenter = cam->GetTranslateTransform(-cam->pos.x, -cam->pos.y, -cam->pos.z);
 		mat = glm::inverse(transToCenter) * mat * transToCenter;
 
+		cam->update_transform(mat);
 		cam->pos = mat * cam->pos;
-		cam->at = mat * cam->at;
 		
 	}
 	else //world
 	{
+		cam->update_transform(mat);
 		cam->pos = mat * cam->pos;
-		cam->at = mat * cam->at;
 		cam->up = mat * cam->up; //because might use minus
 	}
 
@@ -320,8 +315,6 @@ void cam_scale_by_key(Scene *scene, Camera* cam, int key, float f, int i, bool i
 			zero[scene->ActiveModel].x, zero[scene->ActiveModel].y, zero[scene->ActiveModel].z, 1.0f);
 		cam->LookAt(cam->pos, atModel, cam->up);
 	}
-	else
-		cam->LookAt(cam->pos, cam->at, cam->up);
 
 	//update zero & scale data
 
@@ -377,11 +370,11 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 
 		in_place[0] = in_place1[0] = FALSE;
 		scale_cam.push_back(glm::vec3(1, 1, 1));
-		transformLIST_cam.push_back(glm::vec3(0, 0, 1));
+		transformLIST_cam.push_back(glm::vec3(0, 0, -1));
 		rotation_cam.push_back(glm::vec3(0, 0, 0));
 		c_f1[0] = c_f2[0] = c_f3[0] = 1.f;
 		c_f11[0] = c_f12[0] = c_f13[0] = 0.f;
-		zero_cam.push_back(glm::vec3(0, 0, 1));
+		zero_cam.push_back(glm::vec3(0, 0, -1));
 		cam_rad[0] = FALSE;
 
 	}
@@ -390,7 +383,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		for (int i = 0; i < scene->getCameras().size(); i++)
 			if (cam_look_at[i])
 				scene->getCameras()[i]->LookAt(scene->getCameras()[i]->pos,
-					scene->GetVertexAvg(scene->ActiveModel), scene->getCameras()[i]->up);
+					glm::vec4(zero[scene->ActiveModel], 1.0f), scene->getCameras()[i]->up);
 
 	string str;
 	ImGui::SetNextWindowPos(ImVec2(0, 20), ImGuiCond_Once);
@@ -999,14 +992,14 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (orto[i])
 				{
 					frustom[i] = prespective[i] = FALSE;
-					cam->Ortho(-(wF)/hF, (wF) / hF, -1, 1, -1, 1);
+					cam->Ortho(-(wF)/hF, (wF) / hF, -1, 1, 1, -1);
 				}
 
 				ImGui::Checkbox("prespective", &prespective[i]);
 				if (prespective[i])
 				{
 					frustom[i] = orto[i] = FALSE;
-					cam->Frustum(-(0.5*wF)/hF, (0.5*wF) / hF, -0.5, 0.5, -0.5, 0.5);
+					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, 1, -1);
 				}
 
 
@@ -1106,16 +1099,16 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 					if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 						c_f12[i] = c_f12[i] - step;
 
-					if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+					if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) //look sideway right (z)
 						c_f13[i] = c_f13[i] + step;
 
-					if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+					if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) //look sideway left (z)
 						c_f13[i] = c_f13[i] - step;
 
-					if (glfwGetKey(window, 'A') == GLFW_PRESS)
+					if (glfwGetKey(window, 'A') == GLFW_PRESS) //look to the left (y)
 						c_f11[i] = c_f11[i] - step;
 
-					if (glfwGetKey(window, 'D') == GLFW_PRESS)
+					if (glfwGetKey(window, 'D') == GLFW_PRESS) //look to the right (y)
 						c_f11[i] = c_f11[i] + step;
 
 					if (glfwGetKey(window, 'S') == GLFW_PRESS)
@@ -1241,18 +1234,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				//do the transformation!
 				if (in_place1[i])
 				{
-					glm::mat4x4 moveToCenter = cam->GetTranslateTransform(-cam->pos.x, -cam->pos.y, -cam->pos.z);
-					//pos doesn't need update
-					cam->at = glm::inverse(moveToCenter) * mat * moveToCenter * cam->at; //update fake "at"
+					glm::mat4x4 moveToCenter = cam->GetTranslateTransform(-zero_cam[i][0],-zero_cam[i][1],-zero_cam[i][2]);
+					cam->update_transform(glm::inverse(moveToCenter) * mat * moveToCenter);
+
 					cam->up = mat * cam->up; //update "up", he's already at the center
 				}
 				else
 				{
-					glm::mat4x4 moveToCenterOLD = cam->GetTranslateTransform(-cam->pos.x, -cam->pos.y, -cam->pos.z);
+					cam->update_transform(mat);
 					cam->pos = mat * cam->pos; //update center
-					glm::mat4x4 moveFromCenterNEW = cam->GetTranslateTransform(cam->pos.x, cam->pos.y, cam->pos.z);
-
-					cam->at = moveFromCenterNEW * mat * moveToCenterOLD * cam->at; //update fake "at"
 					cam->up = mat * cam->up; //update "up", he's already at the center
 				}
 				
@@ -1271,8 +1261,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 						zero[scene->ActiveModel].x, zero[scene->ActiveModel].y, zero[scene->ActiveModel].z, 1.0f);
 					cam->LookAt(cam->pos, atModel, cam->up);
 				}
-				else
-					cam->LookAt(cam->pos, cam->at, cam->up);
 
 
 				//update zero_cam (just like pos)
