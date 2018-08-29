@@ -292,7 +292,8 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions,int size,
 
 			//normalize them? -- let them be the size of 40
 			if(!(b.x == 0.f && b.y == 0.f))
-				b = glm::normalize(b);
+			b = glm::normalize(b);
+
 			sizeNormals = 40;
 
 			b.x = sizeNormals * b.x;
