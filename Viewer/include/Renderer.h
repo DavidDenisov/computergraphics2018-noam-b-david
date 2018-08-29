@@ -6,6 +6,7 @@
 #include <imgui/imgui.h>
 
 #include "MeshModel.h"
+#include "Camera.h"
 using namespace std;
 
 /*
@@ -23,10 +24,14 @@ private:
 	int width, height;
 
 	// Added more attributes. all you need to keep to drawTriangle
+	glm::vec3 bad_color = glm::vec3(0.33349, 0.6349, 0.46539);
 	glm::mat4x4 myCameraTransform; 
 	glm::mat4x4 myProjection;
 	glm::mat4x4 worldTransform;
 	glm::mat4x4 nTransform;
+
+	void putPixel2(int x1, int y1, glm::vec2 point1, glm::vec2 point2, glm::vec2 point3
+		, const glm::vec3& color1, const glm::vec3& color2, const glm::vec3& color3);
 
 	// Draws a pixel in location p with color color
 	void putPixel(int i, int j, const glm::vec3& color);
@@ -49,12 +54,19 @@ public:
 	~Renderer();
 	// Local initializations of your implementation
 	void Init();
+	void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+		const glm::vec3&  color, float w, float h);
 
+	void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+		const glm::vec3&  color1, const glm::vec3&  color2, const glm::vec3&  color3, float w, float h);
 	// Draws wireframe triangles to the color buffer
 
-	void DrawTriangles(glm::vec4* vertexPositionVECTOR, int size, glm::vec4 color
-		, float w, float h, glm::mat4x4 windowresizing, MeshModel* myModel);
-
+	//void DrawTriangles(glm::vec4* vertexPositionVECTOR, int size, glm::vec4 color
+		//, float w, float h, glm::mat4x4 windowresizing, MeshModel* myModel, Camera* activeCam,const glm::vec3 & am_vec);
+	void DrawTriangles(glm::vec4* vertexPositionVECTOR, int size, const glm::vec3 & color
+		, float w, float h, glm::mat4x4 windowresizing, MeshModel* myModel, Camera* activeCam,
+		const glm::vec3 & am_vec, const glm::vec3 & diffus,int type);
+	void drawTringle2(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3, glm::vec4 color, float w, float h);
 	// Sets the camera transformations with relation to world coordinates
 	void SetCameraTransform(const glm::mat4x4& cTransform);
 
@@ -82,7 +94,7 @@ public:
 	void SetDemoBuffer();
   
 	//new function for home work
-	void drawLine(glm::vec2 point1, glm::vec2 point2, glm::vec4 color);
+	void drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color);
 
 	//Task1, naive solution to draw a line
 	void printLineNaive();

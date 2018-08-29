@@ -34,6 +34,9 @@ public:
 	bool willDrawBox=0;
 	bool willDrawVertexNormal = 0;
 	bool willDrawFaceNormal = 0;
+	float Ambient =1.f;
+	float Diffus=1.f;
+	float Specular =1.f;
 	void setModeltransform(glm::mat4x4 transform);
 	MeshModel(const string& fileName);
 	void LoadFile(const string& fileName);

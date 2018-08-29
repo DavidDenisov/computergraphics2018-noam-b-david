@@ -11,6 +11,11 @@ private:
 	glm::mat4x4 projection;
 	MeshModel* camBox;
 	
+	//last minute changes - try to transform camera like model
+	glm::mat4x4 camModelTransform;
+	glm::mat4x4 camWorldTransform;
+
+
 	glm::mat4x4 rotationTransform(long double deg, int axis);
 	glm::mat4x4 ScaleTransform(long double x_scale, long double y_scale, long double z_scale);
 	glm::mat4x4 TranslateTransform(long double x_scale, long double y_scale, long double z_scale);
@@ -40,6 +45,14 @@ public:
 	glm::mat4x4 get_projection();
 	glm::mat4x4 get_Transform();
 
+	glm::mat4x4 get_camModelTransform();
+	glm::mat4x4 get_camWorldTransform();
+	void update_camModelTransform(glm::mat4x4 transform);
+	void update_camWorldTransform(glm::mat4x4 transform);
+	void set_camModelTransform(glm::mat4x4 transform);
+	void set_camWorldTransform(glm::mat4x4 transform);
+
+
 	MeshModel* getCamBox();
 
 	void Transform(glm::mat4x4 t);
@@ -48,7 +61,7 @@ public:
 	void SetTransformation(const glm::mat4x4& transform);
 
 	// Creates lookAt transformation.
-	void LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up );
+	glm::mat4x4 LookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up );
 
 
 	// Sets orthographic projection matrix.

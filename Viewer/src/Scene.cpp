@@ -27,7 +27,7 @@ void  Scene::transformProjectionCam(glm::mat4x4 transform, int place)
 	this->cameras[place]->set_projection(transform);
 }
 
-void Scene::setColor(int i,glm::vec4 color,int type)
+void Scene::setColor(int i,glm::vec3 color,int type)
 {
 	if (type == 0)
 		colors_model[i] = color;
@@ -123,6 +123,7 @@ Scene::Scene() : ActiveModel(0), ActiveLight(0), ActiveCamera(0)
 	MeshModel *primModel = new PrimMeshModel();
 	c->set_camBox(primModel);
 	cameras.push_back(c);
+	lights.push_back(new Light());
 };
 
 Scene::Scene(Renderer *renderer) : renderer(renderer),
@@ -136,9 +137,10 @@ ActiveModel(0), ActiveLight(0), ActiveCamera(0)
 		colors_camera.push_back(glm::vec4(0, 0, 0, 1));
 		//colors_model.push_back(glm::vec4(0, 0, 0, 1));
 	}
+	lights.push_back(new Light());
 };
 
-glm::vec4 Scene::getColor(int i,int type)
+glm::vec3 Scene::getColor(int i,int type)
 {
 	if (type == 0)
 		return colors_model[i];
@@ -171,7 +173,6 @@ void Scene::setcur_model(int i)
 }
 void Scene::DrawScene(float w,float h)
 {
-
 	// 1. Send the renderer the current camera transform and the projection
 	
 	renderer->SetCameraTransform(cameras.at(ActiveCamera)->get_Transform()); // ** update by lookat!
@@ -183,13 +184,18 @@ void Scene::DrawScene(float w,float h)
 	//renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
 	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
+	glm::vec3 ambivalent = lights[ActiveLight]->ambient*lights[ActiveLight]->strengte_ambient
+		, diffus = lights[ActiveLight]->difus*lights[ActiveLight]->strengte_difus;
+	// Specular = lights[ActiveLight]->difus*lights[ActiveLight]->strengte_difus;
+
 	for (int i = 0; i < models.size(); i++)
 	{
 		//first set worldTransformation & nTransformation of the object in renderer
 		renderer->SetObjectMatrices(models.at(i)->getWorldTransform(),
 			models.at(i)->getNormalTransform());
 		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum()
-			,colors_model[i], w, h, windowresizing, models.at(i));
+			,colors_model[i], w, h, windowresizing, models.at(i), cameras[this->ActiveCamera]
+			,ambivalent, diffus,lights[ActiveLight]->type);
 	}
 
 	//render cameras as well, if needed
@@ -205,7 +211,9 @@ void Scene::DrawScene(float w,float h)
 				renderer->SetObjectMatrices(cameras[i]->getCamBox()->getWorldTransform(),
 					cameras[i]->getCamBox()->getNormalTransform());
 				renderer->DrawTriangles(cameras[i]->getCamBox()->Draw(), cameras[i]->getCamBox()->getVertexPosNum()
-					, colors_camera[i], w, h, windowresizing, cameras[i]->getCamBox());
+					, colors_camera[i], w, h, windowresizing, cameras[i]->getCamBox(), 
+					cameras[this->ActiveCamera],lights[ActiveLight]->ambient*lights[ActiveLight]->strengte_ambient,
+					lights[ActiveLight]->difus*lights[ActiveLight]->strengte_difus, lights[ActiveLight]->type);
 			}
 		}
 	}

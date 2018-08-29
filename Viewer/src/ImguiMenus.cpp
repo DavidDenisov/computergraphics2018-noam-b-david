@@ -9,6 +9,7 @@
 #include <string>
 #include <algorithm>
 bool whil = true;
+bool ligthWindow = FALSE;
 float* scale_step=new float;
 float* cam_step = new float;
 float *c_f11 = new float; 
@@ -64,6 +65,7 @@ bool camerasWindow = false;
 bool* camewid = new bool;
 bool* showcame = new bool;
 bool* modwid = new bool;
+bool* Lightswid = new bool;
 int camewid_num=0;
 
 int num=0;
@@ -74,9 +76,12 @@ vector<glm::vec3> transformLIST_cam;
 vector<glm::vec3> rotation;
 vector<glm::vec3> scale;
 vector<glm::vec3> transformLIST;
+bool* flat = new bool;
+bool* Phong = new bool;
+bool* Gouraud = new bool;
 glm::vec4 clearColor = glm::vec4(0.4f, 0.55f, 0.60f, 1.00f);
 
-glm::vec4 Color = glm::vec4(0.0f, 0.0f, 0.f, 1.00f);
+glm::vec3 Color = glm::vec4(0.0f, 0.0f, 0.f, 1.00f);
 
 void zoom(Camera* cam , int place, int projection_type, int zoom)
 {
@@ -94,7 +99,22 @@ void zoom(Camera* cam , int place, int projection_type, int zoom)
 	}
 
 }
-
+void addLigth(Scene* scene)
+{
+	int size = scene->getLights().size();
+	flat[size]=TRUE;
+	Phong[size] = FALSE;
+	Gouraud[size] = FALSE;
+	scene->add_Light();
+	Lightswid[size] = FALSE;
+}
+void removeLigth(Scene *scene, int place)
+{
+	flat[place] = TRUE;
+	Phong[place] = FALSE;
+	Gouraud[place] = FALSE;
+	scene->remove_Light(place);
+}
 void add_model(Scene *scene)
 {
 	num = scene->getModels().size();
@@ -242,9 +262,16 @@ void cam_translate_by_key(Scene *scene, Camera* cam, int key, float f, int i, bo
 
 	//don't think it'll matter, but shouldn't change what shouldn't be changed
 	if (inplace)
+	{
 		cam->getCamBox()->transformModel(mat); //model
+		cam->update_camModelTransform(mat);
+	}
+
 	else
+	{
 		cam->getCamBox()->transformWorld(mat); //world
+		cam->update_camWorldTransform(mat);
+	}
 
 
 	if (!inplace) //if inplace, don't change his pos & at
@@ -282,9 +309,16 @@ void cam_scale_by_key(Scene *scene, Camera* cam, int key, float f, int i, bool i
 
 	//camBox update
 	if (inplace)
+	{
 		cam->getCamBox()->transformModel(mat); //model
+		cam->update_camModelTransform(mat);
+	}
+
 	else
+	{
 		cam->getCamBox()->transformWorld(mat); //world
+		cam->update_camWorldTransform(mat);
+	}
 
 
 	if (inplace) //model
@@ -350,7 +384,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 {
 	if (first)
 	{
-		first = modwid[0] = camewid[0] = showcame[0] = self_prspective[0] = cam_look_at[0] = FALSE;
+		first = modwid[0] = camewid[0] = showcame[0] = self_prspective[0] = cam_look_at[0] = Lightswid[0] = FALSE;
 		rotation.clear();
 		rotation.push_back(glm::vec3(0, 0, 0));
 		scale.push_back(glm::vec3(1, 1, 1));
@@ -376,7 +410,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		c_f11[0] = c_f12[0] = c_f13[0] = 0.f;
 		zero_cam.push_back(glm::vec3(0, 0, -1));
 		cam_rad[0] = FALSE;
-
+		
 	}
 
 	if (scene->getModels().size() > 0)
@@ -402,6 +436,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		ImGui::Checkbox("Another Window", &showAnotherWindow);
 		ImGui::Checkbox("Models Window", &modelsWindow);
 		ImGui::Checkbox("Cameras Window", &camerasWindow);
+		ImGui::Checkbox("Ligths Window", &ligthWindow);
 		if (ImGui::Button("Button")) // Buttons return true when clicked (NB: most widgets return true when edited/activated)
 			counter++;
 		ImGui::SameLine();
@@ -585,8 +620,63 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		ImGui::End();
 
 	}
+	if (ligthWindow)
+	{
+		ImGui::Begin("Lights", &ligthWindow);
+		if (scene->getLights().size() > 0)
+		{
+			str = "the active model is Light " +
+				 to_string(scene->ActiveLight);
+			ImGui::Text(const_cast<char*>(str.c_str()));
+		}
 
 
+		if (ImGui::Button("ADD Light"))
+			addLigth(scene);
+		
+			
+
+		for (int i = 0; i < scene->getLights().size(); i++)
+		{
+			str = "show the window of Ligth : " + to_string(i);
+			ImGui::Checkbox(const_cast<char*>(str.c_str()), &Lightswid[i]);
+			if (scene->getLights().size() > 1)
+			{
+				str = "REMOVE Ligth : " + to_string(i);
+				if (ImGui::Button(const_cast<char*>(str.c_str())))
+					removeLigth(scene,i);
+			}
+		}
+
+
+		ImGui::End();
+		
+	}
+
+	for (int i = 0; i < scene->getLights().size(); i++)
+	{
+		if (Lightswid[i])
+		{
+			Light* cur = scene->getLights()[i];
+			ImGui::ColorEdit3("ambient ligth", (float*)&cur->ambient);
+			ImGui::SliderFloat("ambient strength", &cur->strengte_ambient, 0.0f, 1);
+
+			ImGui::ColorEdit3("Diffuse ligth", (float*)&cur->difus);
+			ImGui::SliderFloat("Diffuse strength", &cur->strengte_difus, 0.0f, 1);
+
+			ImGui::Text("flat :");
+			ImGui::Checkbox("flat", &flat[i]);
+			if (flat[i])
+				Gouraud[i] = Phong[i] = FALSE, cur->type = 0;
+			ImGui::Checkbox("Gouraud ", &Gouraud[i]);
+			if (Gouraud[i])
+				flat[i] = Phong[i] = FALSE, cur->type = 1;
+			ImGui::Checkbox("Phong", &Phong[i]);
+			if (Phong[i])
+				flat[i] = Gouraud[i] = FALSE, cur->type = 2;
+		
+		}
+	}
 	for (int i = 0; i < scene->getModels().size(); i++)
 	{
 		if (modwid[i])
@@ -626,6 +716,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 			a = rotation[i];
 			str = "ROTATE in degrees: x:" + to_string(a[0]) + " , y : "
 				+ to_string(a[1]) + ",  z : " + to_string(a[2]) + ".";
+
+		
 			ImGui::Text(const_cast<char*>(str.c_str()));
 
 			if (i == scene->ActiveModel)
@@ -987,7 +1079,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (frustom[i])
 				{
 					orto[i] = prespective[i] = FALSE;
-					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, -1, 1);
+					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, -2, -1);
 				}
 
 				ImGui::Checkbox("orto", &orto[i]);
@@ -1001,15 +1093,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (prespective[i])
 				{
 					frustom[i] = orto[i] = FALSE;
-					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, 1, -1);
+					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, -2, -1);
 				}
 
 
 				//cam->reset_projection();
-
+				
 				ImGui::InputFloat("step :", &cam_step[i], 0.0f, 0.0f);
 
-				//zoom in/out
+				// zoom in/out
 				if (cam_step[i] != 0.f)
 				{
 					float step = cam_step[i];
@@ -1093,8 +1185,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				a = rotation_cam[i];
 				if (step != 0.f && scene->ActiveCamera == i)
 				{
-
-
 					if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 						c_f12[i] = c_f12[i] + step;
 
@@ -1236,7 +1326,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				//do the transformation!
 				if (in_place1[i])
 				{
-					glm::mat4x4 moveToCenter = cam->GetTranslateTransform(-zero_cam[i][0],-zero_cam[i][1],-zero_cam[i][2]);
+					glm::mat4x4 moveToCenter = cam->GetTranslateTransform(
+						-cam->pos.x, -cam->pos.y, -cam->pos.z);
 					cam->update_transform(glm::inverse(moveToCenter) * mat * moveToCenter);
 
 					cam->up = mat * cam->up; //update "up", he's already at the center
@@ -1250,9 +1341,17 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				
 				//camBox
 				if (in_place1[i])
+				{
 					cam->getCamBox()->transformModel(mat); //model
+					cam->update_camModelTransform(mat);
+				}
+					
 				else
+				{
 					cam->getCamBox()->transformWorld(mat); //world
+					cam->update_camWorldTransform(mat);
+				}
+					
 
 				
 
@@ -1261,7 +1360,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				{
 					const glm::vec4 atModel = glm::vec4(
 						zero[scene->ActiveModel].x, zero[scene->ActiveModel].y, zero[scene->ActiveModel].z, 1.0f);
-					cam->LookAt(cam->pos, atModel, cam->up);
+					cam->set_camWorldTransform(cam->LookAt(cam->pos, atModel, cam->up));
+					glm::mat4x4 identity
+					(
+						1.0f, 0.0f, 0.0f, 0.0f,
+						0.0f, 1.0f, 0.0f, 0.0f,
+						0.0f, 0.0f, 1.0f, 0.0f,
+						0.0f, 0.0f, 0.0f, 1.0f
+					);
+					cam->set_camModelTransform(identity);
 				}
 
 
