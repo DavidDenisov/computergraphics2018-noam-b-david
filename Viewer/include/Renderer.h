@@ -29,6 +29,9 @@ private:
 	glm::mat4x4 myProjection;
 	glm::mat4x4 worldTransform;
 	glm::mat4x4 nTransform;
+	void putPixel3(int x1, int y1, glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+		glm::vec3 norm1, glm::vec3 norm2, glm::vec3 norm3,
+		float Diffus_st, glm::vec3 diffus, glm::vec3 am_vec, glm::vec3 color);
 
 	void putPixel2(int x1, int y1, glm::vec2 point1, glm::vec2 point2, glm::vec2 point3
 		, const glm::vec3& color1, const glm::vec3& color2, const glm::vec3& color3);
@@ -59,6 +62,10 @@ public:
 
 	void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 		const glm::vec3&  color1, const glm::vec3&  color2, const glm::vec3&  color3, float w, float h);
+
+	void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+		const glm::vec3&  norm1, const glm::vec3&  norm2, const glm::vec3&  norm3,
+		float Diffus_st, glm::vec3 diffus, glm::vec3 am_vec, glm::vec3 color, float w, float h);
 	// Draws wireframe triangles to the color buffer
 
 	//void DrawTriangles(glm::vec4* vertexPositionVECTOR, int size, glm::vec4 color
@@ -96,6 +103,15 @@ public:
 	//new function for home work
 	void drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color);
 
+
+	void drawLine_ground(glm::vec2 start, glm::vec2 end,
+		glm::vec2 point1,glm::vec2 point2, glm::vec2 point3,
+		const glm::vec3& color1, const glm::vec3& color2, const glm::vec3& color3);
+
+	void drawLine_phong(glm::vec2 start, glm::vec2 end,
+		glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+		const glm::vec3& norm1, const glm::vec3& norm2, const glm::vec3& norm3,
+		float Diffus_st, glm::vec3 diffus, glm::vec3 am_vec, glm::vec3 color);
 	//Task1, naive solution to draw a line
 	void printLineNaive();
 
