@@ -184,10 +184,16 @@ void Scene::DrawScene(float w,float h)
 	//renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
 	//renderer->drawLine(glm::vec2(0.0, 0.0), glm::vec2(700.0, 700.0)); //Bresenham algorithm
-	glm::vec3 ambivalent = lights[ActiveLight]->ambient*lights[ActiveLight]->strengte_ambient
-		, diffus = lights[ActiveLight]->difus*lights[ActiveLight]->strengte_difus;
-	// Specular = lights[ActiveLight]->difus*lights[ActiveLight]->strengte_difus;
 
+		
+	// Specular = lights[ActiveLight]->difus*lights[ActiveLight]->strengte_difus;
+	vector<glm::vec3> diffus;
+	vector<glm::vec3> difuus_direction;
+	for (int i = 0; i < lights.size(); i++)
+	{
+		diffus.push_back(lights[i]->difus*lights[i]->strengte_difus);
+		difuus_direction.push_back(lights[i]->difus_direction);
+	}
 	for (int i = 0; i < models.size(); i++)
 	{
 		//first set worldTransformation & nTransformation of the object in renderer
@@ -195,7 +201,7 @@ void Scene::DrawScene(float w,float h)
 			models.at(i)->getNormalTransform());
 		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum()
 			,colors_model[i], w, h, windowresizing, models.at(i), cameras[this->ActiveCamera]
-			,ambivalent, diffus,lights[ActiveLight]->type);
+			, ambient * strengte_ambient, diffus, difuus_direction,type);
 	}
 
 	//render cameras as well, if needed
@@ -204,6 +210,7 @@ void Scene::DrawScene(float w,float h)
 	{
 		//exacly the same code like models' drawing just "cameras[i]->getCamBox()" for models[i] 
 		//and not rendering the active camera
+
 		for (int i = 0; i < cameras.size(); i++)
 		{
 			if (ActiveCamera != i)
@@ -212,8 +219,9 @@ void Scene::DrawScene(float w,float h)
 					cameras[i]->getCamBox()->getNormalTransform());
 				renderer->DrawTriangles(cameras[i]->getCamBox()->Draw(), cameras[i]->getCamBox()->getVertexPosNum()
 					, colors_camera[i], w, h, windowresizing, cameras[i]->getCamBox(), 
-					cameras[this->ActiveCamera],lights[ActiveLight]->ambient*lights[ActiveLight]->strengte_ambient,
-					lights[ActiveLight]->difus*lights[ActiveLight]->strengte_difus, lights[ActiveLight]->type);
+					cameras[this->ActiveCamera],
+					ambient * strengte_ambient,
+					diffus,difuus_direction,type);
 			}
 		}
 	}

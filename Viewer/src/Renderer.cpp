@@ -49,7 +49,25 @@ Renderer::~Renderer()
 {
 	delete[] colorBuffer;
 }
-
+void Renderer::putPixel_no_check(int i, int j, const glm::vec3& color)
+{
+	if (i < 0) return; if (i >= width) return;
+	if (j < 0) return; if (j >= height) return;
+	colorBuffer[INDEX(width, i, j, 0)] = color.x;
+	colorBuffer[INDEX(width, i, j, 1)] = color.y;
+	colorBuffer[INDEX(width, i, j, 2)] = color.z;
+}
+void Renderer::putPixel2(int i, int j)
+{
+	if (i < 0) return; if (i >= width) return;
+	if (j < 0) return; if (j >= height) return;
+	colorBuffer3.push_back(glm::vec2(i, j));
+	glm::vec3 color;
+	color.x =colorBuffer[INDEX(width, i, j, 0)] ;
+	color.y = colorBuffer[INDEX(width, i, j, 1)] ;
+	color.z = colorBuffer[INDEX(width, i, j, 2)];
+	colorBuffer2.push_back(color);
+}
 void Renderer::putPixel(int i, int j, const glm::vec3& color)
 {
 	if (i < 0) return; if (i >= width) return;
@@ -58,7 +76,40 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 	colorBuffer[INDEX(width, i, j, 1)] = color.y;
 	colorBuffer[INDEX(width, i, j, 2)] = color.z;
 }
-void Renderer::putPixel2(int x1, int y1,glm::vec2 point1, glm::vec2 point2, glm::vec2 point3
+void Renderer::putPixel(int i, int j,int z, const glm::vec3& color)
+{
+	if (i < 0) return; if (i >= width) return;
+	if (j < 0) return; if (j >= height) return;
+	if (z > zBuffer[i][j])
+	{
+		zBuffer[i][j] = z;
+		colorBuffer[INDEX(width, i, j, 0)] = color.x;
+		colorBuffer[INDEX(width, i, j, 1)] = color.y;
+		colorBuffer[INDEX(width, i, j, 2)] = color.z;
+	}
+}
+
+void Renderer::putPixel(int i, int j, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
+	const glm::vec3& color)
+{
+	if (i < 0) return; if (i >= width) return;
+	if (j < 0) return; if (j >= height) return;
+	float dist1 = abs(i - point1.x) + abs(j - point1.y);
+	float dist2 = abs(i - point2.x) + abs(j - point2.y);
+	float dist3 = abs(i - point3.x) + abs(j - point3.y);
+	float sum = dist1 + dist2 + dist3;
+	float point_z = point1.z*(dist1 / sum) + point2.z*(dist2 / sum) + point3.z*(dist3 / sum);
+	if (point_z > zBuffer[i][j])
+	{
+		zBuffer[i][j] = point_z;
+		colorBuffer[INDEX(width, i, j, 0)] = color.x;
+		colorBuffer[INDEX(width, i, j, 1)] = color.y;
+		colorBuffer[INDEX(width, i, j, 2)] = color.z;
+		
+	}
+}
+
+void Renderer::putPixel2(int x1, int y1,glm::vec3 point1, glm::vec3 point2, glm::vec3 point3
 	, const glm::vec3& color1,const glm::vec3& color2, const glm::vec3& color3)
 {
 	float dist1 = abs(x1 - point1.x) +abs(y1 - point1.y);
@@ -66,31 +117,50 @@ void Renderer::putPixel2(int x1, int y1,glm::vec2 point1, glm::vec2 point2, glm:
 	float dist3 = abs(x1 - point3.x) + abs(y1 - point3.y);
 	float sum = dist1 + dist2 + dist3;
 	glm::vec3 color = color1 * (dist1 / sum) + color2 * (dist2 / sum) + color3 * (dist3 / sum);
-	putPixel(x1, y1, color);
+	float point_z = point1.z*(dist1 / sum) + point2.z*(dist2 / sum) + point3.z*(dist3 / sum);
+	if (point_z > zBuffer[x1][y1])
+	{
+		zBuffer[x1][y1] = point_z;
+		colorBuffer[INDEX(width, x1, y1, 0)] = color.x;
+		colorBuffer[INDEX(width, x1, y1, 1)] = color.y;
+		colorBuffer[INDEX(width, x1, y1, 2)] = color.z;
+
+	}
+	
 }
-void Renderer::putPixel3(int x1, int y1, glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	glm::vec3 norm1, glm::vec3 norm2, glm::vec3 norm3,
-	float Diffus_st, glm::vec3 diffus, glm::vec3 am_vec, glm::vec3 color)
+	float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> diffus_direction, glm::vec3 am_vec, glm::vec3 color)
 {
 	float dist1 = abs(x1 - point1.x) + abs(y1 - point1.y);
 	float dist2 = abs(x1 - point2.x) + abs(y1 - point2.y);
 	float dist3 = abs(x1 - point3.x) + abs(y1 - point3.y);
 	float sum1 = dist1 + dist2 + dist3;
 	glm::vec3 cur_norm = norm1 * (dist1 / sum1) + norm2 * (dist2 / sum1) + norm3 * (dist3 / sum1);
-
+	float point_z = point1.z*(dist1 / sum1) + point2.z*(dist2 / sum1) + point3.z*(dist3 / sum1);
+	
 	float x2 = 0.f;
 
-	glm::vec3 diffus2 = diffus * color;
-	if ( ( !isnan(cur_norm.x) ) && ( !isnan(cur_norm.z) ) && ( !isnan(cur_norm.y) )  )
-		if ( (norm(diffus) != 0.f) && (norm(cur_norm) != 0.f) && (sum(cur_norm) != 0.f)  )
-			x2 = norm(diffus * cur_norm) / (norm(diffus2)*norm(cur_norm));
+	glm::vec3  cur_color = am_vec;
+	
+	for (int i = 0; i < diffus.size(); i++)
+	{
+		if ((!isnan(cur_norm.x)) && (!isnan(cur_norm.z)) && (!isnan(cur_norm.y)) )
+			if ((norm(diffus_direction[i]) != 0.f) && (norm(cur_norm) != 0.f) && (sum(cur_norm) != 0.f))
+				x2 = norm(diffus_direction[i] * cur_norm) / (norm(diffus_direction[i])*norm(cur_norm));
 
-	x2 = fmin(1.f, x2);
-
-	glm::vec3  cur_color = glm::vec3((diffus2 * x2* Diffus_st)) + am_vec;
+		x2 = fmin(1.f, x2);
+		cur_color = cur_color + glm::vec3((diffus[i]*x2* Diffus_st));
+	}
 	cur_color = cur_color * color;
-
-	putPixel(x1, y1, cur_color);
+	if (point_z > zBuffer[x1][y1])
+	{
+		zBuffer[x1][y1] = point_z;
+		colorBuffer[INDEX(width, x1, y1, 0)] = cur_color.x;
+		colorBuffer[INDEX(width, x1, y1, 1)] = cur_color.y;
+		colorBuffer[INDEX(width, x1, y1, 2)] = cur_color.z;
+	}
+	
 }
 void Renderer::SetObjectMatrices(const glm::mat4x4& worldTransform, const glm::mat4x4& nTransform)
 {
@@ -100,12 +170,20 @@ void Renderer::SetObjectMatrices(const glm::mat4x4& worldTransform, const glm::m
 
 void Renderer::DrawTriangles(glm::vec4* vertexPositions,int size,
 	 const glm::vec3 & color,float w,float h, glm::mat4x4 windowresizing,
-	MeshModel* myModel,Camera* activeCam, const glm::vec3 & am_vec, const glm::vec3 & diffus,int type)
+	MeshModel* myModel,Camera* activeCam, const glm::vec3 & am_vec, const vector<glm::vec3> & diffus
+	, const vector<glm::vec3> & diffus_direction,int type)
 {
 	//we recieve the object to draw with a vector of verticesPositions
 	//we will draw these triangles but first will do the transformations
-
-
+	zBuffer = new float*[w];
+	for (int i = 0; i < w; i++)
+	{
+		zBuffer[i] = new float[h];
+		for (int j = 0; j < h; j++)
+			zBuffer[i][j] = - INFINITY;
+	}
+		
+			
 	//first do the transformations:
 	myCameraTransform = activeCam->get_camWorldTransform() * activeCam->get_camModelTransform();
 	//the view matrix
@@ -136,69 +214,77 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions,int size,
 	}
 
 	//now draw the triangles (and always before put them in vec2) !!!
-	glm::vec2 a(0.0f, 0.0f), b(0.0f, 0.0f), c(0.0f, 0.0f);
+	glm::vec3 a(0.0f, 0.0f, 0.0f), b(0.0f, 0.0f, 0.0f), c(0.0f, 0.0f, 0.0f);
 	for (int face = 0; face < size - 2; face = face + 3)
 	{
 		
-		a.x = transVerticesPositions[face].x;
-		a.y = transVerticesPositions[face].y;
+		a = transVerticesPositions[face];
+		b = transVerticesPositions[face+1];
+		c = transVerticesPositions[face+2];
 
-		b.x = transVerticesPositions[face + 1].x;
-		b.y = transVerticesPositions[face + 1].y;
-
-		c.x = transVerticesPositions[face + 2].x;
-		c.y = transVerticesPositions[face + 2].y;
 
 		//draw triangle [a,b,c]
 		if (type == 0)//flat
 		{
-			glm::vec4 face_norm = myModel->getNormalFace()[face];
+
+			glm::vec3 face_norm = myModel->getNormalFace()[face];
 			float x = 0.f;
-			glm::vec4 diffus2 = glm::vec4(diffus * color,1);
-			if( (!isnan(face_norm.x))&& (!isnan(face_norm.z)) && (!isnan(face_norm.y)) && (!isnan(face_norm.w)))
-				if((norm(diffus)!=0.f) && (norm(face_norm)!=0.f) && (sum(face_norm) != 0.f))
-					x = norm(glm::vec4(diffus,1) * face_norm)/(norm(diffus2)*norm(face_norm));
-			x = fmin(1.f, x);
+		
+			glm::vec3  color2 = am_vec;
+			for (int i = 0; i < diffus.size(); i++)
+			{
+				if ((!isnan(face_norm.x)) && (!isnan(face_norm.z)) && (!isnan(face_norm.y)))
+					if ((norm(diffus_direction[i]) != 0.f) && (norm(face_norm) != 0.f) &&
+						(sum(face_norm) != 0.f))
+						x = norm(diffus_direction[i] *face_norm) / 
+						(norm(diffus_direction[i])*norm(face_norm));
+
+				
+				x = fmin(1.f, x);
 
 
-			glm::vec3  color2 = glm::vec3((diffus2*x* myModel->Diffus)) + am_vec;
+				color2 = color2 + diffus[i]*x* myModel->Diffus;
+			}
 			color2 = color2 * color;
 			drawTringle(a, b, c, color2, w, h);
 		}
 		if (type == 1)// Gouraud 
 		{
-			glm::vec4 v1 = myModel->getNormalVertex()[face];
-			glm::vec4 v2 = myModel->getNormalVertex()[face+1];
-			glm::vec4 v3 = myModel->getNormalVertex()[face+2];
+			glm::vec3 v1 = myModel->getNormalVertex()[face];
+			glm::vec3 v2 = myModel->getNormalVertex()[face+1];
+			glm::vec3 v3 = myModel->getNormalVertex()[face+2];
 			
 
 			float x1 = 0.f;
 			float x2 = 0.f;
 			float x3 = 0.f;
-			glm::vec4 diffus2 = glm::vec4(diffus * color, 1);
-			if ((!isnan(v1.x)) && (!isnan(v1.z)) && (!isnan(v1.y)) && (!isnan(v1.w)))
-				if ((norm(diffus) != 0.f) && (norm(v1) != 0.f) && (sum(v1) != 0.f))
-					x1 = norm(glm::vec4(diffus, 1) * v1) / (norm(diffus2)*norm(v1));
+			glm::vec3  color1 = am_vec;
+			glm::vec3  color2 = am_vec;
+			glm::vec3  color3 = am_vec;
+			for (int i = 0; i < diffus.size(); i++)
+			{
+				if ((!isnan(v1.x)) && (!isnan(v1.z)) && (!isnan(v1.y)) )
+					if ((norm(diffus_direction[i]) != 0.f) && (norm(v1) != 0.f) && (sum(v1) != 0.f))
+						x1 = norm(diffus_direction[i] * v1) / (norm(diffus_direction[i])*norm(v1));
 
-			if ((!isnan(v2.x)) && (!isnan(v2.z)) && (!isnan(v2.y)) && (!isnan(v2.w)))
-				if ((norm(diffus) != 0.f) && (norm(v2) != 0.f) && (sum(v2) != 0.f))
-					x2 = norm(glm::vec4(diffus, 1) * v1) / (norm(diffus2)*norm(v2));
+				if ((!isnan(v2.x)) && (!isnan(v2.z)) && (!isnan(v2.y)) )
+					if ((norm(diffus_direction[i]) != 0.f) && (norm(v2) != 0.f) && (sum(v2) != 0.f))
+						x2 = norm(diffus_direction[i]* v2) / (norm(diffus_direction[i])*norm(v2));
 
-			if ((!isnan(v3.x)) && (!isnan(v3.z)) && (!isnan(v3.y)) && (!isnan(v3.w)))
-				if ((norm(diffus) != 0.f) && (norm(v3) != 0.f) && (sum(v3) != 0.f))
-					x3 = norm(glm::vec4(diffus, 1) * v3) / (norm(diffus2)*norm(v3));
+				if ((!isnan(v3.x)) && (!isnan(v3.z)) && (!isnan(v3.y)) )
+					if ((norm(diffus_direction[i]) != 0.f) && (norm(v3) != 0.f) && (sum(v3) != 0.f))
+						x3 = norm(diffus_direction[i] * v3) / (norm(diffus_direction[i])*norm(v3));
 
-			x1 = fmin(1.f, x1);
-			x2 = fmin(1.f, x2);
-			x3 = fmin(1.f, x3);
+				x1 = fmin(1.f, x1);
+				x2 = fmin(1.f, x2);
+				x3 = fmin(1.f, x3);
 
-			glm::vec3  color1 = glm::vec3((diffus2*x1* myModel->Diffus)) + am_vec;
+				color1 = color1 + glm::vec3((diffus[i]*x1* myModel->Diffus));
+				color2 = color2 + glm::vec3((diffus[i]*x2* myModel->Diffus));
+				color3 = color3 + glm::vec3((diffus[i]*x3* myModel->Diffus));
+			}
 			color1 = color1 * color;
-			
-			glm::vec3  color2 = glm::vec3((diffus2*x2* myModel->Diffus)) + am_vec;
 			color2 = color2 * color;
-
-			glm::vec3  color3 = glm::vec3((diffus2*x3* myModel->Diffus)) + am_vec;
 			color3 = color3 * color;
 
 			drawTringle(a, b, c, color1, color2, color3, w, h);
@@ -209,7 +295,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions,int size,
 			glm::vec4 v1 = myModel->getNormalVertex()[face];
 			glm::vec4 v2 = myModel->getNormalVertex()[face + 1];
 			glm::vec4 v3 = myModel->getNormalVertex()[face + 2];
-			drawTringle(a, b, c, v1,v2,v3, myModel->Diffus,diffus, am_vec, color, w, h);
+			drawTringle(a, b, c, v1,v2,v3, myModel->Diffus,diffus,diffus_direction, am_vec, color, w, h);
 		}
 
 		
@@ -352,7 +438,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions,int size,
 			b.x = b.x + a.x;
 			b.y = b.y + a.y;
 
-			drawLine(a, b, glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)); //faces' normals with GREEN
+			drawLine_z(a, b, glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)); //faces' normals with GREEN
 		}
 
 
@@ -416,7 +502,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions,int size,
 
 
 		//now draw each normal vertex. from vertex to the normal point
-		glm::vec2 a = glm::vec2(), b = glm::vec2();
+		glm::vec3 a = glm::vec3(), b = glm::vec3();
 		float sizeNormals;
 		for (int f = 0; f < size / 3; f++)
 		{
@@ -445,7 +531,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions,int size,
 			b.x = b.x + a.x;
 			b.y = b.y + a.y;
 
-			drawLine(a, b, glm::vec4(1.0f, 1.0f, 1.0f, 0.0f)); //faces' normals with WHITE
+			drawLine_z(a, b, glm::vec4(1.0f, 1.0f, 1.0f, 0.0f)); //faces' normals with WHITE
 			int checking = 0;
 		}
 		
@@ -458,6 +544,9 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions,int size,
 	delete[] transVerticesPositions; //they take a lot of memory and will not be used again
 	delete[] drawVertexPositions;
 	delete[] vertexPositions;
+	for (int i = 0; i < w; i++)
+		delete[] zBuffer[i];
+	delete[] zBuffer;
 }
 
 void Renderer::createBuffers(int w, int h)
@@ -473,102 +562,14 @@ void Renderer::createBuffers(int w, int h)
 	}
 }
 
-void Renderer::drawTringle2(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3, glm::vec4 color, float w, float h)
+void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
+	const glm::vec3&  color, float w, float h)
 {
+	if (w < 3 || h < 3)
+		return;
 	int ymax = fmin(h, fmax(fmax(point1.y, point2.y), point3.y));
 	int ymin = fmax(0, fmin(fmin(point1.y, point2.y), point3.y));
 	int xmax = fmin(w, fmax(fmax(point1.x, point2.x), point3.x));
-	int xmin = fmax(0, fmin(fmin(point1.x, point2.x), point3.x));
-	vector<vector<glm::vec3>> arr;
-	bool same_color = TRUE;
-	glm::vec3 temp2;
-	for (int y = ymin; y < ymax; y++)
-	{
-		vector<glm::vec3> temp;
-		for (int x = xmin; x < xmax; x++)
-		{
-			if (same_color)
-			{
-				temp2 = glm::vec3(colorBuffer[INDEX(width, x, y, 0)],
-					colorBuffer[INDEX(width, x, y, 1)], colorBuffer[INDEX(width, x, y, 2)]);
-					temp.push_back(temp2);
-					same_color = (temp2== glm::vec3(color.x, color.y, color.z));
-			}
-			else
-				temp.push_back(glm::vec3(colorBuffer[INDEX(width, x, y, 0)],
-					colorBuffer[INDEX(width, x, y, 1)], colorBuffer[INDEX(width, x, y, 2)]));
-		}
-		arr.push_back(temp);
-	}
-	//if (same_color)
-	//	return;
-	drawLine(point1, point2, color);
-	drawLine(point1, point3, color);
-	drawLine(point2, point3, color);
-	bool put = FALSE;
-	vector<glm::vec2> start, end;
-	/*
-	for (int y = ymin; y < ymax; y++)
-	{
-		put = FALSE;
-		for (int x = xmin ; x < xmax; x++)
-		{
-			if(put)
-			{
-				if (arr[y - ymin][x - xmin] != glm::vec3(colorBuffer[INDEX(width, x, y, 0)]
-					,colorBuffer[INDEX(width, x, y, 1)],
-					colorBuffer[INDEX(width, x, y, 2)]))
-				{
-					put = FALSE;
-					end.push_back(glm::vec2(x, y));
-				}
-			}
-			else
-			{
-				if (arr[y - ymin][x - xmin] != glm::vec3(colorBuffer[INDEX(width, x, y, 0)]
-					, colorBuffer[INDEX(width, x, y, 1)],
-					colorBuffer[INDEX(width, x, y, 2)]))
-				{
-					put = TRUE;
-					start.push_back(glm::vec2(x, y));
-				}
-			}
-		}
-	}
-	for (int y = 0; y < end.size()-1; y++)
-		drawLine(start[y], end[y], color);
-	*/
-	
-	for (int y = ymin; y < ymax; y++)
-	{
-		put = FALSE;
-		for (int x = xmin;x < xmax; x++)
-		{
-			if (put)
-			{
-				if (arr[y - ymin][x - xmin] != glm::vec3(colorBuffer[INDEX(width, x, y, 0)]
-					, colorBuffer[INDEX(width, x, y, 1)],
-					colorBuffer[INDEX(width, x, y, 2)]))
-						put=FALSE;
-				putPixel(x,y, color);
-			}
-			else
-				if(arr[y - ymin][x - xmin] != glm::vec3(colorBuffer[INDEX(width, x, y, 0)]
-					, colorBuffer[INDEX(width, x, y, 1)],
-					colorBuffer[INDEX(width, x, y, 2)]))
-						put = TRUE;
-		}
-	}
-	
-
-}
-
-void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
-	const glm::vec3&  color, float w, float h)
-{
-	int ymax = fmin(h - 1, fmax(fmax(point1.y, point2.y), point3.y));
-	int ymin = fmax(0, fmin(fmin(point1.y, point2.y), point3.y));
-	int xmax = fmin(w - 1, fmax(fmax(point1.x, point2.x), point3.x));
 	int xmin = fmax(0, fmin(fmin(point1.x, point2.x), point3.x));
 
 	//cout << (color-bad_color).x<<" "<< (color - bad_color).y<<" "<< (color - bad_color).z<<'\n';
@@ -580,9 +581,11 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 		a = a / 128.f, b = b / 128.f,c = c / 128.f;
 		bad_color = glm::vec3(a, b, c);
 	}
-	drawLine(point1, point2, bad_color);
-	drawLine(point1, point3, bad_color);
-	drawLine(point2, point3, bad_color);
+	colorBuffer2.clear();
+	colorBuffer3.clear();
+	drawLine_z(point1, point2, bad_color);
+	drawLine_z(point1, point3, bad_color);
+	drawLine_z(point2, point3, bad_color);
 
 	bool put = FALSE;
 	//bool cont = TRUE;
@@ -625,14 +628,14 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 							bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
 							bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 						{
-							putPixel(x, y, color);
+							putPixel(x, y, point1, point2, point3, color);
 							x++;
 						}
 						x--;
 						put = FALSE;
 						//cont = FALSE; //this is the second edge. no need to continue
 					}
-					putPixel(x, y, color);
+					putPixel(x, y, point1, point2, point3, color);
 
 				}
 				else
@@ -644,14 +647,14 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 						bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 					{
 						put = TRUE;
-						putPixel(x, y, color);
+						putPixel(x, y,point1, point2, point3, color);
 						x++;
 						//draw the whole edge, and only afterwards start looking for the next one
 						while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
 							bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
 							bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 						{
-							putPixel(x, y, color);
+							putPixel(x, y, point1, point2, point3, color);
 							x++;
 						}
 						x--;
@@ -695,12 +698,24 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 			}
 		}
 	}*/
+	glm::vec2 cur_point;
+	glm::vec3 cur_color;
+	for(int i=0;i<colorBuffer2.size();i++)
+	{
+		cur_color = colorBuffer2[i];
+		cur_point = colorBuffer3[i];
+		if (!((cur_color == bad_color) || (cur_color == back_round_color)))
+		{
+			putPixel(cur_point.x, cur_point.y, color);
+		}
+	}
+
 	drawLine(point1, point2, color);
 	drawLine(point1, point3, color);
 	drawLine(point2, point3, color);
 
 }
-void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3, 
+void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3, 
 	const glm::vec3&  color1, const glm::vec3&  color2, const glm::vec3&  color3, float w, float h)
 {
 	int ymax = fmin(h - 1, fmax(fmax(point1.y, point2.y), point3.y));
@@ -710,9 +725,11 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 
 	//cout << (color-bad_color).x<<" "<< (color - bad_color).y<<" "<< (color - bad_color).z<<'\n';
 
-	drawLine(point1, point2, bad_color);
-	drawLine(point1, point3, bad_color);
-	drawLine(point2, point3, bad_color);
+	colorBuffer2.clear();
+	colorBuffer3.clear();
+	drawLine_z(point1, point2, bad_color);
+	drawLine_z(point1, point3, bad_color);
+	drawLine_z(point2, point3, bad_color);
 
 	bool put = FALSE;
 	//bool cont = TRUE;
@@ -789,6 +806,20 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 
 	}
 
+	glm::vec2 cur_point;
+	glm::vec3 cur_color;
+	for (int i = 0; i<colorBuffer2.size(); i++)
+	{
+		cur_color = colorBuffer2[i];
+		cur_point = colorBuffer3[i];
+		if ((cur_color == bad_color) || (cur_color == back_round_color))
+		{
+			
+		}
+		else
+			putPixel(cur_point.x, cur_point.y, cur_color);
+	}
+
 	drawLine_ground(point1, point2,
 		point1, point2, point3,
 		color1, color2, color3);
@@ -802,9 +833,10 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 		color1, color2, color3);
 }
 
-void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	const glm::vec3&  norm1, const glm::vec3&  norm2, const glm::vec3&  norm3,
-	float Diffus_st, glm::vec3 diffus, glm::vec3 am_vec, glm::vec3 color,float w, float h)
+	float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> diffus_directions
+	, glm::vec3 am_vec, glm::vec3 color,float w, float h)
 {
 	int ymax = fmin(h - 1, fmax(fmax(point1.y, point2.y), point3.y));
 	int ymin = fmax(0, fmin(fmin(point1.y, point2.y), point3.y));
@@ -813,9 +845,13 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 
 	//cout << (color-bad_color).x<<" "<< (color - bad_color).y<<" "<< (color - bad_color).z<<'\n';
 
-	drawLine(point1, point2, bad_color);
-	drawLine(point1, point3, bad_color);
-	drawLine(point2, point3, bad_color);
+	
+
+	colorBuffer2.clear();
+	colorBuffer3.clear();
+	drawLine_z(point1, point2, bad_color);
+	drawLine_z(point1, point3, bad_color);
+	drawLine_z(point2, point3, bad_color);
 
 	bool put = FALSE;
 	//bool cont = TRUE;
@@ -856,7 +892,7 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 							bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 						{
 							putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
-								Diffus_st, diffus, am_vec, color);
+								Diffus_st, diffus,diffus_directions, am_vec, color);
 							x++;
 						}
 						x--;
@@ -864,7 +900,7 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 						//cont = FALSE; //this is the second edge. no need to continue
 					}
 					putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
-						Diffus_st, diffus, am_vec, color);
+						Diffus_st, diffus, diffus_directions, am_vec, color);
 				}
 				else
 				{
@@ -876,7 +912,7 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 					{
 						put = TRUE;
 						putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
-							Diffus_st, diffus, am_vec, color);
+							Diffus_st, diffus, diffus_directions, am_vec, color);
 						x++;
 						//draw the whole edge, and only afterwards start looking for the next one
 						while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
@@ -884,7 +920,7 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 							bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 						{
 							putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
-								Diffus_st, diffus, am_vec, color);
+								Diffus_st, diffus, diffus_directions, am_vec, color);
 							x++;
 						}
 						x--;
@@ -895,25 +931,39 @@ void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
 		}
 
 	}
+	glm::vec2 cur_point;
+	glm::vec3 cur_color;
+	for (int i = 0; i<colorBuffer2.size(); i++)
+	{
+		cur_color = colorBuffer2[i];
+		cur_point = colorBuffer3[i];
+		if ((cur_color == bad_color) || (cur_color == back_round_color))
+		{
+
+		}
+		else
+			putPixel(cur_point.x, cur_point.y, cur_color);
+	}
 	drawLine_phong(point1, point2,
 		point1, point2, point3,
 		norm1, norm2, norm3,
-		Diffus_st, diffus, am_vec, color);
+		Diffus_st, diffus, diffus_directions, am_vec, color);
 
 	drawLine_phong(point2, point3,
 		point1, point2, point3,
 		norm1, norm2, norm3,
-		Diffus_st, diffus, am_vec, color);
+		Diffus_st, diffus, diffus_directions, am_vec, color);
 
 	drawLine_phong(point1, point3,
 		point1, point2, point3,
 		norm1,norm2,norm3,
-		Diffus_st, diffus, am_vec, color);
+		Diffus_st, diffus, diffus_directions, am_vec, color);
 }
-void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color)
+void Renderer::drawLine_z(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color)
 {
 	int p1 = point1.x, q1 = point1.y; // point1 parameters
 	int p2 = point2.x, q2 = point2.y; // point2 parameters
+
 	int y, x;
 	float m;
 	int c;
@@ -926,6 +976,8 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& col
 		temp = q1;
 		q1 = q2;
 		q2 = temp;
+
+
 	}
 	int replaced = 0;
 
@@ -934,9 +986,13 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& col
 	{
 		int min = q2 >= q1 ? q1 : q2;
 		int max = q2 <= q1 ? q1 : q2;
+
+
 		for (int h = min; h < max; h++)
 		{
-			putPixel(p1, h, color);
+			putPixel2(p1, h);
+			putPixel(p1, h,  color);
+			
 		}
 
 		return;
@@ -945,9 +1001,12 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& col
 	{
 		int min = p2 >= p1 ? p1 : p2;
 		int max = p2 <= p1 ? p1 : p2;
+
 		for (int w = min; w < max; w++)
 		{
-			putPixel(w, q1, color);
+			putPixel2(w, q1);
+			putPixel(w, q1,  color);
+			
 		}
 
 		return;
@@ -958,11 +1017,11 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& col
 
 
 	//for measuring distance between the line's y and the approximation's y
-	int e; 
+	int e;
 	int tmp;
-	
+
 	m = float(q2 - q1) / float(p2 - p1);
-	
+
 	if (m >= 0.0f) //m>=0
 	{
 		if (m > 1.0f) // if m>1 replace x & y for both points
@@ -986,7 +1045,6 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& col
 		x = p1, y = q1, e = -1 * (p2 - p1);
 
 
-
 		while (x <= p2)
 		{
 			//e = m*x*(dp) + c*dp - y*dp - dp; //measuring distance
@@ -996,9 +1054,220 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& col
 				e = e - 2 * (p2 - p1);
 			}
 			if (replaced == 0)
+			{
+				putPixel2(x, y);
 				putPixel(x, y, color);
+				
+			}
 			else
+			{
+				putPixel2(y, x);
 				putPixel(y, x, color);
+				
+			}
+			
+			x = x + 1; //for next point
+			e = e + 2 * (q2 - q1); //line's y got bigger by m*dp
+		}
+	}
+
+
+	//m < 0 - similar to m>0 but it's less readable if we would try to combine
+	else
+	{
+
+
+
+		//if m<-1 should swap(x,y) for both points
+		// and also swap the two points between themselves
+		/*
+		1*           2*
+		\            -----
+		\     =>          -------
+		2*                         ---1*
+
+		***now 2* is before 1* and -1 < m < 0
+		*/
+		if (m < -1.0f)
+		{
+			//switch(p1,q1)
+			tmp = p1;
+			p1 = q1;
+			q1 = tmp;
+
+			//switch(p2,q2)
+			tmp = p2;
+			p2 = q2;
+			q2 = tmp;
+
+
+			//***now switch(point1, point2):
+			//switch(p1,p2)
+			tmp = p1;
+			p1 = p2;
+			p2 = tmp;
+
+			//switch(q1,q2)
+			tmp = q1;
+			q1 = q2;
+			q2 = tmp;
+
+
+
+			replaced = 1;
+		}
+
+
+		// y = mx + c
+		m = (q2 - q1) / (p2 - p1);
+		c = q1 - m * p1;
+		x = p1; y = q1; e = p2 - p1;
+		while (x <= p2)
+		{
+			//e = m * x + c - y;
+
+			if (e < 0)
+			{
+				y = y - 1; e = e + 2 * (p2 - p1);
+			}
+			if (replaced == 0)
+			{
+				putPixel2(x, y);
+				putPixel(x, y, color);	
+			}
+			else
+			{
+				putPixel2(y, x);
+				putPixel(y, x, color);
+			}
+		
+			x = x + 1; e = e + 2 * (q2 - q1);
+		}
+
+	}
+
+
+}
+void Renderer::drawLine(glm::vec3 point1, glm::vec3 point2, const glm::vec3& color)
+{
+	int p1 = point1.x, q1 = point1.y, z1 = point1.z; // point1 parameters
+	int p2 = point2.x, q2 = point2.y, z2 = point2.z; // point2 parameters
+	float d_z;
+	int y, x;
+	float m;
+	int c;
+	if (p1 > p2)
+	{
+		int temp = p1;
+		p1 = p2;
+		p2 = temp;
+
+		temp = q1;
+		q1 = q2;
+		q2 = temp;
+
+
+		temp = z1;
+		z1 = z2;
+		z2 = temp;
+	}
+	int replaced = 0;
+
+	//first deal with special cases like p2 - p1 = 0 or q2 - q1 = 0
+	if (p2 - p1 == 0)
+	{
+		int min = q2 >= q1 ? q1 : q2;
+		int max = q2 <= q1 ? q1 : q2;
+		float z, d_z;
+		if (q1 == min)
+		{
+			z = point1.z;
+			d_z = (point2.z - z)/(min-max);
+		}
+		else
+		{
+			z = point2.z;
+			d_z = (point1.z - z) / (min - max);
+		}
+		for (int h = min; h < max; h++)
+		{
+			putPixel(p1, h,z, color);
+			z += d_z;
+		}
+
+		return;
+	}
+	if (q2 - q1 == 0)
+	{
+		int min = p2 >= p1 ? p1 : p2;
+		int max = p2 <= p1 ? p1 : p2;
+		float z, d_z;
+		if (p1 == min)
+		{
+			z = point1.z;
+			d_z = (point2.z - z) / (min - max);
+		}
+		else
+		{
+			z = point2.z;
+			d_z = (point1.z - z) / (min - max);
+		}
+		for (int w = min; w < max; w++)
+		{
+			putPixel(w, q1,z, color);
+			z = z + d_z;
+		}
+
+		return;
+	}
+
+
+
+
+
+	//for measuring distance between the line's y and the approximation's y
+	int e; 
+	int tmp;
+	
+	m = float(q2 - q1) / float(p2 - p1);
+	
+	if (m >= 0.0f) //m>=0
+	{
+		if (m > 1.0f) // if m>1 replace x & y for both points
+		{
+			//switch(p1,q1)
+			tmp = p1;
+			p1 = q1;
+			q1 = tmp;
+			
+			//switch(p2,q2)
+			tmp = p2;
+			p2 = q2;
+			q2 = tmp;
+
+			replaced = 1;
+		}
+
+		// y = mx + c
+		m = (q2 - q1) / (p2 - p1);
+		c = q1 - m * p1;
+		x = p1, y = q1, e = -1 * (p2 - p1);
+		
+		
+		float z = z1, z_d = (z2 - z1) / (p2 - p1);
+		while (x <= p2)
+		{
+			//e = m*x*(dp) + c*dp - y*dp - dp; //measuring distance
+			if (e > 0)
+			{
+				y = y + 1;
+				e = e - 2 * (p2 - p1);
+			}
+			if (replaced == 0)
+				putPixel(x, y,z, color);
+			else
+				putPixel(y, x,z, color);
+			z = z + z_d;
 			x = x + 1; //for next point
 			e = e + 2 * (q2 - q1); //line's y got bigger by m*dp
 		}
@@ -1045,6 +1314,11 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& col
 			q1 = q2;
 			q2 = tmp;
 
+		
+			tmp = z1;
+			z1 = z2;
+			z2 = tmp;
+
 			replaced = 1;
 		}
 
@@ -1053,7 +1327,7 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& col
 		m = (q2 - q1) / (p2 - p1);
 		c = q1 - m * p1;
 		x = p1; y = q1; e = p2 - p1;
-
+		float z = z1, z_d = (z2 - z1) / (p2 - p1);
 		while (x <= p2)
 		{
 			//e = m * x + c - y;
@@ -1063,10 +1337,10 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& col
 				y = y - 1; e = e + 2 * (p2-p1);
 			}
 			if (replaced == 0)
-				putPixel(x, y, color);
+				putPixel(x, y,z, color);
 			else
-				putPixel(y, x, color);
-			
+				putPixel(y, x,z, color);
+			z = z + z_d;
 			x = x + 1; e = e + 2*(q2 - q1);
 		}
 
@@ -1075,7 +1349,7 @@ void Renderer::drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& col
 
 }
 void Renderer::drawLine_ground(glm::vec2 start, glm::vec2 end, 
-	glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+	glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	const glm::vec3& color1, const glm::vec3& color2, const glm::vec3& color3)
 {
 	int p1 = start.x, q1 = start.y; // start parameters
@@ -1242,9 +1516,10 @@ void Renderer::drawLine_ground(glm::vec2 start, glm::vec2 end,
 
 }
 void Renderer::drawLine_phong(glm::vec2 start, glm::vec2 end,
-	glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+	glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	const glm::vec3& norm1, const glm::vec3& norm2, const glm::vec3& norm3,
-	float Diffus_st, glm::vec3 diffus, glm::vec3 am_vec, glm::vec3 color)
+	float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> diffus_directions, 
+	glm::vec3 am_vec, glm::vec3 color)
 {
 	int p1 = start.x, q1 = start.y; // start parameters
 	int p2 = end.x, q2 = end.y; // end parameters
@@ -1271,7 +1546,7 @@ void Renderer::drawLine_phong(glm::vec2 start, glm::vec2 end,
 		for (int h = min; h < max; h++)
 		{
 			putPixel3(p1, h, point1, point2, point3, norm1, norm2, norm3,
-				Diffus_st, diffus, am_vec, color);
+				Diffus_st, diffus,diffus_directions, am_vec, color);
 		}
 
 		return;
@@ -1283,7 +1558,7 @@ void Renderer::drawLine_phong(glm::vec2 start, glm::vec2 end,
 		for (int w = min; w < max; w++)
 		{
 			putPixel3(w, q1, point1, point2, point3, norm1, norm2, norm3,
-				Diffus_st, diffus, am_vec, color);
+				Diffus_st, diffus, diffus_directions, am_vec, color);
 		}
 
 		return;
@@ -1332,10 +1607,10 @@ void Renderer::drawLine_phong(glm::vec2 start, glm::vec2 end,
 			}
 			if (replaced == 0)
 				putPixel3(x,y, point1, point2, point3, norm1, norm2, norm3,
-					Diffus_st, diffus, am_vec, color);
+					Diffus_st, diffus, diffus_directions, am_vec, color);
 			else
 				putPixel3(y,x, point1, point2, point3, norm1, norm2, norm3,
-					Diffus_st, diffus, am_vec, color);
+					Diffus_st, diffus, diffus_directions, am_vec, color);
 
 			x = x + 1; //for next point
 			e = e + 2 * (q2 - q1); //line's y got bigger by m*dp
@@ -1402,10 +1677,10 @@ void Renderer::drawLine_phong(glm::vec2 start, glm::vec2 end,
 			}
 			if (replaced == 0)
 			putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
-				Diffus_st, diffus, am_vec, color);
+				Diffus_st, diffus, diffus_directions, am_vec, color);
 			else
 				putPixel3(y, x, point1, point2, point3, norm1, norm2, norm3,
-					Diffus_st, diffus, am_vec, color);
+					Diffus_st, diffus, diffus_directions, am_vec, color);
 
 			x = x + 1; e = e + 2 * (q2 - q1);
 		}
@@ -1413,55 +1688,8 @@ void Renderer::drawLine_phong(glm::vec2 start, glm::vec2 end,
 	}
 
 }
-void Renderer::printLineNaive()
-{
-	float m = 0.7f, b = 10.0f; //slope
-	int x,y;
-	int r = 5;
-	glm::vec4 green = glm::vec4(0, 1, 0, 1);
-	
-	for (int x = 0; x < width; x++) // x goes from left corner to right corner
-	{
-		y = m * x + b;
-		
-		
 
-		for (int r0 = 0; r0 < r; r0++) //so it wouldn't be thin
-		{
-			if (!((int)y < height && (int)y >= 0)) //if y is out of bounds, stop drawing
-				break;
-			if(x + r0 < width && x + r0 >= 0)
-				putPixel(x + r0, (int)y, green);
-			if (x + r0 < width && x - r0 >= 0)
-				putPixel(x - r0, (int)y, green);
-    }
-  }
-}
 
-void Renderer::SetDemoBuffer()
-{
-	int r = 5;
-	// Wide red vertical line
-	glm::vec4 red = glm::vec4(1, 0, 0, 1);
-	for (int i = 0; i<height; i++)
-	{
-		for (int r0 = 0; r0 < r; r0++)
-		{
-			putPixel((width / 2) + r0, i, red);
-			putPixel((width / 2) - r0, i, red);
-		}
-	}
-	// Wide magenta horizontal line
-	glm::vec4 magenta = glm::vec4(1, 0, 1, 1);
-	for (int i = 0; i<width; i++)
-	{
-		for (int r0 = 0; r0 < r; r0++)
-		{
-			putPixel(i, (height / 2) + r0, magenta);
-			putPixel(i, (height / 2) - r0, magenta);
-		}
-	}
-}
 
 
 
@@ -1561,11 +1789,12 @@ void Renderer::SwapBuffers()
 
 void Renderer::ClearColorBuffer(const glm::vec3& color)
 {
+	back_round_color = color;
 	for (int i = 0; i < width; i++)
 	{
 		for (int j = 0; j < height; j++)
 		{
-			putPixel(i, j, color);
+			putPixel(i, j,color);
 		}
 	}
 }

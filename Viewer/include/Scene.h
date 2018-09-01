@@ -79,4 +79,7 @@ public:
 	int ActiveModel;
 	int ActiveLight;
 	int ActiveCamera;
+	int type=0;
+	glm::vec3 ambient= glm::vec3(0,0,0);
+	float strengte_ambient = 0;
 };

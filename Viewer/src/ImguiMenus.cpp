@@ -76,9 +76,7 @@ vector<glm::vec3> transformLIST_cam;
 vector<glm::vec3> rotation;
 vector<glm::vec3> scale;
 vector<glm::vec3> transformLIST;
-bool* flat = new bool;
-bool* Phong = new bool;
-bool* Gouraud = new bool;
+bool flat = TRUE,  Phong = FALSE, Gouraud = FALSE;
 glm::vec4 clearColor = glm::vec4(0.4f, 0.55f, 0.60f, 1.00f);
 
 glm::vec3 Color = glm::vec4(0.0f, 0.0f, 0.f, 1.00f);
@@ -102,17 +100,11 @@ void zoom(Camera* cam , int place, int projection_type, int zoom)
 void addLigth(Scene* scene)
 {
 	int size = scene->getLights().size();
-	flat[size]=TRUE;
-	Phong[size] = FALSE;
-	Gouraud[size] = FALSE;
-	scene->add_Light();
 	Lightswid[size] = FALSE;
+	scene->add_Light();
 }
 void removeLigth(Scene *scene, int place)
 {
-	flat[place] = TRUE;
-	Phong[place] = FALSE;
-	Gouraud[place] = FALSE;
 	scene->remove_Light(place);
 }
 void add_model(Scene *scene)
@@ -629,7 +621,19 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				 to_string(scene->ActiveLight);
 			ImGui::Text(const_cast<char*>(str.c_str()));
 		}
+		ImGui::ColorEdit3("ambient ligth", (float*)&scene->ambient);
+		ImGui::SliderFloat("ambient strength", &scene->strengte_ambient, 0.0f, 1);
 
+		ImGui::Text("flat :");
+		ImGui::Checkbox("flat", &flat);
+		if (flat)
+			Gouraud = Phong = FALSE, scene->type = 0;
+		ImGui::Checkbox("Gouraud ", &Gouraud);
+		if (Gouraud)
+			flat = Phong = FALSE, scene->type = 1;
+		ImGui::Checkbox("Phong", &Phong);
+		if (Phong)
+			flat = Gouraud = FALSE, scene->type = 2;
 
 		if (ImGui::Button("ADD Light"))
 			addLigth(scene);
@@ -657,24 +661,19 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 	{
 		if (Lightswid[i])
 		{
+			str = "Light " +to_string(i);
+			ImGui::Begin(const_cast<char*>(str.c_str()), &Lightswid[i]);
 			Light* cur = scene->getLights()[i];
-			ImGui::ColorEdit3("ambient ligth", (float*)&cur->ambient);
-			ImGui::SliderFloat("ambient strength", &cur->strengte_ambient, 0.0f, 1);
-
 			ImGui::ColorEdit3("Diffuse ligth", (float*)&cur->difus);
 			ImGui::SliderFloat("Diffuse strength", &cur->strengte_difus, 0.0f, 1);
+			ImGui::SliderFloat("Diffuse direction x", &scene->getLights()[i]->difus_direction.x,
+				0.0f, 1);
+			ImGui::SliderFloat("Diffuse direction y", &scene->getLights()[i]->difus_direction.y,
+				0.0f, 1);
+			ImGui::SliderFloat("Diffuse direction z", &scene->getLights()[i]->difus_direction.z,
+				0.0f, 1);
 
-			ImGui::Text("flat :");
-			ImGui::Checkbox("flat", &flat[i]);
-			if (flat[i])
-				Gouraud[i] = Phong[i] = FALSE, cur->type = 0;
-			ImGui::Checkbox("Gouraud ", &Gouraud[i]);
-			if (Gouraud[i])
-				flat[i] = Phong[i] = FALSE, cur->type = 1;
-			ImGui::Checkbox("Phong", &Phong[i]);
-			if (Phong[i])
-				flat[i] = Gouraud[i] = FALSE, cur->type = 2;
-		
+			ImGui::End();
 		}
 	}
 	for (int i = 0; i < scene->getModels().size(); i++)

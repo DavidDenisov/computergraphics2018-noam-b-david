@@ -16,10 +16,13 @@ using namespace std;
 class Renderer
 {
 private:
+	glm::vec3 back_round_color;
 	// 3*width*height
 	float *colorBuffer;
+	vector<glm::vec3>  colorBuffer2;
+	vector<glm::vec2>  colorBuffer3;
 	// width*height
-	float *zBuffer;
+	float **zBuffer;
 	// Screen dimensions
 	int width, height;
 
@@ -29,14 +32,19 @@ private:
 	glm::mat4x4 myProjection;
 	glm::mat4x4 worldTransform;
 	glm::mat4x4 nTransform;
-	void putPixel3(int x1, int y1, glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+	void putPixel_no_check(int i, int j, const glm::vec3& color);
+	void putPixel2(int i, int j);
+	void putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		glm::vec3 norm1, glm::vec3 norm2, glm::vec3 norm3,
-		float Diffus_st, glm::vec3 diffus, glm::vec3 am_vec, glm::vec3 color);
+		float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> diffus_direction, glm::vec3 am_vec, glm::vec3 color);
 
-	void putPixel2(int x1, int y1, glm::vec2 point1, glm::vec2 point2, glm::vec2 point3
+	void putPixel2(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3
 		, const glm::vec3& color1, const glm::vec3& color2, const glm::vec3& color3);
 
 	// Draws a pixel in location p with color color
+	void putPixel(int i, int j, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
+		const glm::vec3& color);
+	void putPixel(int i, int j, int z, const glm::vec3& color);
 	void putPixel(int i, int j, const glm::vec3& color);
 	// creates float array of dimension [3,w,h]
 	void createBuffers(int w, int h);
@@ -57,23 +65,25 @@ public:
 	~Renderer();
 	// Local initializations of your implementation
 	void Init();
-	void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+	void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  color, float w, float h);
 
-	void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+	void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  color1, const glm::vec3&  color2, const glm::vec3&  color3, float w, float h);
 
-	void Renderer::drawTringle(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+	void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  norm1, const glm::vec3&  norm2, const glm::vec3&  norm3,
-		float Diffus_st, glm::vec3 diffus, glm::vec3 am_vec, glm::vec3 color, float w, float h);
+		float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> diffus_directions
+		, glm::vec3 am_vec, glm::vec3 color, float w, float h);
 	// Draws wireframe triangles to the color buffer
 
 	//void DrawTriangles(glm::vec4* vertexPositionVECTOR, int size, glm::vec4 color
 		//, float w, float h, glm::mat4x4 windowresizing, MeshModel* myModel, Camera* activeCam,const glm::vec3 & am_vec);
-	void DrawTriangles(glm::vec4* vertexPositionVECTOR, int size, const glm::vec3 & color
-		, float w, float h, glm::mat4x4 windowresizing, MeshModel* myModel, Camera* activeCam,
-		const glm::vec3 & am_vec, const glm::vec3 & diffus,int type);
-	void drawTringle2(glm::vec2 point1, glm::vec2 point2, glm::vec2 point3, glm::vec4 color, float w, float h);
+	void DrawTriangles(glm::vec4* vertexPositions, int size,
+		const glm::vec3 & color, float w, float h, glm::mat4x4 windowresizing,
+		MeshModel* myModel, Camera* activeCam, const glm::vec3 & am_vec, const vector<glm::vec3> & diffus
+		, const vector<glm::vec3> & diffus_direction, int type);
+	
 	// Sets the camera transformations with relation to world coordinates
 	void SetCameraTransform(const glm::mat4x4& cTransform);
 
@@ -101,17 +111,19 @@ public:
 	void SetDemoBuffer();
   
 	//new function for home work
-	void drawLine(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color);
+	void drawLine_z(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color);
+
+	void drawLine(glm::vec3 point1, glm::vec3 point2, const glm::vec3& color);
 
 
 	void drawLine_ground(glm::vec2 start, glm::vec2 end,
-		glm::vec2 point1,glm::vec2 point2, glm::vec2 point3,
+		glm::vec3 point1,glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3& color1, const glm::vec3& color2, const glm::vec3& color3);
 
 	void drawLine_phong(glm::vec2 start, glm::vec2 end,
-		glm::vec2 point1, glm::vec2 point2, glm::vec2 point3,
+		glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3& norm1, const glm::vec3& norm2, const glm::vec3& norm3,
-		float Diffus_st, glm::vec3 diffus, glm::vec3 am_vec, glm::vec3 color);
+		float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> diffus_directions, glm::vec3 am_vec, glm::vec3 color);
 	//Task1, naive solution to draw a line
 	void printLineNaive();
 
