@@ -18,8 +18,12 @@ private:
 	vector<MeshModel*> models;
 	vector<Light*> lights;
 	vector<Camera*> cameras;
-	vector<glm::vec3> colors_model;
-	vector<glm::vec3> colors_camera;
+	vector<glm::vec3> AMcolors_model;
+	vector<glm::vec3> AMcolors_camera;
+	vector<glm::vec3> Difcolors_model;
+	vector<glm::vec3> Difcolors_camera;
+	vector<glm::vec3> SPECTcolors_model;
+	vector<glm::vec3> SPECTcolors_camera;
 	Renderer *renderer;
 public:
 
@@ -34,8 +38,8 @@ public:
 	Scene();
 	Scene(Renderer *renderer);
 	void transformProjection(int a, int b, int c, int d, int e, int f);
-	void setColor(int i,glm::vec3 color,int type);
-	glm::vec3  getColor(int i, int type);
+	void setColor(int i,glm::vec3 color,int type,int type_ligth);
+	glm::vec3  getColor(int i, int type, int type_ligth);
 	void transformModel(glm::mat4x4 transform);
 	void transformWorld(glm::mat4x4 transform);
 	// Loads an obj file into the scene.

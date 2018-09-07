@@ -666,13 +666,13 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 			Light* cur = scene->getLights()[i];
 			ImGui::ColorEdit3("Diffuse ligth", (float*)&cur->difus);
 			ImGui::SliderFloat("Diffuse strength", &cur->strengte_difus, 0.0f, 1);
-			ImGui::SliderFloat("Diffuse direction x", &scene->getLights()[i]->difus_direction.x,
-				0.0f, 1);
-			ImGui::SliderFloat("Diffuse direction y", &scene->getLights()[i]->difus_direction.y,
-				0.0f, 1);
-			ImGui::SliderFloat("Diffuse direction z", &scene->getLights()[i]->difus_direction.z,
-				0.0f, 1);
 
+			ImGui::SliderFloat("Diffuse direction x", &scene->getLights()[i]->difus_direction.x,-1, 1);
+			ImGui::SliderFloat("Diffuse direction y", &scene->getLights()[i]->difus_direction.y,-1, 1);
+			ImGui::SliderFloat("Diffuse direction z", &scene->getLights()[i]->difus_direction.z,-1, 1);
+
+			if (ImGui::Button("Reset diffuse direction"))
+				scene->getLights()[i]->difus_direction = glm::vec3(0, 0, 0);
 			ImGui::End();
 		}
 	}
@@ -694,9 +694,17 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 					scene->getModels()[i]->folow_the_mouse = FALSE;
 
 
-			Color = scene->getColor(i, 0);
-			ImGui::ColorEdit3("color", (float*)&Color);
-			scene->setColor(i, Color, 0);
+			Color = scene->getColor(i, 0,0);
+			ImGui::ColorEdit3("ambient color", (float*)&Color);
+			scene->setColor(i, Color, 0,0);
+
+			Color = scene->getColor(i, 0, 1);
+			ImGui::ColorEdit3("diffus color", (float*)&Color);
+			scene->setColor(i, Color, 0, 1);
+
+			Color = scene->getColor(i, 0, 2);
+			ImGui::ColorEdit3("spectecular color", (float*)&Color);
+			scene->setColor(i, Color, 0, 2);
 
 			str = "zero: x:" + to_string(zero[i][0]) + ", y : "
 				+ to_string(zero[i][1]) + ",  z : " + to_string(zero[i][2]) + " .";
@@ -1002,9 +1010,21 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 			ImGui::Begin(const_cast<char*>(str.c_str()), &modelsWindow);
 			if (ImGui::Button("make active"))
 				scene->ActiveCamera = i;
-			Color = scene->getColor(i, 1);
-			ImGui::ColorEdit3("color", (float*)&Color);
-			scene->setColor(i, Color, 1);
+
+
+			Color = scene->getColor(i, 1, 0);
+			ImGui::ColorEdit3("ambient color", (float*)&Color);
+			scene->setColor(i, Color, 1, 0);
+
+			Color = scene->getColor(i, 1, 1);
+			ImGui::ColorEdit3("diffus color", (float*)&Color);
+			scene->setColor(i, Color, 1, 1);
+
+			Color = scene->getColor(i, 1, 2);
+			ImGui::ColorEdit3("spectecular color", (float*)&Color);
+			scene->setColor(i, Color, 1, 2);
+
+
 			ImGui::Checkbox("auto look at", &cam_look_at[i]);
 			ImGui::Checkbox("self prspective", &self_prspective[i]);
 			Camera* cam = scene->getCameras()[i];

@@ -21,18 +21,69 @@ void  Scene::transformcam(glm::mat4x4 transform, int place)
 {
 	this->cameras[place]->transform_transform(transform);
 }*/
-
+template<class T>
+const T& maxs(const T& a, const T& b)
+{
+	return (a < b) ? b : a;
+}
+float norm2(const glm::vec3 v)
+{
+	//return pow((abs(v.x) + abs(v.y) + abs(v.z)),0.5);
+	float ans = maxs(v.x, 0.f) + maxs(v.y, 0.f) + maxs(v.z, 0.f);
+	ans = pow(ans, 0.5);
+	if (ans > 1.f)
+		return 1.f;
+	return ans;
+}
 void  Scene::transformProjectionCam(glm::mat4x4 transform, int place)
 {
 	this->cameras[place]->set_projection(transform);
 }
 
-void Scene::setColor(int i,glm::vec3 color,int type)
+void Scene::setColor(int i,glm::vec3 color,int type, int type_ligth)
 {
 	if (type == 0)
-		colors_model[i] = color;
+	{
+		switch (type_ligth)
+		{
+		case 0:
+		{
+			AMcolors_model[i] = color;
+			break;
+		}
+		case 1:
+		{
+			Difcolors_model[i] = color;
+			break;
+		}
+		case 2:
+		{
+			SPECTcolors_model[i] = color;
+			break;
+		}
+		}
+	}
 	else
-		colors_camera[i] = color;
+	{
+		switch (type_ligth)
+		{
+		case 0:
+		{
+			AMcolors_camera[i] = color;
+			break;
+		}
+		case 1:
+		{
+			Difcolors_camera[i] = color;
+			break;
+		}
+		case 2:
+		{
+			SPECTcolors_camera[i] = color;
+			break;
+		}
+		}
+	}
 }
 void Scene::RemoveModel(int num)
 {
@@ -43,7 +94,9 @@ void Scene::RemoveModel(int num)
 	models.erase(models.begin()+num);
 	if (ActiveModel == num)
 		ActiveModel = 0;
-	colors_model.erase(colors_model.begin() + num);
+	AMcolors_model.erase(AMcolors_model.begin() + num);
+	Difcolors_model.erase(Difcolors_model.begin() + num);
+	SPECTcolors_model.erase(SPECTcolors_model.begin() + num);
 }
 glm::vec4 Scene::GetVertexAvg(int mod)
 {
@@ -92,7 +145,9 @@ void Scene::transformCam(glm::mat4x4 transform)
 void Scene::load_cam(Camera* cam)
 {
 	Camera* c = new Camera(cam);
-	colors_camera.push_back(glm::vec4(0, 0, 0, 1));
+	AMcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
+	Difcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
+	SPECTcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
 	c->num = num;
 	num++;
 	cameras.push_back(c);
@@ -100,7 +155,9 @@ void Scene::load_cam(Camera* cam)
 void Scene::load_cam()
 {
 	Camera* c = new Camera();
-	colors_camera.push_back(glm::vec4(0, 0, 0, 1));
+	AMcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
+	Difcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
+	SPECTcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
 	c->num = num;
 	num++;
 	cameras.push_back(c);
@@ -110,14 +167,18 @@ void Scene::remove_cam(int i)
 	cameras.erase(cameras.begin()+i);
 	if (ActiveCamera == i)
 		ActiveCamera = 0;
-	colors_camera.erase(colors_camera.begin() + i);
+	AMcolors_camera.erase(AMcolors_camera.begin() + i);
+	Difcolors_camera.erase(Difcolors_camera.begin() + i);
+	SPECTcolors_camera.erase(SPECTcolors_camera.begin() + i);
 }
 Scene::Scene() : ActiveModel(0), ActiveLight(0), ActiveCamera(0)
 {
 	num = 0;
 	Camera* c = new Camera();
 	
-	colors_camera.push_back(glm::vec4(0, 0, 0, 1));
+	AMcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
+	Difcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
+	SPECTcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
 	//colors_model.push_back(glm::vec4(0, 0, 0, 1));
 
 	MeshModel *primModel = new PrimMeshModel();
@@ -134,30 +195,61 @@ ActiveModel(0), ActiveLight(0), ActiveCamera(0)
 	{
 		Camera* c = new Camera();
 		cameras.push_back(c);
-		colors_camera.push_back(glm::vec4(0, 0, 0, 1));
+		AMcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
+		Difcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
+		SPECTcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
 		//colors_model.push_back(glm::vec4(0, 0, 0, 1));
 	}
 	lights.push_back(new Light());
 };
 
-glm::vec3 Scene::getColor(int i,int type)
+glm::vec3 Scene::getColor(int i,int type, int type_ligth)
 {
 	if (type == 0)
-		return colors_model[i];
+	{
+		switch (type_ligth)
+		{
+		case 0:
+			return AMcolors_model[i] ;
+
+		case 1:
+			return Difcolors_model[i] ;
+
+		case 2:
+			return SPECTcolors_model[i] ;
+		}
+	}
 	else
-		return colors_camera[i];
+	{
+		switch (type_ligth)
+		{
+		case 0:
+			return AMcolors_camera[i];
+
+		case 1:
+			return Difcolors_camera[i];
+			
+		case 2:
+			return SPECTcolors_camera[i];
+		
+		}
+	}
 }
 void Scene::LoadOBJModel(string fileName)
 {
 	MeshModel *model = new MeshModel(fileName);
 	models.push_back(model);
-	colors_model.push_back(glm::vec4(0, 0, 0, 1));
+	AMcolors_model.push_back(glm::vec4(0, 0, 0, 1));
+	Difcolors_model.push_back(glm::vec4(0, 0, 0, 1));
+	SPECTcolors_model.push_back(glm::vec4(0, 0, 0, 1));
 }
 void Scene::LoadPrim()
 {
 	MeshModel *primModel = new PrimMeshModel();
 	models.push_back(primModel);
-	colors_model.push_back(glm::vec4(0, 0, 0, 1));
+	AMcolors_model.push_back(glm::vec4(0, 0, 0, 1));
+	Difcolors_model.push_back(glm::vec4(0, 0, 0, 1));
+	SPECTcolors_model.push_back(glm::vec4(0, 0, 0, 1));
 }
 
 
@@ -200,7 +292,8 @@ void Scene::DrawScene(float w,float h)
 		renderer->SetObjectMatrices(models.at(i)->getWorldTransform(),
 			models.at(i)->getNormalTransform());
 		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum()
-			,colors_model[i], w, h, windowresizing, models.at(i), cameras[this->ActiveCamera]
+			,AMcolors_model[i], Difcolors_model[i], SPECTcolors_model[i],
+			w, h, windowresizing, models.at(i), cameras[this->ActiveCamera]
 			, ambient * strengte_ambient, diffus, difuus_direction,type);
 	}
 
@@ -217,8 +310,10 @@ void Scene::DrawScene(float w,float h)
 			{
 				renderer->SetObjectMatrices(cameras[i]->getCamBox()->getWorldTransform(),
 					cameras[i]->getCamBox()->getNormalTransform());
-				renderer->DrawTriangles(cameras[i]->getCamBox()->Draw(), cameras[i]->getCamBox()->getVertexPosNum()
-					, colors_camera[i], w, h, windowresizing, cameras[i]->getCamBox(), 
+				renderer->DrawTriangles(cameras[i]->getCamBox()->Draw(),
+					cameras[i]->getCamBox()->getVertexPosNum()
+					, AMcolors_camera[i],Difcolors_camera[i], SPECTcolors_camera[i],
+					w, h, windowresizing, cameras[i]->getCamBox(),
 					cameras[this->ActiveCamera],
 					ambient * strengte_ambient,
 					diffus,difuus_direction,type);
