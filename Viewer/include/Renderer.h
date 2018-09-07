@@ -36,8 +36,9 @@ private:
 	void putPixel2(int i, int j);
 	void putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		glm::vec3 norm1, glm::vec3 norm2, glm::vec3 norm3,
-		float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> diffus_direction, 
-		glm::vec3 am_vec, glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor);
+		float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> direction, vector<glm::vec3> position
+		,glm::vec3 am_vec, glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor,
+		const vector<bool> & types);
 
 	void putPixel2(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3
 		, const glm::vec3& color1, const glm::vec3& color2, const glm::vec3& color3);
@@ -74,8 +75,10 @@ public:
 
 	void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  norm1, const glm::vec3&  norm2, const glm::vec3&  norm3,
-		float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> diffus_directions, glm::vec3 am_vec, 
-		glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor, float w, float h);
+		float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> directions,
+		vector<glm::vec3> positions ,glm::vec3 am_vec,
+		glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor, 
+		const vector<bool> & ligth_type,float w, float h);
 	// Draws wireframe triangles to the color buffer
 
 	//void DrawTriangles(glm::vec4* vertexPositionVECTOR, int size, glm::vec4 color
@@ -83,7 +86,8 @@ public:
 	void DrawTriangles(glm::vec4* vertexPositions, int size,
 		const glm::vec3 & AMcolor, const glm::vec3 & Difcolor, const glm::vec3 & SPECTcolor,float w, float h,
 		glm::mat4x4 windowresizing,MeshModel* myModel, Camera* activeCam, const glm::vec3 & am_vec,
-		const vector<glm::vec3> & diffus, const vector<glm::vec3> & diffus_direction, int type);
+		const vector<glm::vec3> & diffus, const vector<glm::vec3> & positions,
+		const vector<glm::vec3> & directions,const vector<bool> & ligth_type, int type);
 	
 	// Sets the camera transformations with relation to world coordinates
 	void SetCameraTransform(const glm::mat4x4& cTransform);
@@ -124,8 +128,8 @@ public:
 	void drawLine_phong(glm::vec2 start, glm::vec2 end,
 		glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3& norm1, const glm::vec3& norm2, const glm::vec3& norm3,
-		float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> diffus_directions,
-		glm::vec3 am_vec, glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor);
+		float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> directions, vector<glm::vec3> positions,
+		glm::vec3 am_vec, glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor, vector<bool> type);
 	//Task1, naive solution to draw a line
 	void printLineNaive();
 

@@ -80,7 +80,9 @@ bool flat = TRUE,  Phong = FALSE, Gouraud = FALSE;
 glm::vec4 clearColor = glm::vec4(0.4f, 0.55f, 0.60f, 1.00f);
 
 glm::vec3 Color = glm::vec4(0.0f, 0.0f, 0.f, 1.00f);
-
+vector<glm::vec3> ligth_rotation;
+vector<glm::vec3> ligth_transform;
+vector<float> ligth_step;
 void zoom(Camera* cam , int place, int projection_type, int zoom)
 {
 	if (projection_type == 0)
@@ -97,15 +99,23 @@ void zoom(Camera* cam , int place, int projection_type, int zoom)
 	}
 
 }
-void addLigth(Scene* scene)
+void addLigth(Scene* scene,bool type)
 {
+	
 	int size = scene->getLights().size();
-	Lightswid[size] = FALSE;
 	scene->add_Light();
+	Lightswid[size] = FALSE;
+	scene->get_Light(size)->type = type;
+	ligth_rotation.push_back(glm::vec3(0, 0, 0));
+	ligth_transform.push_back(glm::vec3(0, 0, 0));
+	ligth_step.push_back(0);
 }
 void removeLigth(Scene *scene, int place)
 {
 	scene->remove_Light(place);
+	ligth_rotation.erase(ligth_rotation.begin() + place);
+	ligth_transform.erase(ligth_transform.begin() + place);
+	ligth_step.erase(ligth_step.begin() + place);
 }
 void add_model(Scene *scene)
 {
@@ -403,6 +413,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		zero_cam.push_back(glm::vec3(0, 0, -1));
 		cam_rad[0] = FALSE;
 		
+		ligth_rotation.push_back(glm::vec3(0, 0, 0));
+		ligth_transform.push_back(glm::vec3(0, 0, 0));
+		ligth_step.push_back(0);
 	}
 
 	if (scene->getModels().size() > 0)
@@ -635,9 +648,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		if (Phong)
 			flat = Gouraud = FALSE, scene->type = 2;
 
-		if (ImGui::Button("ADD Light"))
-			addLigth(scene);
-		
+		if (ImGui::Button("ADD Point Light"))
+			addLigth(scene,false);
+		if (ImGui::Button("ADD Parallel  Light"))
+			addLigth(scene, true);
 			
 
 		for (int i = 0; i < scene->getLights().size(); i++)
@@ -661,18 +675,156 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 	{
 		if (Lightswid[i])
 		{
-			str = "Light " +to_string(i);
+			str = "Light " + to_string(i);
 			ImGui::Begin(const_cast<char*>(str.c_str()), &Lightswid[i]);
 			Light* cur = scene->getLights()[i];
 			ImGui::ColorEdit3("Diffuse ligth", (float*)&cur->difus);
 			ImGui::SliderFloat("Diffuse strength", &cur->strengte_difus, 0.0f, 1);
 
-			ImGui::SliderFloat("Diffuse direction x", &scene->getLights()[i]->difus_direction.x,-1, 1);
-			ImGui::SliderFloat("Diffuse direction y", &scene->getLights()[i]->difus_direction.y,-1, 1);
-			ImGui::SliderFloat("Diffuse direction z", &scene->getLights()[i]->difus_direction.z,-1, 1);
+			if (scene->getLights()[i]->type)
+				ImGui::Text("Parallel  SOURCE");
+			else
+				ImGui::Text("Point SOURCE");
 
-			if (ImGui::Button("Reset diffuse direction"))
-				scene->getLights()[i]->difus_direction = glm::vec3(0, 0, 0);
+
+
+			ImGui::InputFloat("step :", &ligth_step[i], 0.0f, 0.0f);
+
+			glm::vec3 l_a;
+			if (scene->getLights()[i]->type)
+			{
+				l_a = scene->getLights()[i]->direction;
+				str = "Direction : x:" + to_string(l_a.x) + ", y : "
+					+ to_string(l_a.y) + ",  z : " + to_string(l_a.z) + " .";
+				ImGui::Text(const_cast<char*>(str.c_str()));
+			}
+			else
+			{
+				l_a = scene->getLights()[i]->getPosition();
+				str = "Position : x:" + to_string(l_a.x) + ", y : "
+					+ to_string(l_a.y) + ",  z : " + to_string(l_a.z) + " .";
+				ImGui::Text(const_cast<char*>(str.c_str()));
+			}
+			l_a = ligth_rotation[i];
+			str = "Rotation : x:" + to_string(l_a.x) + ", y : "
+				+ to_string(l_a.y) + ",  z : " + to_string(l_a.z) + " .";
+			ImGui::Text(const_cast<char*>(str.c_str()));
+
+			l_a = ligth_transform[i];
+			str = "Transform : x:" + to_string(l_a.x) + ", y : "
+				+ to_string(l_a.y) + ",  z : " + to_string(l_a.z) + " .";
+			ImGui::Text(const_cast<char*>(str.c_str()));
+
+			if (scene->getLights()[i]->type)
+			{
+				if (ImGui::Button("Reset direction"))
+					scene->getLights()[i]->direction = glm::vec3(0, 0, 1);
+			}
+			else
+			{
+				if (ImGui::Button("Reset  position"))
+					scene->getLights()[i]->resetPosition();
+			}
+			if (!scene->get_Light(i)->type)
+			{
+			glm::mat4x4 rot;
+			glm::mat4x4 trans;
+			Camera cam = scene->getCameras()[0];
+			rot = trans = cam.GetrotationTransform(0, 0);
+			float step = ligth_step[i];
+			float step_r = PI * (step / 180.0);
+			if (step != 0.f)
+			{
+				if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+				{
+					ligth_rotation[i].y = ligth_rotation[i].y + ligth_step[i];
+					rot = cam.GetrotationTransform(step_r, 0)*rot;
+				}
+
+				if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+				{
+					ligth_rotation[i].y = ligth_rotation[i].y - ligth_step[i];
+					rot = cam.GetrotationTransform(-step_r, 0)*rot;
+				}
+
+				if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) //look sideway right (z)
+				{
+					ligth_rotation[i].z = ligth_rotation[i].z + ligth_step[i];
+					rot = cam.GetrotationTransform(step_r, 2)*rot;
+				}
+
+				if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) //look sideway left (z)
+				{
+					ligth_rotation[i].z = ligth_rotation[i].z - ligth_step[i];
+					rot = cam.GetrotationTransform(-step_r, 2)*rot;
+				}
+				if (glfwGetKey(window, 'A') == GLFW_PRESS) //look to the left (y)
+				{
+					ligth_rotation[i].x = ligth_rotation[i].x - ligth_step[i];
+					rot = cam.GetrotationTransform(-step_r, 1)*rot;
+				}
+				if (glfwGetKey(window, 'D') == GLFW_PRESS) //look to the right (y)
+				{
+					ligth_rotation[i].x = ligth_rotation[i].x + ligth_step[i];
+					rot = cam.GetrotationTransform(step_r, 1)*rot;
+				}
+
+				if (glfwGetKey(window, 'Y') == GLFW_PRESS)
+				{
+					ligth_transform[i].x = ligth_transform[i].x + ligth_step[i]; //right
+					trans = cam.GetTranslateTransform(step, 0, 0)*trans;
+				}
+				if (glfwGetKey(window, 'R') == GLFW_PRESS)
+				{
+					ligth_transform[i].x = ligth_transform[i].x - ligth_step[i]; //left
+					trans = cam.GetTranslateTransform(-step, 0, 0)*trans;
+				}
+				if (glfwGetKey(window, 'T') == GLFW_PRESS)
+				{
+					ligth_transform[i].y = ligth_transform[i].y + ligth_step[i]; //up
+					trans = cam.GetTranslateTransform(0, step, 0)*trans;
+				}
+				if (glfwGetKey(window, 'G') == GLFW_PRESS)
+				{
+					ligth_transform[i].y = ligth_transform[i].y - ligth_step[i]; //down
+					trans = cam.GetTranslateTransform(0, -step, 0)*trans;
+				}
+				if (glfwGetKey(window, 'F') == GLFW_PRESS)
+				{
+					ligth_transform[i].z = ligth_transform[i].z + ligth_step[i];
+					trans = cam.GetTranslateTransform(0, 0, -step)*trans;
+				}
+				if (glfwGetKey(window, 'H') == GLFW_PRESS)
+				{
+					ligth_transform[i].z = ligth_transform[i].z - ligth_step[i];
+					trans = cam.GetTranslateTransform(0, 0, step)*trans;
+				}
+			}
+
+
+			while (ligth_rotation[i].x < 0)
+				ligth_rotation[i].x += 360;
+			while (ligth_rotation[i].y < 0)
+				ligth_rotation[i].y += 360;
+			while (ligth_rotation[i].z < 0)
+				ligth_rotation[i].z += 360;
+
+			while (ligth_rotation[i].x > 360)
+				ligth_rotation[i].x -= 360;
+			while (ligth_rotation[i].y > 360)
+				ligth_rotation[i].y -= 360;
+			while (ligth_rotation[i].z > 360)
+				ligth_rotation[i].z -= 360;
+
+			
+				scene->get_Light(i)->transformPosition(rot*trans);
+			}		
+			else
+			{
+				ImGui::SliderFloat("Diffuse direction x", &scene->getLights()[i]->direction.x, -1, 1);
+				ImGui::SliderFloat("Diffuse direction y", &scene->getLights()[i]->direction.y, -1, 1);
+				ImGui::SliderFloat("Diffuse direction z", &scene->getLights()[i]->direction.z, -1, 1);
+			}
 			ImGui::End();
 		}
 	}

@@ -280,11 +280,15 @@ void Scene::DrawScene(float w,float h)
 		
 	// Specular = lights[ActiveLight]->difus*lights[ActiveLight]->strengte_difus;
 	vector<glm::vec3> diffus;
-	vector<glm::vec3> difuus_direction;
+	vector<glm::vec3> difuus_position;
+	vector<glm::vec3> directions;
+	vector<bool> ligth_type;
 	for (int i = 0; i < lights.size(); i++)
 	{
 		diffus.push_back(lights[i]->difus*lights[i]->strengte_difus);
-		difuus_direction.push_back(lights[i]->difus_direction);
+		difuus_position.push_back(lights[i]->getPosition());
+		ligth_type.push_back(lights[i]->type);
+		directions.push_back(lights[i]->direction);
 	}
 	for (int i = 0; i < models.size(); i++)
 	{
@@ -294,7 +298,7 @@ void Scene::DrawScene(float w,float h)
 		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum()
 			,AMcolors_model[i], Difcolors_model[i], SPECTcolors_model[i],
 			w, h, windowresizing, models.at(i), cameras[this->ActiveCamera]
-			, ambient * strengte_ambient, diffus, difuus_direction,type);
+			, ambient * strengte_ambient, diffus, difuus_position,directions, ligth_type,type);
 	}
 
 	//render cameras as well, if needed
@@ -313,10 +317,8 @@ void Scene::DrawScene(float w,float h)
 				renderer->DrawTriangles(cameras[i]->getCamBox()->Draw(),
 					cameras[i]->getCamBox()->getVertexPosNum()
 					, AMcolors_camera[i],Difcolors_camera[i], SPECTcolors_camera[i],
-					w, h, windowresizing, cameras[i]->getCamBox(),
-					cameras[this->ActiveCamera],
-					ambient * strengte_ambient,
-					diffus,difuus_direction,type);
+					w, h, windowresizing, cameras[i]->getCamBox(),cameras[this->ActiveCamera],
+					ambient * strengte_ambient,diffus,difuus_position, directions, ligth_type,type);
 			}
 		}
 	}
