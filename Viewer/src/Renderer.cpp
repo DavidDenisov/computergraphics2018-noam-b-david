@@ -145,7 +145,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions,int size,
 			glm::vec3 color3 = diffus * x3* myModel->Diffus + am_vec * color;
 			drawTringle(a, b, c, color1, color2, color3, w, h);
 		}
-		if (type == 2&&myModel->willDrawVertexNormal == 1)//Phong
+		if (type == 2 && myModel->willDrawVertexNormal == 1)//Phong
 			{
 			glm::vec3 v1 = glm::vec3(myModel->getNormalVertex()[face].x
 				, myModel->getNormalVertex()[face].y, myModel->getNormalVertex()[face].z);
@@ -233,12 +233,14 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions,int size,
 	}
 	
 
-	glm::mat4x4 model;
-	glm::mat4x4 normalMatrix;
 	
 	//also, draw vertices' normals, if needed
 	if (myModel->willDrawVertexNormal == 1)
 	{
+		glm::mat4x4 model;
+		glm::mat4x4 normalMatrix;
+
+
 		//calculate Model-View matrix
 		model = myModel->getModelTransform();
 		glm::mat4x4 mv = view * model;
