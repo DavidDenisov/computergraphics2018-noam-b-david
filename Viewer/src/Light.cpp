@@ -7,6 +7,7 @@
 
 Light::Light()
 {
+	Specularity_exponent = 1;
 	ambient= 
 	 difus =
 	specalar =glm::vec3(0.f, 0.f, 0.f);

@@ -681,6 +681,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 			ImGui::ColorEdit3("Diffuse ligth", (float*)&cur->difus);
 			ImGui::SliderFloat("Diffuse strength", &cur->strengte_difus, 0.0f, 1);
 
+
+			ImGui::ColorEdit3("Specular ligth", (float*)&cur->specalar);
+			ImGui::SliderFloat("Specular strength", &cur->strengte_specalar, 0.0f, 1);
+
 			if (scene->getLights()[i]->type)
 				ImGui::Text("Parallel  SOURCE");
 			else
@@ -725,6 +729,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (ImGui::Button("Reset  position"))
 					scene->getLights()[i]->resetPosition();
 			}
+			ImGui::InputInt("Specularity exponent", &scene->getLights()[i]->Specularity_exponent);
 			if (!scene->get_Light(i)->type)
 			{
 			glm::mat4x4 rot;
@@ -824,6 +829,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				ImGui::SliderFloat("Diffuse direction x", &scene->getLights()[i]->direction.x, -1, 1);
 				ImGui::SliderFloat("Diffuse direction y", &scene->getLights()[i]->direction.y, -1, 1);
 				ImGui::SliderFloat("Diffuse direction z", &scene->getLights()[i]->direction.z, -1, 1);
+
 			}
 			ImGui::End();
 		}

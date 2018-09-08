@@ -20,14 +20,19 @@ float sum(const glm::vec3 v)
 {
 	return v.x + v.y + v.z;
 }
-float norm(const glm::vec3 v)
+float norm45(const glm::vec3 v)
+{
+	float ans = pow(v.x, 2) + pow(v.y, 2) + pow(v.z, 2);
+	ans = pow(ans, 0.5);
+	if (ans > 1.f)
+		return 1.f;
+	return ans;
+}
+float norm(glm::vec3 v)
 {
 		//return pow((abs(v.x) + abs(v.y) + abs(v.z)),0.5);
-		float ans = max(v.x, 0.f) + max(v.y, 0.f) + max(v.z, 0.f);
-		ans=pow(ans,0.5);
-		if (ans > 1.f)
-			return 1.f;
-		return ans;
+		v= glm::vec3(max(v.x, 0.f) , max(v.y, 0.f) , max(v.z, 0.f));
+		return norm45(v);
 }
 void Renderer::SetCameraTransform(const glm::mat4x4& cTransform)
 {
@@ -152,7 +157,7 @@ void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm
 	{
 	float x2 = 0.f;
 
-	glm::vec3  am_color = am_vec * am_vec;
+	glm::vec3  am_color = am_vec * amcolor;
 	glm::vec3  dif_color = glm::vec3(0, 0, 0);
 	glm::vec3  spect_color = glm::vec3(0, 0, 0);
 	for (int i = 0; i < diffus.size(); i++)
@@ -194,7 +199,8 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 	float w, float h, glm::mat4x4 windowresizing,
 	MeshModel* myModel, Camera* activeCam, const glm::vec3 & am_vec, const vector<glm::vec3> & diffus
 	, const vector<glm::vec3> & positions, const vector<glm::vec3> & directions,
-	const vector<bool> & ligth_type, int type)
+	const vector<bool> & ligth_type, const glm::vec3 & v_direction, const vector<int> & spect_exp,
+	const vector<glm::vec3> & ligth_spect_c,int type)
 {
 	//we recieve the object to draw with a vector of verticesPositions
 	//we will draw these triangles but first will do the transformations
@@ -252,11 +258,12 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 
 			glm::vec3 avg = (a + b + c) / 3.f;
 			glm::vec3 cface_norm = myModel->getNormalFace()[face];
-			float x3 = 0.f;
+			float x6 = 0.f;
 
 			glm::vec3  AMcolor = am_vec * amcolor;
 			glm::vec3  Difuscolor = glm::vec3(0, 0, 0);
 			glm::vec3  Spectcolor = glm::vec3(0, 0, 0);
+			glm::vec3 R, v = glm::normalize(v_direction);
 			for (int i = 0; i < diffus.size(); i++)
 			{
 				glm::vec3 diffus_dir = avg - positions[i];
@@ -272,16 +279,25 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 				}
 				if ((!isnan(face_norm.x)) && (!isnan(face_norm.z)) && (!isnan(face_norm.y)))
 					if ((norm(diffus_dir) != 0.f) && (norm(face_norm) != 0.f) &&
-							(sum(face_norm) != 0.f))
-							x3 = norm(diffus_dir * face_norm) /(norm(diffus_dir)*norm(face_norm));
+						(sum(face_norm) != 0.f))
+							x6 = norm(diffus_dir * face_norm) /(norm(diffus_dir)*norm(face_norm));
 				
 				
-				x3 = fmin(1.f, x3);
+				x6 = fmin(1.f, x6);
 
 
-				Difuscolor = Difuscolor + diffus[i]*x3* myModel->Diffus;
+				Difuscolor = Difuscolor + diffus[i]*x6* myModel->Diffus;
+
+				
+				R = 2 * glm::dot(face_norm,v)*face_norm - v;
+				//we can use householder transformation
+				//but there is no need to and will may cause problames and will make it slower
+				R = glm::normalize(R);
+				Spectcolor = Spectcolor+ ligth_spect_c[i]* glm::pow(glm::dot(R,v), spect_exp[i]);
 			}
 			glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
+			
+
 			drawTringle(a, b, c, color, w, h);
 		}
 		if (type == 1)// Gouraud 
@@ -302,7 +318,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			glm::vec3  AMcolor3 = am_vec * amcolor;
 			glm::vec3  Difuscolor3 = glm::vec3(0, 0, 0);
 			glm::vec3  Spectcolor3 = glm::vec3(0, 0, 0);
-
+			glm::vec3 R1,R2,R3,v = glm::normalize(v_direction);
 			for (int i = 0; i < diffus.size(); i++)
 			{
 				glm::vec3 v1 = cv1, v2 = cv2, v3 = cv3;
@@ -349,6 +365,20 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 				Difuscolor1 = Difuscolor1 + glm::vec3( (diffus[i]*x1* myModel->Diffus));
 				Difuscolor2 = Difuscolor2 + glm::vec3( (diffus[i]*x2* myModel->Diffus));
 				Difuscolor3 = Difuscolor3 + glm::vec3( (diffus[i]*x3* myModel->Diffus));
+
+
+
+				R1 = 2 * glm::dot(cur_d1, v1)*v1  - cur_d1;
+				R2 = 2 * glm::dot(cur_d2, v2)*v2 - cur_d2;
+				R3 = 2 * glm::dot(cur_d3, v3)*v3 - cur_d3;
+				//we can use householder transformation
+				//but there is no need to and will may cause problames and will make it slower
+				R1 = glm::normalize(R1);
+				R2 = glm::normalize(R2);
+				R3 = glm::normalize(R3);
+				Spectcolor1 = Spectcolor1 + ligth_spect_c[i] * glm::pow(glm::dot(R1, v), spect_exp[i]);
+				Spectcolor2 = Spectcolor2 + ligth_spect_c[i] * glm::pow(glm::dot(R2, v), spect_exp[i]);
+				Spectcolor3 = Spectcolor3 + ligth_spect_c[i] * glm::pow(glm::dot(R3, v), spect_exp[i]);
 			}
 			glm::vec3 color1 = AMcolor1 + (Difuscolor1 * difcolor) + (Spectcolor1 * spectcolor);
 			glm::vec3 color2 = AMcolor2 + (Difuscolor2 * difcolor) + (Spectcolor2 * spectcolor);
@@ -830,7 +860,7 @@ void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		//cont = TRUE;
 		if (count==2)
 		{
-			for (int x = xmin; (x <= xmax); x++)
+			for (int x = xmin; x <= xmax; x++)
 			{
 				if (put) //now we need to draw
 				{
