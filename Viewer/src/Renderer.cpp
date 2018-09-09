@@ -282,7 +282,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 				Difuscolor = Difuscolor + diffus[i]*x3* myModel->Diffus;
 			}
 			glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
-			drawTringle(a, b, c, color, w, h);
+			drawTringleFlat(a, b, c, color, w, h);
 		}
 		if (type == 1)// Gouraud 
 		{
@@ -353,7 +353,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			glm::vec3 color1 = AMcolor1 + (Difuscolor1 * difcolor) + (Spectcolor1 * spectcolor);
 			glm::vec3 color2 = AMcolor2 + (Difuscolor2 * difcolor) + (Spectcolor2 * spectcolor);
 			glm::vec3 color3 = AMcolor3 + (Difuscolor3 * difcolor) + (Spectcolor3 * spectcolor);
-			drawTringle(a, b, c, color1, color2, color3, w, h);
+			drawTringleGouraud(a, b, c, color1, color2, color3, w, h);
 		}
 		//if (type == 2 && myModel->willDrawVertexNormal == 1)
 		if (type == 2)//Phong
@@ -361,7 +361,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			glm::vec4 v1 = myModel->getNormalVertex()[face];
 			glm::vec4 v2 = myModel->getNormalVertex()[face + 1];
 			glm::vec4 v3 = myModel->getNormalVertex()[face + 2];
-			drawTringle(a, b, c, v1,v2,v3, myModel->Diffus,diffus,directions,positions, am_vec,
+			drawTringlePhong(a, b, c, v1,v2,v3, myModel->Diffus,diffus,directions,positions, am_vec,
 				amcolor,difcolor, spectcolor,ligth_type, w, h);
 		}
 
@@ -629,7 +629,8 @@ void Renderer::createBuffers(int w, int h)
 	}
 }
 
-void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
+//draw Triangle flat-shading  --- one color for a mesh
+void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	const glm::vec3&  color, float w, float h)
 {
 	if (w < 3 || h < 3)
@@ -787,7 +788,9 @@ void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	drawLine(point2, point3, color);
 
 }
-void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3, 
+
+//draw Triangle Gouraud-shading --interpolation for coloring
+void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3, 
 	const glm::vec3&  color1, const glm::vec3&  color2, const glm::vec3&  color3, float w, float h)
 {
 	if (w < 3 || h < 3)
@@ -907,7 +910,8 @@ void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		color1, color2, color3);
 }
 
-void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
+//draw Triangle Phong-shading --interpolation for normals 
+void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	const glm::vec3&  norm1, const glm::vec3&  norm2, const glm::vec3&  norm3,
 	float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> directions , vector<glm::vec3> positions
 	, glm::vec3 am_vec, glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor,
@@ -1040,6 +1044,7 @@ void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		norm1,norm2,norm3,
 		Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor, spectcolor,types);
 }
+
 void Renderer::drawLine_z(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color)
 {
 	int p1 = point1.x, q1 = point1.y; // point1 parameters
