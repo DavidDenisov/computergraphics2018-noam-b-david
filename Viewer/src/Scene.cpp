@@ -305,7 +305,8 @@ void Scene::DrawScene(float w,float h)
 			v55 = glm::normalize(v55);
 			directions.push_back(v55);
 		}
-		
+		glm::vec4 v55 = glm::inverse(models[i]->getModelTransform())
+			*(cameras[ActiveCamera]->pos - cameras[ActiveCamera]->at);
 		//first set worldTransformation & nTransformation of the object in renderer
 		renderer->SetObjectMatrices(models.at(i)->getWorldTransform(),
 			models.at(i)->getNormalTransform());
@@ -313,7 +314,7 @@ void Scene::DrawScene(float w,float h)
 			, AMcolors_model[i], Difcolors_model[i], SPECTcolors_model[i],
 			w, h, windowresizing, models.at(i), cameras[this->ActiveCamera]
 			, ambient * strengte_ambient, diffus, difuus_position, directions, ligth_type
-			, cameras[ActiveCamera]->pos - cameras[ActiveCamera]->at,sp_exp, sp_ligth_colors,type);
+			, v55,sp_exp, sp_ligth_colors,type);
 	}
 
 	//render cameras as well, if needed

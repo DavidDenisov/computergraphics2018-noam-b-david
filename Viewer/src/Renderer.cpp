@@ -7,6 +7,21 @@
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
+float sign(float f)
+{
+	if (f < 0.f)
+		return -1;
+	else
+		return 1;
+}
+glm::vec3 absc(glm::vec3 color)
+{
+	float x1, y1, z1;
+	x1 = fmax(0, color.x);
+	y1 = fmax(0, color.y);
+	z1 = fmax(0, color.z);
+	return glm::vec3(x1,y1,z1);
+}
 template<class T>
 const T& max(const T& a, const T& b)
 {
@@ -266,7 +281,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			glm::vec3 R, v = glm::normalize(v_direction);
 			for (int i = 0; i < diffus.size(); i++)
 			{
-				glm::vec3 diffus_dir = avg - positions[i];
+				glm::vec3 diffus_dir = glm::normalize(avg - positions[i]);
 				if (ligth_type[i])
 					diffus_dir = directions[i];
 				
@@ -278,16 +293,23 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 					face_norm = -face_norm;
 					diffus_dir = -diffus_dir;
 				}
-				
-				x6 = glm::dot(diffus_dir , face_norm);
+				face_norm = glm::normalize(face_norm);
+
+				x6 = glm::dot(diffus_dir, face_norm);
 				Difuscolor = Difuscolor + diffus[i]*x6* myModel->Diffus;
 
-				R = 2 * glm::dot(face_norm, v)*face_norm - v;
+
+
+				face_norm = -face_norm;
+				R = 2 * glm::dot(face_norm, diffus_dir)*face_norm - diffus_dir;
 				
 				//we can use householder transformation
 				//but there is no need to and will may cause problames and will make it slower
 				R = glm::normalize(R);
-				Spectcolor = Spectcolor+ ligth_spect_c[i] * glm::pow( glm::dot(R,v) , spect_exp[i]);
+
+				if (glm::dot(R, face_norm) < 0)
+					Spectcolor = Spectcolor + absc(ligth_spect_c[i] * glm::pow(abs(glm::dot(R, v)), spect_exp[i]));
+				
 			}
 			glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
 			
@@ -316,7 +338,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			for (int i = 0; i < diffus.size(); i++)
 			{
 				glm::vec3 v1 = cv1, v2 = cv2, v3 = cv3;
-				glm::vec3 cur_d1 = glm::normalize(positions[i]-a);
+				glm::vec3 cur_d1 = glm::normalize(positions[i] - a);
 				glm::vec3 cur_d2 = glm::normalize(positions[i] - b);
 				glm::vec3 cur_d3 = glm::normalize(positions[i] - c);
 				if (ligth_type[i])
@@ -345,28 +367,38 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 				cur_d3 = glm::normalize(cur_d3);
 
 				x1 = glm::dot(cur_d1, v1);
-				x2 = glm::dot(cur_d2, v3);
-				x3 = glm::dot(cur_d3, v2);
+				x2 = glm::dot(cur_d2, v2);
+				x3 = glm::dot(cur_d3, v3);
 
 
-				Difuscolor1 = Difuscolor1 + glm::vec3( (diffus[i]*x1* myModel->Diffus));
-				Difuscolor2 = Difuscolor2 + glm::vec3( (diffus[i]*x2* myModel->Diffus));
-				Difuscolor3 = Difuscolor3 + glm::vec3( (diffus[i]*x3* myModel->Diffus));
+				Difuscolor1 = Difuscolor1 + absc(glm::vec3((diffus[i] * x1* myModel->Diffus)));
+				Difuscolor2 = Difuscolor2 + absc(glm::vec3((diffus[i] * x2* myModel->Diffus)));
+				Difuscolor3 = Difuscolor3 + absc(glm::vec3((diffus[i] * x3* myModel->Diffus)));
 
 
+				cur_d1 = -cur_d1;
+				cur_d2 = -cur_d2;
+				cur_d3 = -cur_d3;
 
-				R1 = 2 * glm::dot(cur_d1, v1)*v1  - cur_d1;
-				R2 = 2 * glm::dot(cur_d2, v2)*v2 - cur_d2;
-				R3 = 2 * glm::dot(cur_d3, v3)*v3 - cur_d3;
+
+				R1 = 2 * glm::dot(cur_d1, v1)*cur_d1 - v1;
+				R2 = 2 * glm::dot(cur_d2, v2)* cur_d2 - v2;
+				R3 = 2 * glm::dot(cur_d3, v3)*  cur_d3 - v3;
 				//we can use householder transformation
 				//but there is no need to and will may cause problames and will make it slower
 				R1 = glm::normalize(R1);
 				R2 = glm::normalize(R2);
 				R3 = glm::normalize(R3);
+	
+				if (glm::dot(R1, cur_d1) < 0)
+						Spectcolor1 = Spectcolor1 + absc(ligth_spect_c[i] * glm::pow(abs(glm::dot(R1, v)), spect_exp[i]));
 
-				Spectcolor1 = Spectcolor1 + ligth_spect_c[i] * glm::pow(glm::dot(R1, v), spect_exp[i]);
-				Spectcolor2 = Spectcolor2 + ligth_spect_c[i] * glm::pow(glm::dot(R2, v), spect_exp[i]);
-				Spectcolor3 = Spectcolor3 + ligth_spect_c[i] * glm::pow(glm::dot(R3, v), spect_exp[i]);
+				if (glm::dot(R2, cur_d2) < 0)
+					Spectcolor2 = Spectcolor2 + absc(ligth_spect_c[i] * glm::pow(abs(glm::dot(R2, v)), spect_exp[i]));
+
+				if (glm::dot(R3, cur_d3) < 0)
+					Spectcolor3 = Spectcolor3 + absc(ligth_spect_c[i] * glm::pow(abs(glm::dot(R3, v)), spect_exp[i]));
+				
 			}
 			glm::vec3 color1 = AMcolor1 + (Difuscolor1 * difcolor) + (Spectcolor1 * spectcolor);
 			glm::vec3 color2 = AMcolor2 + (Difuscolor2 * difcolor) + (Spectcolor2 * spectcolor);

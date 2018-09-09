@@ -826,9 +826,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 			}		
 			else
 			{
-				ImGui::SliderFloat("Diffuse direction x", &scene->getLights()[i]->direction.x, -1, 1);
-				ImGui::SliderFloat("Diffuse direction y", &scene->getLights()[i]->direction.y, -1, 1);
-				ImGui::SliderFloat("Diffuse direction z", &scene->getLights()[i]->direction.z, -1, 1);
+				ImGui::SliderFloat("Direction x", &scene->getLights()[i]->direction.x, -1, 1);
+				ImGui::SliderFloat("Direction y", &scene->getLights()[i]->direction.y, -1, 1);
+				ImGui::SliderFloat("Direction z", &scene->getLights()[i]->direction.z, -1, 1);
 
 			}
 			ImGui::End();
