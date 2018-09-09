@@ -100,6 +100,7 @@ void Renderer::putPixel(int i, int j,int z, const glm::vec3& color)
 	}
 }
 
+//interpolation by 3 points -- I think?
 void Renderer::putPixel(int i, int j, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	const glm::vec3& color)
 {
@@ -141,6 +142,7 @@ void Renderer::putPixel2(int x1, int y1,glm::vec3 point1, glm::vec3 point2, glm:
 	}
 	
 }
+
 void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	glm::vec3 norm1, glm::vec3 norm2, glm::vec3 norm3,
 	float Diffus_st, vector<glm::vec3> diffus,
@@ -691,7 +693,8 @@ void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 poi
 	{
 		put = FALSE;
 		int count=0;
-		for (int x = xmin; x <= xmax; x++) //not used, just for fun
+		//count how much seperate intersections with edges there are
+		for (int x = xmin; x <= xmax; x++) //used, not just for fun very importent
 		{
 			if ((y<int(h)) && (y > 0) && (x<int(w)) && (x > 0))
 			{
@@ -711,60 +714,134 @@ void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 poi
 
 		put = FALSE;
 		//cont = TRUE;
-		if (count == 2)
+		//only if there's two intersections with the edges so you should draw.
+		if (count == 2 || y != ymin || y != ymax)
 		{
-			for (int x = xmin; (x <= xmax); x++)
+			//if (xmin >= 0) draw left to right. else, draw right to left
+			if (xmin >= 0)
 			{
-				if ((y<int(h)) && (y > 0) && (x<int(w)) && (x > 0))
+				//scan left to right
+				for (int x = xmin; (x <= xmax); x++)
 				{
-					if (put) //now we need to draw
-					{
-
-						if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
-							bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
-							bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+					if (y < (int(h)) && y > 0)
+						if ((x >= 0) && (x < int(w)))
 						{
-
-							//first draw the rest of the edge, and then stop drawing
-							while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
-								bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
-								bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+							if (put) //now we need to draw
 							{
-								putPixel(x, y, point1, point2, point3, color);
-								x++;
-							}
-							x--;
-							put = FALSE;
-							//cont = FALSE; //this is the second edge. no need to continue
-						}
-						putPixel(x, y, point1, point2, point3, color);
 
-					}
-					else
-					{
-						//if we saw another edge. start drawing.
-						//but don't forget the edge can be several pixels long.
-						if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
-							bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
-							bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
-						{
-							put = TRUE;
-							putPixel(x, y, point1, point2, point3, color);
-							x++;
-							//draw the whole edge, and only afterwards start looking for the next one
-							while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
-								bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
-								bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+								if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+								{
+
+									//first draw the rest of the edge, and then stop drawing
+									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+										bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+									{
+										if (x < int(w)) //just to make sure
+											putPixel(x, y, point1, point2, point3, color);
+										x++;
+									}
+									x--;
+									put = FALSE;
+									//cont = FALSE; //this is the second edge. no need to continue
+								}
+								if (x < int(w)) //just to make sure
+									putPixel(x, y, point1, point2, point3, color);
+
+							}
+							else
 							{
-								putPixel(x, y, point1, point2, point3, color);
-								x++;
-							}
-							x--;
-						}
+								//if we saw another edge. start drawing.
+								//but don't forget the edge can be several pixels long.
+								if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+								{
+									put = TRUE;
+									if (x < int(w)) //just to make sure
+										putPixel(x, y, point1, point2, point3, color);
+									x++;
+									//draw the whole edge, and only afterwards start looking for the next one
+									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+										bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+									{
+										if (x < int(w)) //just to make sure
+											putPixel(x, y, point1, point2, point3, color);
+										x++;
+									}
+									x--;
+								}
 
-					}
+							}
+						}
 				}
 			}
+
+			else
+			{
+				//scan right to left
+				for (int x = fmin(xmax,int(w)-1); x >= 0; x--)
+				{
+					if(y < int(h) && y >0)
+						if ((x >= 0) && (x< int(w)))
+						{
+							if (put) //now we need to draw
+							{
+
+								if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+								{
+
+									//first draw the rest of the edge, and then stop drawing
+									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+										bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+									{
+										if (x < int(w)) //just to make sure
+											putPixel(x, y, point1, point2, point3, color);
+										x--;
+									}
+									x++;
+									put = FALSE;
+									//cont = FALSE; //this is the second edge. no need to continue
+								}
+								if (x < int(w)) //just to make sure
+									putPixel(x, y, point1, point2, point3, color);
+
+							}
+							else
+							{
+								//if we saw another edge. start drawing.
+								//but don't forget the edge can be several pixels long.
+								if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+								{
+									put = TRUE;
+									if (x < int(w)) //just to make sure
+										putPixel(x, y, point1, point2, point3, color);
+									x--;
+									//draw the whole edge, and only afterwards start looking for the next one
+									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+										bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+									{
+										if (x < int(w)) //just to make sure
+											putPixel(x, y, point1, point2, point3, color);
+										x--;
+									}
+									x++;
+								}
+
+							}
+						}
+				}
+			}
+
 		}
 		
 	}

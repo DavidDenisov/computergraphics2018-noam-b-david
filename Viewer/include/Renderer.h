@@ -67,6 +67,8 @@ public:
 	~Renderer();
 	// Local initializations of your implementation
 	void Init();
+
+
 	void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  color, float w, float h);
 
