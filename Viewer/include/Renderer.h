@@ -67,13 +67,15 @@ public:
 	~Renderer();
 	// Local initializations of your implementation
 	void Init();
-	void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
+
+
+	void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  color, float w, float h);
 
-	void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
+	void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  color1, const glm::vec3&  color2, const glm::vec3&  color3, float w, float h);
 
-	void Renderer::drawTringle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
+	void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  norm1, const glm::vec3&  norm2, const glm::vec3&  norm3,
 		float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> directions,
 		vector<glm::vec3> positions ,glm::vec3 am_vec,
