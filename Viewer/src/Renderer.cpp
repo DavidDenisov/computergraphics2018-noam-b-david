@@ -257,7 +257,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		{
 
 			glm::vec3 avg = (a + b + c) / 3.f;
-			glm::vec3 cface_norm = myModel->getNormalFace()[face];
+			glm::vec3 cface_norm = glm::normalize(myModel->getNormalFace()[face/3]);
 			float x6 = 0.f;
 
 			glm::vec3  AMcolor = am_vec * amcolor;
@@ -272,28 +272,22 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 				
 				glm::vec3 face_norm = cface_norm;
 				
+				diffus_dir = glm::normalize(diffus_dir);
 				if ((norm(diffus_dir) == 0.f) && (norm(-diffus_dir) != 0.f))
 				{
 					face_norm = -face_norm;
-					diffus_dir = -diffus_dir;
+					v = -v;
 				}
-				if ((!isnan(face_norm.x)) && (!isnan(face_norm.z)) && (!isnan(face_norm.y)))
-					if ((norm(diffus_dir) != 0.f) && (norm(face_norm) != 0.f) &&
-						(sum(face_norm) != 0.f))
-							x6 = norm(diffus_dir * face_norm) /(norm(diffus_dir)*norm(face_norm));
 				
-				
-				x6 = fmin(1.f, x6);
-
-
+				x6 = glm::dot(diffus_dir , face_norm);
 				Difuscolor = Difuscolor + diffus[i]*x6* myModel->Diffus;
 
+				R = 2 * glm::dot(face_norm, v)*face_norm - v;
 				
-				R = 2 * glm::dot(face_norm,v)*face_norm - v;
 				//we can use householder transformation
 				//but there is no need to and will may cause problames and will make it slower
 				R = glm::normalize(R);
-				Spectcolor = Spectcolor+ ligth_spect_c[i]* glm::pow(glm::dot(R,v), spect_exp[i]);
+				Spectcolor = Spectcolor+ ligth_spect_c[i] * glm::pow( glm::dot(R,v) , spect_exp[i]);
 			}
 			glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
 			
@@ -302,9 +296,9 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		}
 		if (type == 1)// Gouraud 
 		{
-			glm::vec3 cv1 = myModel->getNormalVertex()[face];
-			glm::vec3 cv2 = myModel->getNormalVertex()[face+1];
-			glm::vec3 cv3 = myModel->getNormalVertex()[face+2];
+			glm::vec3 cv1 = glm::normalize(myModel->getNormalVertex()[face]);
+			glm::vec3 cv2 = glm::normalize(myModel->getNormalVertex()[face+1]);
+			glm::vec3 cv3 = glm::normalize(myModel->getNormalVertex()[face+2]);
 
 			float x1 = 0.f;
 			float x2 = 0.f;
@@ -346,21 +340,14 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 					v3 = -v3;
 					cur_d3 = -cur_d3;
 				}
-				if ((!isnan(v1.x)) && (!isnan(v1.z)) && (!isnan(v1.y)) )
-					if ((norm(cur_d1) != 0.f) && (norm(v1) != 0.f) && (sum(v1) != 0.f))
-						x1 = norm(cur_d1 * v1) / (norm(cur_d1)*norm(v1));
+				cur_d1 = glm::normalize(cur_d1);
+				cur_d2 = glm::normalize(cur_d2);
+				cur_d3 = glm::normalize(cur_d3);
 
-				if ((!isnan(v2.x)) && (!isnan(v2.z)) && (!isnan(v2.y)) )
-					if ((norm(cur_d2) != 0.f) && (norm(v2) != 0.f) && (sum(v2) != 0.f))
-						x2 = norm(cur_d2* v2) / (norm(cur_d2)*norm(v2));
+				x1 = glm::dot(cur_d1, v1);
+				x2 = glm::dot(cur_d2, v3);
+				x3 = glm::dot(cur_d3, v2);
 
-				if ((!isnan(v3.x)) && (!isnan(v3.z)) && (!isnan(v3.y)) )
-					if ((norm(cur_d3) != 0.f) && (norm(v3) != 0.f) && (sum(v3) != 0.f))
-						x3 = norm(cur_d3 * v3) / (norm(cur_d3)*norm(v3));
-
-				x1 = fmin(1.f, x1);
-				x2 = fmin(1.f, x2);
-				x3 = fmin(1.f, x3);
 
 				Difuscolor1 = Difuscolor1 + glm::vec3( (diffus[i]*x1* myModel->Diffus));
 				Difuscolor2 = Difuscolor2 + glm::vec3( (diffus[i]*x2* myModel->Diffus));
@@ -373,9 +360,11 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 				R3 = 2 * glm::dot(cur_d3, v3)*v3 - cur_d3;
 				//we can use householder transformation
 				//but there is no need to and will may cause problames and will make it slower
+
 				R1 = glm::normalize(R1);
 				R2 = glm::normalize(R2);
 				R3 = glm::normalize(R3);
+
 				Spectcolor1 = Spectcolor1 + ligth_spect_c[i] * glm::pow(glm::dot(R1, v), spect_exp[i]);
 				Spectcolor2 = Spectcolor2 + ligth_spect_c[i] * glm::pow(glm::dot(R2, v), spect_exp[i]);
 				Spectcolor3 = Spectcolor3 + ligth_spect_c[i] * glm::pow(glm::dot(R3, v), spect_exp[i]);

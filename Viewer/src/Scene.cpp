@@ -313,7 +313,7 @@ void Scene::DrawScene(float w,float h)
 			, AMcolors_model[i], Difcolors_model[i], SPECTcolors_model[i],
 			w, h, windowresizing, models.at(i), cameras[this->ActiveCamera]
 			, ambient * strengte_ambient, diffus, difuus_position, directions, ligth_type
-			, cameras[ActiveCamera]->at - cameras[ActiveCamera]->pos,sp_exp , sp_ligth_colors,type);
+			, cameras[ActiveCamera]->pos - cameras[ActiveCamera]->at,sp_exp, sp_ligth_colors,type);
 	}
 
 	//render cameras as well, if needed
