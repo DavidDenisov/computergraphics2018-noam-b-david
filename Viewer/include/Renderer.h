@@ -87,7 +87,9 @@ public:
 		const glm::vec3 & AMcolor, const glm::vec3 & Difcolor, const glm::vec3 & SPECTcolor,float w, float h,
 		glm::mat4x4 windowresizing,MeshModel* myModel, Camera* activeCam, const glm::vec3 & am_vec,
 		const vector<glm::vec3> & diffus, const vector<glm::vec3> & positions,
-		const vector<glm::vec3> & directions,const vector<bool> & ligth_type, int type);
+		const vector<glm::vec3> & directions,const vector<bool> & ligth_type,
+		const glm::vec3 & v_direction,const vector<int> & spect_exp,
+		const vector<glm::vec3> & ligth_spect_c, int type);
 	
 	// Sets the camera transformations with relation to world coordinates
 	void SetCameraTransform(const glm::mat4x4& cTransform);

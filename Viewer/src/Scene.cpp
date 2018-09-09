@@ -282,23 +282,38 @@ void Scene::DrawScene(float w,float h)
 	vector<glm::vec3> diffus;
 	vector<glm::vec3> difuus_position;
 	vector<glm::vec3> directions;
+	vector<glm::vec3> sp_ligth_colors;
 	vector<bool> ligth_type;
+	vector<int> sp_exp;
 	for (int i = 0; i < lights.size(); i++)
 	{
 		diffus.push_back(lights[i]->difus*lights[i]->strengte_difus);
 		difuus_position.push_back(lights[i]->getPosition());
 		ligth_type.push_back(lights[i]->type);
-		directions.push_back(lights[i]->direction);
+		sp_exp.push_back(lights[i]->Specularity_exponent);
+		sp_ligth_colors.push_back((lights[i]->specalar)*(lights[i]->strengte_specalar));
+		//directions.push_back(lights[i]->direction);
 	}
 	for (int i = 0; i < models.size(); i++)
 	{
+		directions.clear();
+		for (int i = 0; i < lights.size(); i++)
+		{
+			glm::vec4 v55=
+				glm::inverse(models[i]->getModelTransform())
+				*glm::vec4((lights[i]->direction),1);
+			v55 = glm::normalize(v55);
+			directions.push_back(v55);
+		}
+		
 		//first set worldTransformation & nTransformation of the object in renderer
 		renderer->SetObjectMatrices(models.at(i)->getWorldTransform(),
 			models.at(i)->getNormalTransform());
 		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum()
-			,AMcolors_model[i], Difcolors_model[i], SPECTcolors_model[i],
+			, AMcolors_model[i], Difcolors_model[i], SPECTcolors_model[i],
 			w, h, windowresizing, models.at(i), cameras[this->ActiveCamera]
-			, ambient * strengte_ambient, diffus, difuus_position,directions, ligth_type,type);
+			, ambient * strengte_ambient, diffus, difuus_position, directions, ligth_type
+			, cameras[ActiveCamera]->at - cameras[ActiveCamera]->pos,sp_exp , sp_ligth_colors,type);
 	}
 
 	//render cameras as well, if needed
@@ -318,7 +333,8 @@ void Scene::DrawScene(float w,float h)
 					cameras[i]->getCamBox()->getVertexPosNum()
 					, AMcolors_camera[i],Difcolors_camera[i], SPECTcolors_camera[i],
 					w, h, windowresizing, cameras[i]->getCamBox(),cameras[this->ActiveCamera],
-					ambient * strengte_ambient,diffus,difuus_position, directions, ligth_type,type);
+					ambient * strengte_ambient,diffus,difuus_position, directions, ligth_type,
+					cameras[ActiveCamera]->at - cameras[ActiveCamera]->pos ,sp_exp, sp_ligth_colors,type);
 			}
 		}
 	}
