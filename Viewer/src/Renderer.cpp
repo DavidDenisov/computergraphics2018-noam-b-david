@@ -829,16 +829,14 @@ void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 poi
 					shouldFillGaps = true;
 		}
 
-		if ((shouldFillGaps == true && countFAKE != 2) || (shouldFillGaps == false && countFAKE == 2))
-			int dubudubudu = 0;
-
 
 		put = FALSE;
 		//cont = TRUE;
 		//only if there's two intersections with the edges so you should draw.
 		if (shouldFillGaps == true)
 		{
-			if(xmin >= 0)
+			if(xmin > 0)
+				//scan left to right
 				for (int x = xmin; (x <= xmax); x++)
 				{
 					if ((y<int(h)) && (y > 0) && (x<int(w)) && (x > 0))
@@ -1064,7 +1062,7 @@ void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 
 
 
 
-	//now the scan algo'
+	//scan algo' -- scan all y's
 
 	bool put = FALSE;
 	//bool cont = TRUE;
@@ -1072,6 +1070,9 @@ void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 
 	{
 		put = FALSE;
 		int count = 0;
+		int countFAKE = 0;
+
+		//count how much seperate intersections with edges there are
 		for (int x = xmin; x <= xmax; x++) //used, not just for fun very importent
 		{
 			if ((y<int(h)) && (y > 0) && (x<int(w)) && (x > 0))
@@ -1085,70 +1086,121 @@ void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 
 						bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 						x++;
 					x--;
-					count++;
+					countFAKE++;
 				}
 			}
-
 		}
+
+		//tactic 1 - do draw bad_color but works even when out of bounds.
+		//i.e., same drawline func but returns TRUE if it hits a given y.
+		//"drawLineBADCOLOR" - drawLine but calls special putpixel -- returns {xmin,xmax}
+		//"putpixelBADCOLOR" - draws the color (if needed) but returns x-value when hits a given y
+
+		//now need to check if there are 2 different areas of hits'
+		//we can check it by looking for different edges hits who are distinct (don't share common x-values)
+		glm::vec2 edge1HITS = drawLineBADCOLOR(point1, point2, bad_color, y);
+		glm::vec2 edge2HITS = drawLineBADCOLOR(point2, point3, bad_color, y);
+		glm::vec2 edge3HITS = drawLineBADCOLOR(point1, point3, bad_color, y);
+
+		bool shouldFillGaps = false;
+
+		//if they're seperated, go fill that gap!
+		if (edge1HITS.x != -INFINITY && edge1HITS.y != -INFINITY && edge2HITS.x != -INFINITY && edge2HITS.y != -INFINITY &&
+			edge1HITS.x != INFINITY && edge1HITS.y != INFINITY && edge2HITS.x != INFINITY && edge2HITS.y != INFINITY)
+		{
+			if (edge2HITS.x - edge1HITS.y > 1)
+				if (!(edge3HITS.x - 1 <= edge1HITS.y && edge3HITS.y + 1 >= edge2HITS.x))
+					shouldFillGaps = true;
+
+			if (edge1HITS.x - edge2HITS.y > 1)
+				if (!(edge3HITS.x - 1 <= edge2HITS.y && edge3HITS.y + 1 >= edge1HITS.x))
+					shouldFillGaps = true;
+		}
+
+		//if they're seperated, go fill that gap!
+		if (edge2HITS.x != -INFINITY && edge2HITS.y != -INFINITY && edge3HITS.y != -INFINITY && edge3HITS.x != -INFINITY &&
+			edge2HITS.x != INFINITY && edge2HITS.y != INFINITY && edge3HITS.y != INFINITY && edge3HITS.x != INFINITY)
+		{
+			if (edge3HITS.x - edge2HITS.y > 1) //min-max>1?
+				if (!(edge1HITS.x - 1 <= edge2HITS.y && edge1HITS.y + 1 >= edge3HITS.x))
+					shouldFillGaps = true;
+			if (edge2HITS.x - edge3HITS.y > 1)
+				if (!(edge1HITS.x - 1 <= edge3HITS.y && edge1HITS.y + 1 >= edge2HITS.x))
+					shouldFillGaps = true;
+		}
+
+		//if they're seperated, go fill that gap!
+		if (edge1HITS.x != -INFINITY && edge1HITS.y != -INFINITY && edge3HITS.x != -INFINITY && edge3HITS.y != -INFINITY &&
+			edge1HITS.x != INFINITY && edge1HITS.y != INFINITY && edge3HITS.x != INFINITY && edge3HITS.y != INFINITY)
+		{
+			if (edge1HITS.x - edge3HITS.y > 1)
+				if (!(edge2HITS.x - 1 <= edge3HITS.y && edge2HITS.y + 1 >= edge1HITS.x))
+					shouldFillGaps = true;
+			if (edge3HITS.x - edge1HITS.y > 1)
+				if (!(edge2HITS.x - 1 <= edge1HITS.y && edge2HITS.y + 1 >= edge3HITS.x))
+					shouldFillGaps = true;
+		}
+
+		
+
 		put = FALSE;
 		//cont = TRUE;
-		//only if there's two intersections with the edges you should draw
-		if (count==2 || y != ymin || y!= ymax)
+		//only if there's two intersections with the edges so you should draw.
+		if (shouldFillGaps == true)
 		{
-			if (xmin >= 0)
-			{
+			if (xmin > 0)
 				//scan left to right
-				for (int x = xmin; x <= xmax; x++)
+				for (int x = xmin; (x <= xmax); x++)
 				{
-					if (y < (int(h)) && y > 0)
-						if ((x >= 0) && (x < int(w)))
+					if ((y<int(h)) && (y > 0) && (x<int(w)) && (x > 0))
+					{
+						if (put) //now we need to draw
 						{
-							if (put) //now we need to draw
+
+							if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+								bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+								bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 							{
-								if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+
+								//first draw the rest of the edge, and then stop drawing
+								while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
 									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
 									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 								{
-									//first draw the rest of the edge, and then stop drawing
-									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
-										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
-										bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
-									{
-										putPixel2(x, y, point1, point2, point3, color1, color2, color3);
-										x++;
-									}
-									x--;
-									put = FALSE;
-									//cont = FALSE; //this is the second edge. no need to continue
-								}
-								putPixel2(x, y, point1, point2, point3, color1, color2, color3);
-							}
-							else
-							{
-								//if we saw another edge. start drawing.
-								//but don't forget the edge can be several pixels long.
-								if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
-									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
-									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
-								{
-									put = TRUE;
 									putPixel2(x, y, point1, point2, point3, color1, color2, color3);
 									x++;
-									//draw the whole edge, and only afterwards start looking for the next one
-									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
-										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
-										bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
-									{
-										putPixel2(x, y, point1, point2, point3, color1, color2, color3);
-										x++;
-									}
-									x--;
 								}
-
+								x--;
+								put = FALSE;
+								//cont = FALSE; //this is the second edge. no need to continue
 							}
+							putPixel2(x, y, point1, point2, point3, color1, color2, color3);
 						}
+						else
+						{
+							//if we saw another edge. start drawing.
+							//but don't forget the edge can be several pixels long.
+							if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+								bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+								bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+							{
+								put = TRUE;
+								putPixel2(x, y, point1, point2, point3, color1, color2, color3);
+								x++;
+								//draw the whole edge, and only afterwards start looking for the next one
+								while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+								{
+									putPixel2(x, y, point1, point2, point3, color1, color2, color3);
+									x++;
+								}
+								x--;
+							}
+
+						}
+					}
 				}
-			}
 			else
 			{
 				//scan right to left
@@ -1159,10 +1211,12 @@ void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 
 						{
 							if (put) //now we need to draw
 							{
+
 								if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
 									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
 									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 								{
+
 									//first draw the rest of the edge, and then stop drawing
 									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
 										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
@@ -1203,7 +1257,6 @@ void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 
 						}
 				}
 			}
-
 		}
 
 	}
@@ -1260,7 +1313,7 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 	drawLine_z(point2, point3, bad_color);
 
 
-	//now the scan algo'
+	//scan algo' -- scan all y's
 
 	bool put = FALSE;
 	//bool cont = TRUE;
@@ -1268,6 +1321,9 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 	{
 		put = FALSE;
 		int count = 0;
+		int countFAKE = 0;
+
+		//count how much seperate intersections with edges there are
 		for (int x = xmin; x <= xmax; x++) //used, not just for fun very importent
 		{
 			if ((y<int(h)) && (y > 0) && (x<int(w)) && (x > 0))
@@ -1281,77 +1337,128 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 						bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 						x++;
 					x--;
-					count++;
+					countFAKE++;
 				}
 			}
-
 		}
+
+		//tactic 1 - do draw bad_color but works even when out of bounds.
+		//i.e., same drawline func but returns TRUE if it hits a given y.
+		//"drawLineBADCOLOR" - drawLine but calls special putpixel -- returns {xmin,xmax}
+		//"putpixelBADCOLOR" - draws the color (if needed) but returns x-value when hits a given y
+
+		//now need to check if there are 2 different areas of hits'
+		//we can check it by looking for different edges hits who are distinct (don't share common x-values)
+		glm::vec2 edge1HITS = drawLineBADCOLOR(point1, point2, bad_color, y);
+		glm::vec2 edge2HITS = drawLineBADCOLOR(point2, point3, bad_color, y);
+		glm::vec2 edge3HITS = drawLineBADCOLOR(point1, point3, bad_color, y);
+
+		bool shouldFillGaps = false;
+
+		//if they're seperated, go fill that gap!
+		if (edge1HITS.x != -INFINITY && edge1HITS.y != -INFINITY && edge2HITS.x != -INFINITY && edge2HITS.y != -INFINITY &&
+			edge1HITS.x != INFINITY && edge1HITS.y != INFINITY && edge2HITS.x != INFINITY && edge2HITS.y != INFINITY)
+		{
+			if (edge2HITS.x - edge1HITS.y > 1)
+				if (!(edge3HITS.x - 1 <= edge1HITS.y && edge3HITS.y + 1 >= edge2HITS.x))
+					shouldFillGaps = true;
+
+			if (edge1HITS.x - edge2HITS.y > 1)
+				if (!(edge3HITS.x - 1 <= edge2HITS.y && edge3HITS.y + 1 >= edge1HITS.x))
+					shouldFillGaps = true;
+		}
+
+		//if they're seperated, go fill that gap!
+		if (edge2HITS.x != -INFINITY && edge2HITS.y != -INFINITY && edge3HITS.y != -INFINITY && edge3HITS.x != -INFINITY &&
+			edge2HITS.x != INFINITY && edge2HITS.y != INFINITY && edge3HITS.y != INFINITY && edge3HITS.x != INFINITY)
+		{
+			if (edge3HITS.x - edge2HITS.y > 1) //min-max>1?
+				if (!(edge1HITS.x - 1 <= edge2HITS.y && edge1HITS.y + 1 >= edge3HITS.x))
+					shouldFillGaps = true;
+			if (edge2HITS.x - edge3HITS.y > 1)
+				if (!(edge1HITS.x - 1 <= edge3HITS.y && edge1HITS.y + 1 >= edge2HITS.x))
+					shouldFillGaps = true;
+		}
+
+		//if they're seperated, go fill that gap!
+		if (edge1HITS.x != -INFINITY && edge1HITS.y != -INFINITY && edge3HITS.x != -INFINITY && edge3HITS.y != -INFINITY &&
+			edge1HITS.x != INFINITY && edge1HITS.y != INFINITY && edge3HITS.x != INFINITY && edge3HITS.y != INFINITY)
+		{
+			if (edge1HITS.x - edge3HITS.y > 1)
+				if (!(edge2HITS.x - 1 <= edge3HITS.y && edge2HITS.y + 1 >= edge1HITS.x))
+					shouldFillGaps = true;
+			if (edge3HITS.x - edge1HITS.y > 1)
+				if (!(edge2HITS.x - 1 <= edge1HITS.y && edge2HITS.y + 1 >= edge3HITS.x))
+					shouldFillGaps = true;
+		}
+
+
 		put = FALSE;
 		//cont = TRUE;
-		if (count == 2 || y != ymin || y != ymax)
+		//only if there's two intersections with the edges so you should draw.
+		if (shouldFillGaps == true)
 		{
-			if (xmin >= 0)
-			{
+			if (xmin > 0)
 				//scan left to right
 				for (int x = xmin; (x <= xmax); x++)
 				{
-					if (y < (int(h)) && y > 0)
-						if ((x >= 0) && (x < int(w)))
+					if ((y<int(h)) && (y > 0) && (x<int(w)) && (x > 0))
+					{
+						if (put) //now we need to draw
 						{
-							if (put) //now we need to draw
+
+							if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+								bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+								bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 							{
-								if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+
+								//first draw the rest of the edge, and then stop drawing
+								while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
 									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
 									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 								{
-									//first draw the rest of the edge, and then stop drawing
-									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
-										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
-										bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
-									{
-										putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
-											Diffus_st, diffus, directions, positions,
-											am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
-										x++;
-									}
-									x--;
-									put = FALSE;
-									//cont = FALSE; //this is the second edge. no need to continue
-								}
-								putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
-									Diffus_st, diffus, directions, positions,
-									am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
-							}
-							else
-							{
-								//if we saw another edge. start drawing.
-								//but don't forget the edge can be several pixels long.
-								if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
-									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
-									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
-								{
-									put = TRUE;
 									putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
 										Diffus_st, diffus, directions, positions,
 										am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
 									x++;
-									//draw the whole edge, and only afterwards start looking for the next one
-									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
-										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
-										bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
-									{
-										putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
-											Diffus_st, diffus, directions, positions,
-											am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
-										x++;
-									}
-									x--;
 								}
-
+								x--;
+								put = FALSE;
+								//cont = FALSE; //this is the second edge. no need to continue
 							}
+							putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
+								Diffus_st, diffus, directions, positions,
+								am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
 						}
+						else
+						{
+							//if we saw another edge. start drawing.
+							//but don't forget the edge can be several pixels long.
+							if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+								bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+								bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+							{
+								put = TRUE;
+								putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
+									Diffus_st, diffus, directions, positions,
+									am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
+								x++;
+								//draw the whole edge, and only afterwards start looking for the next one
+								while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
+								{
+									putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
+										Diffus_st, diffus, directions, positions,
+										am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
+									x++;
+								}
+								x--;
+							}
+
+						}
+					}
 				}
-			}
 			else
 			{
 				//scan right to left
@@ -1362,10 +1469,12 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 						{
 							if (put) //now we need to draw
 							{
+
 								if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
 									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
 									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 								{
+
 									//first draw the rest of the edge, and then stop drawing
 									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
 										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
