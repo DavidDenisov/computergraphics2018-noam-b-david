@@ -50,6 +50,10 @@ private:
 	void putPixel(int i, int j, const glm::vec3& color);
 	// creates float array of dimension [3,w,h]
 	void createBuffers(int w, int h);
+
+	//"putpixelBADCOLOR" - draws the color(if needed) but returns TRUE when hit s a given y
+	float putPixelBADCOLOR(int i, int j, const glm::vec3& color, int GIVENy);
+
 	//##############################
 	//##openGL stuff. Don't touch.##
 	//##############################
@@ -68,6 +72,7 @@ public:
 	// Local initializations of your implementation
 	void Init();
 
+	bool shouldntFill(glm::vec2 a, glm::vec2 b, glm::vec2 c);
 
 	void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  color, float w, float h);
@@ -134,6 +139,13 @@ public:
 		const glm::vec3& norm1, const glm::vec3& norm2, const glm::vec3& norm3,
 		float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> directions, vector<glm::vec3> positions,
 		glm::vec3 am_vec, glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor, vector<bool> type);
+
+
+	//drawLineBADCOLOR - used for bad_color algo' - checks if the line hit a given y-value
+	//and returns xmin & xmax where y was drawn
+	//same as regular, just uses putPixelBADCOLOR
+	glm::vec2 drawLineBADCOLOR(glm::vec3 point1, glm::vec3 point2, const glm::vec3& color, int GIVENy);
+
 	//Task1, naive solution to draw a line
 	void printLineNaive();
 
