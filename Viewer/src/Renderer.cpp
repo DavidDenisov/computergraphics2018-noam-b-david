@@ -291,6 +291,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		{
 
 			glm::vec3 avg = (a + b + c) / 3.f;
+			avg = glm::inverse(windowresizing) *glm::vec4( avg,1);
 			glm::vec3 cface_norm = glm::normalize(myModel->getNormalFace()[face /3]);
 			float x6 = 0.f;
 
@@ -298,31 +299,38 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			glm::vec3  Difuscolor = glm::vec3(0, 0, 0);
 			glm::vec3  Spectcolor = glm::vec3(0, 0, 0);
 			glm::vec3 R, v = glm::normalize(v_direction);
+			
 			for (int i = 0; i < diffus.size(); i++)
 			{
-				glm::vec3 diffus_dir = glm::normalize(positions[i] - avg);
+
+				
+				glm::vec3 dir =  positions[i];
+				dir=glm::vec4(dir,1)- glm::vec4(avg, 1);
+				//dir = absc(dir);
+				
+
 				if (ligth_type[i])
-					diffus_dir = directions[i];
+					dir = directions[i];
 
 				glm::vec3 face_norm = cface_norm;
 
-				diffus_dir = glm::normalize(diffus_dir);
-				if ((norm(diffus_dir) == 0.f) && (norm(-diffus_dir) != 0.f))
+				dir = glm::normalize(dir);
+				if ((norm(dir) == 0.f) && (norm(-dir) != 0.f))
 				{
 					face_norm = -face_norm;
-					diffus_dir = -diffus_dir;
+					dir = -dir;
 				}
 
-				x6 = glm::dot(diffus_dir, face_norm);
+				x6 = glm::dot(dir, face_norm);
 				Difuscolor = Difuscolor + absc(diffus[i] * x6* myModel->Diffus);
 
 
-				diffus_dir = -diffus_dir;
-				R = 2 * glm::dot(face_norm, diffus_dir)* diffus_dir - face_norm;
+				dir = -dir;
+				R = 2 * glm::dot(face_norm, dir)* dir - face_norm;
 
 				R = glm::normalize(R);
 
-				if (glm::dot(R, diffus_dir) < 0)
+				if (glm::dot(R, dir) < 0)
 					Spectcolor = Spectcolor + absc(ligth_spect_c[i] * glm::pow(abs(glm::dot(R, v)), spect_exp[i]));
 
 			}

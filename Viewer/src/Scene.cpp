@@ -266,7 +266,8 @@ void Scene::setcur_model(int i)
 void Scene::DrawScene(float w,float h)
 {
 	// 1. Send the renderer the current camera transform and the projection
-	
+	if (w < 3 || h < 3)
+		return;
 	renderer->SetCameraTransform(cameras.at(ActiveCamera)->get_Transform()); // ** update by lookat!
 	renderer->SetProjection(cameras.at(ActiveCamera)->get_projection());
 	glm::mat4x4 windowresizing = cameras[0]->GetTranslateTransform(w/2.0,h/2,0.0) 
@@ -288,7 +289,7 @@ void Scene::DrawScene(float w,float h)
 		
 	// Specular = lights[ActiveLight]->difus*lights[ActiveLight]->strengte_difus;
 	vector<glm::vec3> diffus;
-	vector<glm::vec3> difuus_position;
+	vector<glm::vec3> position;
 	vector<glm::vec3> directions;
 	vector<glm::vec3> sp_ligth_colors;
 	vector<bool> ligth_type;
@@ -296,7 +297,6 @@ void Scene::DrawScene(float w,float h)
 	for (int i = 0; i < lights.size(); i++)
 	{
 		diffus.push_back(lights[i]->difus*lights[i]->strengte_difus);
-		difuus_position.push_back(lights[i]->getPosition());
 		ligth_type.push_back(lights[i]->type);
 		sp_exp.push_back(lights[i]->Specularity_exponent);
 		sp_ligth_colors.push_back((lights[i]->specalar)*(lights[i]->strengte_specalar));
@@ -305,13 +305,19 @@ void Scene::DrawScene(float w,float h)
 	for (int i = 0; i < models.size(); i++)
 	{
 		directions.clear();
-		for (int i = 0; i < lights.size(); i++)
+		position.clear();
+		for (int j = 0; j < lights.size(); j++)
 		{
 			glm::vec4 v55=
 				glm::inverse(models[i]->getModelTransform())
-				*glm::vec4((lights[i]->direction),1);
+				*glm::vec4((lights[j]->direction),1);
 			v55 = glm::normalize(v55);
 			directions.push_back(v55);
+
+			
+			v55 = glm::inverse(models[i]->getModelTransform())
+				*glm::vec4((lights[j]->getPosition()), 1);
+			position.push_back(v55);
 		}
 		glm::vec4 v55 = glm::inverse(models[i]->getModelTransform())
 			*(cameras[ActiveCamera]->pos - cameras[ActiveCamera]->at);
@@ -321,7 +327,7 @@ void Scene::DrawScene(float w,float h)
 		renderer->DrawTriangles(models.at(i)->Draw(), models.at(i)->getVertexPosNum()
 			, AMcolors_model[i], Difcolors_model[i], SPECTcolors_model[i],
 			w, h, windowresizing, models.at(i), cameras[this->ActiveCamera]
-			, ambient * strengte_ambient, diffus, difuus_position, directions, ligth_type
+			, ambient * strengte_ambient, diffus, position, directions, ligth_type
 			, v55,sp_exp, sp_ligth_colors,type);
 	}
 
@@ -342,7 +348,7 @@ void Scene::DrawScene(float w,float h)
 					cameras[i]->getCamBox()->getVertexPosNum()
 					, AMcolors_camera[i],Difcolors_camera[i], SPECTcolors_camera[i],
 					w, h, windowresizing, cameras[i]->getCamBox(),cameras[this->ActiveCamera],
-					ambient * strengte_ambient,diffus,difuus_position, directions, ligth_type,
+					ambient * strengte_ambient,diffus,position, directions, ligth_type,
 					cameras[ActiveCamera]->at - cameras[ActiveCamera]->pos ,sp_exp, sp_ligth_colors,type);
 			}
 		}
