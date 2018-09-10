@@ -272,6 +272,14 @@ void Scene::DrawScene(float w,float h)
 	glm::mat4x4 windowresizing = cameras[0]->GetTranslateTransform(w/2.0,h/2,0.0) 
 		*cameras[0]->GetScaleTransform(w / 2.0, h / 2.0, 1.0); //window coordinates
 
+	renderer->zBuffer = new float*[w];
+	for (int i = 0; i < w; i++)
+	{
+		renderer->zBuffer[i] = new float[h];
+		for (int j = 0; j < h; j++)
+			renderer->zBuffer[i][j] = -INFINITY;
+	}
+
 	// 2. Tell all models to draw themselves
 	//renderer->SetDemoBuffer();
 	//renderer->printLineNaive(); //Naive draw line
@@ -341,6 +349,9 @@ void Scene::DrawScene(float w,float h)
 	}
 
 	renderer->SwapBuffers();
+	for (int i = 0; i < w; i++)
+		delete[] renderer->zBuffer[i];
+	delete[] renderer->zBuffer;
 }
 /*
 void Scene::Draw()

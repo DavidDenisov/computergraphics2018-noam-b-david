@@ -606,7 +606,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		}
 
 		str = "the active camera is camera number " + to_string(
-			scene->getCameras()[scene->ActiveModel]->num + 1);
+			scene->getCameras()[scene->ActiveCamera]->num + 1);
 		ImGui::Text(const_cast<char*>(str.c_str()));
 		ImGui::Checkbox("show the cameras boxes : ", &scene->willCamerasRender);
 		for (int i = 0; i < scene->getCameras().size(); i++)

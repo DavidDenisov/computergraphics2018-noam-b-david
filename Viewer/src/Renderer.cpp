@@ -181,7 +181,8 @@ void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm
 		glm::vec3 dir = glm::normalize(positions[i] - glm::vec3(x1, y1, point_z));
 		if (types[i])
 			dir = direction[i];
-		glm::vec3 cur_norm2= cur_norm;
+		dir = glm::normalize(dir);
+		glm::vec3 cur_norm2= glm::normalize(cur_norm);
 		if ((norm(dir) == 0.f) && (norm(-dir) != 0.f))
 		{
 			dir = -dir;
@@ -194,8 +195,7 @@ void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm
 
 		dir = -dir;
 		glm::vec3 R = 2 * glm::dot(cur_norm2, dir)* dir - cur_norm2;
-		//we can use householder transformation
-		//but there is no need to and will may cause problames and will make it slower
+
 		R = glm::normalize(R);
 		if (glm::dot(R, dir) < 0)
 			spect_color = spect_color + absc(ligth_spect_c[i] * glm::pow(abs(glm::dot(R, glm::normalize(v_direction))), spect_exp[i]));
@@ -226,13 +226,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 {
 	//we recieve the object to draw with a vector of verticesPositions
 	//we will draw these triangles but first will do the transformations
-	zBuffer = new float*[w];
-	for (int i = 0; i < w; i++)
-	{
-		zBuffer[i] = new float[h];
-		for (int j = 0; j < h; j++)
-			zBuffer[i][j] = -INFINITY;
-	}
+
 
 
 	//first do the transformations:
@@ -279,7 +273,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		{
 
 			glm::vec3 avg = (a + b + c) / 3.f;
-			glm::vec3 cface_norm = glm::normalize(myModel->getNormalFace()[face / 3]);
+			glm::vec3 cface_norm = glm::normalize(myModel->getNormalFace()[face /3]);
 			float x6 = 0.f;
 
 			glm::vec3  AMcolor = am_vec * amcolor;
@@ -308,8 +302,6 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 				diffus_dir = -diffus_dir;
 				R = 2 * glm::dot(face_norm, diffus_dir)* diffus_dir - face_norm;
 
-				//we can use householder transformation
-				//but there is no need to and will may cause problames and will make it slower
 				R = glm::normalize(R);
 
 				if (glm::dot(R, diffus_dir) < 0)
@@ -390,8 +382,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 				R1 = 2 * glm::dot(cur_d1, v1)*cur_d1 - v1;
 				R2 = 2 * glm::dot(cur_d2, v2)* cur_d2 - v2;
 				R3 = 2 * glm::dot(cur_d3, v3)*  cur_d3 - v3;
-				//we can use householder transformation
-				//but there is no need to and will may cause problames and will make it slower
+
 				R1 = glm::normalize(R1);
 				R2 = glm::normalize(R2);
 				R3 = glm::normalize(R3);
@@ -667,9 +658,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 	delete[] transVerticesPositions; //they take a lot of memory and will not be used again
 	delete[] drawVertexPositions;
 	delete[] vertexPositions;
-	for (int i = 0; i < w; i++)
-		delete[] zBuffer[i];
-	delete[] zBuffer;
+
 }
 
 void Renderer::createBuffers(int w, int h)
@@ -706,6 +695,8 @@ void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 poi
 	}
 	colorBuffer2.clear();
 	colorBuffer3.clear();
+
+	
 	drawLine_z(point1, point2, bad_color);
 	drawLine_z(point1, point3, bad_color);
 	drawLine_z(point2, point3, bad_color);

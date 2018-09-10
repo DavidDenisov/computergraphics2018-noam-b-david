@@ -22,7 +22,7 @@ private:
 	vector<glm::vec3>  colorBuffer2;
 	vector<glm::vec2>  colorBuffer3;
 	// width*height
-	float **zBuffer;
+	
 	// Screen dimensions
 	int width, height;
 
@@ -59,7 +59,9 @@ private:
 	void createOpenGLBuffer();
 	void initOpenGLRendering();
 	//##############################
+
 public:
+	float **zBuffer;
 	void horizontal(int i, int i2, int j, int r);
 	void vertical(int j, int j2, int i, int r);
 	void Bresenham(int i, int j, int i2, int j2,int r);
