@@ -176,7 +176,7 @@ void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm
 	float Diffus_st, vector<glm::vec3> diffus,
 	vector<glm::vec3> direction, vector<glm::vec3> positions, glm::vec3 am_vec,
 	glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor, const glm::vec3 & v_direction, const vector<int> & spect_exp,
-	const vector<glm::vec3> & ligth_spect_c, const vector<bool> & types)
+	const vector<glm::vec3> & ligth_spect_c, const vector<bool> & types, glm::mat4x4 windowresizing_invers)
 {
 	if (x1 < 0) return; if (x1 >= width) return;
 	if (y1 < 0) return; if (y1 >= height) return;
@@ -194,9 +194,11 @@ void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm
 	glm::vec3  am_color = am_vec * amcolor;
 	glm::vec3  dif_color = glm::vec3(0, 0, 0);
 	glm::vec3  spect_color = glm::vec3(0, 0, 0);
+	glm::vec3 pos_normalized = glm::vec3(x1, y1, point_z);
+	pos_normalized = windowresizing_invers *glm::vec4(pos_normalized,1);
 	for (int i = 0; i < diffus.size(); i++)
 	{
-		glm::vec3 dir = glm::normalize(positions[i] - glm::vec3(x1, y1, point_z));
+		glm::vec3 dir = glm::normalize(positions[i] - pos_normalized);
 		if (types[i])
 			dir = direction[i];
 		dir = glm::normalize(dir);
@@ -304,8 +306,8 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			{
 
 				
-				glm::vec3 dir =  positions[i];
-				dir=glm::vec4(dir,1)- glm::vec4(avg, 1);
+				glm::vec3 dir =  
+				dir= positions[i]- avg;
 				//dir = absc(dir);
 				
 
@@ -349,6 +351,12 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			float x1 = 0.f;
 			float x2 = 0.f;
 			float x3 = 0.f;
+			glm::vec3 a1, b1, c1;
+
+			a1 = glm::inverse(windowresizing)*glm::vec4(a,1);
+			b1 = glm::inverse(windowresizing)*glm::vec4(b, 1);
+			c1 = glm::inverse(windowresizing)*glm::vec4(c, 1);
+
 			glm::vec3  AMcolor1 = am_vec * amcolor;
 			glm::vec3  Difuscolor1 = glm::vec3(0, 0, 0);
 			glm::vec3  Spectcolor1 = glm::vec3(0, 0, 0);
@@ -362,9 +370,9 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			for (int i = 0; i < diffus.size(); i++)
 			{
 				glm::vec3 v1 = cv1, v2 = cv2, v3 = cv3;
-				glm::vec3 cur_d1 = glm::normalize(positions[i] - a);
-				glm::vec3 cur_d2 = glm::normalize(positions[i] - b);
-				glm::vec3 cur_d3 = glm::normalize(positions[i] - c);
+				glm::vec3 cur_d1 = glm::normalize(positions[i] - a1);
+				glm::vec3 cur_d2 = glm::normalize(positions[i] - b1);
+				glm::vec3 cur_d3 = glm::normalize(positions[i] - c1);
 				if (ligth_type[i])
 				{
 					cur_d1 = directions[i];
@@ -435,7 +443,8 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			glm::vec4 v2 = myModel->getNormalVertex()[face + 1];
 			glm::vec4 v3 = myModel->getNormalVertex()[face + 2];
 			drawTringlePhong(a, b, c, v1,v2,v3, myModel->Diffus,diffus,directions,positions, am_vec,
-				amcolor,difcolor, spectcolor,  v_direction, spect_exp, ligth_spect_c, ligth_type, w, h);
+				amcolor,difcolor, spectcolor,  v_direction, spect_exp, ligth_spect_c, ligth_type,
+				glm::inverse(windowresizing), w, h);
 		}
 
 		
@@ -1301,7 +1310,7 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 	float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> directions , vector<glm::vec3> positions
 	, glm::vec3 am_vec, glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor, const glm::vec3 & v_direction, const vector<int> & spect_exp,
 	const vector<glm::vec3> & ligth_spect_c,
-	const vector<bool> & types,float w, float h)
+	const vector<bool> & types, glm::mat4x4 windowresizing_invers,float w, float h)
 {
 	if (w < 3 || h < 3)
 		return;
@@ -1427,7 +1436,8 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 								{
 									putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
 										Diffus_st, diffus, directions, positions,
-										am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
+										am_vec, amcolor, difcolor, spectcolor, v_direction,
+										spect_exp, ligth_spect_c, types, windowresizing_invers);
 									x++;
 								}
 								x--;
@@ -1436,7 +1446,8 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 							}
 							putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
 								Diffus_st, diffus, directions, positions,
-								am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
+								am_vec, amcolor, difcolor, spectcolor, v_direction,
+								spect_exp, ligth_spect_c, types, windowresizing_invers);
 						}
 						else
 						{
@@ -1449,7 +1460,8 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 								put = TRUE;
 								putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
 									Diffus_st, diffus, directions, positions,
-									am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
+									am_vec, amcolor, difcolor, spectcolor, v_direction,
+									spect_exp, ligth_spect_c, types, windowresizing_invers);
 								x++;
 								//draw the whole edge, and only afterwards start looking for the next one
 								while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
@@ -1458,7 +1470,8 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 								{
 									putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
 										Diffus_st, diffus, directions, positions,
-										am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
+										am_vec, amcolor, difcolor, spectcolor, v_direction,
+										spect_exp, ligth_spect_c, types, windowresizing_invers);
 									x++;
 								}
 								x--;
@@ -1490,7 +1503,8 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 									{
 										putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
 											Diffus_st, diffus, directions, positions,
-											am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
+											am_vec, amcolor, difcolor, spectcolor, v_direction,
+											spect_exp, ligth_spect_c, types, windowresizing_invers);
 										x--;
 									}
 									x++;
@@ -1499,7 +1513,8 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 								}
 								putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
 									Diffus_st, diffus, directions, positions,
-									am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
+									am_vec, amcolor, difcolor, spectcolor, v_direction,
+									spect_exp, ligth_spect_c, types,windowresizing_invers);
 							}
 							else
 							{
@@ -1512,7 +1527,8 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 									put = TRUE;
 									putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
 										Diffus_st, diffus, directions, positions,
-										am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
+										am_vec, amcolor, difcolor, spectcolor, v_direction,
+										spect_exp, ligth_spect_c, types, windowresizing_invers);
 									x--;
 									//draw the whole edge, and only afterwards start looking for the next one
 									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
@@ -1521,7 +1537,8 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 									{
 										putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
 											Diffus_st, diffus, directions, positions,
-											am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
+											am_vec, amcolor, difcolor, spectcolor, v_direction, 
+											spect_exp, ligth_spect_c, types, windowresizing_invers);
 										x--;
 									}
 									x++;
@@ -1550,17 +1567,20 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 	drawLine_phong(point1, point2,
 		point1, point2, point3,
 		norm1, norm2, norm3,
-		Diffus_st, diffus,directions, positions, am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
+		Diffus_st, diffus,directions, positions, am_vec, amcolor, difcolor,
+		spectcolor,v_direction, spect_exp, ligth_spect_c, types, windowresizing_invers);
 
 	drawLine_phong(point2, point3,
 		point1, point2, point3,
 		norm1, norm2, norm3,
-		Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, types);
+		Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor,
+		spectcolor, v_direction, spect_exp, ligth_spect_c, types, windowresizing_invers);
 
 	drawLine_phong(point1, point3,
 		point1, point2, point3,
 		norm1,norm2,norm3,
-		Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c,types);
+		Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor,
+		spectcolor, v_direction, spect_exp, ligth_spect_c,types, windowresizing_invers);
 }
 void Renderer::drawLine_z(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color)
 {
@@ -2123,7 +2143,7 @@ void Renderer::drawLine_phong(glm::vec2 start, glm::vec2 end,
 	const glm::vec3& norm1, const glm::vec3& norm2, const glm::vec3& norm3,
 	float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> directions,vector<glm::vec3> positions,
 	glm::vec3 am_vec, glm::vec3 amcolor, glm::vec3 difcolor,glm::vec3 spectcolor,  const glm::vec3 & v_direction, const vector<int> & spect_exp,
-	const vector<glm::vec3> & ligth_spect_c, vector<bool> type)
+	const vector<glm::vec3> & ligth_spect_c, vector<bool> type, glm::mat4x4 windowresizing_invers)
 {
 	int p1 = start.x, q1 = start.y; // start parameters
 	int p2 = end.x, q2 = end.y; // end parameters
@@ -2150,7 +2170,8 @@ void Renderer::drawLine_phong(glm::vec2 start, glm::vec2 end,
 		for (int h = min; h < max; h++)
 		{
 			putPixel3(p1, h, point1, point2, point3, norm1, norm2, norm3,
-				Diffus_st, diffus,directions, positions, am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, type);
+				Diffus_st, diffus,directions, positions, am_vec, amcolor, difcolor, spectcolor, v_direction,
+				spect_exp, ligth_spect_c, type,windowresizing_invers);
 		}
 
 		return;
@@ -2162,7 +2183,8 @@ void Renderer::drawLine_phong(glm::vec2 start, glm::vec2 end,
 		for (int w = min; w < max; w++)
 		{
 			putPixel3(w, q1, point1, point2, point3, norm1, norm2, norm3,
-				Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, type);
+				Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor, spectcolor,
+				v_direction, spect_exp, ligth_spect_c, type, windowresizing_invers);
 		}
 
 		return;
@@ -2211,10 +2233,12 @@ void Renderer::drawLine_phong(glm::vec2 start, glm::vec2 end,
 			}
 			if (replaced == 0)
 				putPixel3(x,y, point1, point2, point3, norm1, norm2, norm3,
-					Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, type);
+					Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor,
+					spectcolor, v_direction, spect_exp, ligth_spect_c, type, windowresizing_invers);
 			else
 				putPixel3(y,x, point1, point2, point3, norm1, norm2, norm3,
-					Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, type);
+					Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor,
+					spectcolor, v_direction, spect_exp, ligth_spect_c, type, windowresizing_invers);
 
 			x = x + 1; //for next point
 			e = e + 2 * (q2 - q1); //line's y got bigger by m*dp
@@ -2281,10 +2305,12 @@ void Renderer::drawLine_phong(glm::vec2 start, glm::vec2 end,
 			}
 			if (replaced == 0)
 			putPixel3(x, y, point1, point2, point3, norm1, norm2, norm3,
-				Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, type);
+				Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor,
+				spectcolor, v_direction, spect_exp, ligth_spect_c, type, windowresizing_invers);
 			else
 				putPixel3(y, x, point1, point2, point3, norm1, norm2, norm3,
-					Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor, spectcolor, v_direction, spect_exp, ligth_spect_c, type);
+					Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor,
+					spectcolor, v_direction, spect_exp, ligth_spect_c, type, windowresizing_invers);
 
 			x = x + 1; e = e + 2 * (q2 - q1);
 		}
