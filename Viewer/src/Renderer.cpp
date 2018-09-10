@@ -31,7 +31,7 @@ float norm45(const glm::vec3 v)
 float norm(glm::vec3 v)
 {
 		//return pow((abs(v.x) + abs(v.y) + abs(v.z)),0.5);
-		v= glm::vec3(max(v.x, 0.f) , max(v.y, 0.f) , max(v.z, 0.f));
+		v= glm::vec3(fmax(v.x, 0.f) , fmax(v.y, 0.f) , fmax(v.z, 0.f));
 		return norm45(v);
 }
 void Renderer::SetCameraTransform(const glm::mat4x4& cTransform)
@@ -101,6 +101,7 @@ void Renderer::putPixel(int i, int j,int z, const glm::vec3& color)
 }
 
 
+
 //putpixelBADCOLOR - draws the color (if needed) but returns x-value when hits a given y
 //if he doesn't hit a given y, return x=-1
 float Renderer::putPixelBADCOLOR(int i, int j, const glm::vec3& color, int GIVENy)
@@ -155,7 +156,6 @@ void Renderer::putPixel2(int x1, int y1,glm::vec3 point1, glm::vec3 point2, glm:
 	}
 	
 }
-
 void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	glm::vec3 norm1, glm::vec3 norm2, glm::vec3 norm3,
 	float Diffus_st, vector<glm::vec3> diffus,
@@ -275,7 +275,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		{
 
 			glm::vec3 avg = (a + b + c) / 3.f;
-			glm::vec3 cface_norm = myModel->getNormalFace()[face];
+			glm::vec3 cface_norm = glm::normalize(myModel->getNormalFace()[face/3]);
 			float x6 = 0.f;
 
 			glm::vec3  AMcolor = am_vec * amcolor;
@@ -290,39 +290,33 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 				
 				glm::vec3 face_norm = cface_norm;
 				
+				diffus_dir = glm::normalize(diffus_dir);
 				if ((norm(diffus_dir) == 0.f) && (norm(-diffus_dir) != 0.f))
 				{
 					face_norm = -face_norm;
 					diffus_dir = -diffus_dir;
 				}
-				if ((!isnan(face_norm.x)) && (!isnan(face_norm.z)) && (!isnan(face_norm.y)))
-					if ((norm(diffus_dir) != 0.f) && (norm(face_norm) != 0.f) &&
-						(sum(face_norm) != 0.f))
-							x6 = norm(diffus_dir * face_norm) /(norm(diffus_dir)*norm(face_norm));
 				
-				
-				x6 = fmin(1.f, x6);
-
-
+				x6 = glm::dot(diffus_dir , face_norm);
 				Difuscolor = Difuscolor + diffus[i]*x6* myModel->Diffus;
 
+				R = 2 * glm::dot(face_norm, v)*face_norm - v;
 				
-				R = 2 * glm::dot(face_norm,v)*face_norm - v;
 				//we can use householder transformation
 				//but there is no need to and will may cause problames and will make it slower
 				R = glm::normalize(R);
-				Spectcolor = Spectcolor+ ligth_spect_c[i]* glm::pow(glm::dot(R,v), spect_exp[i]);
+				Spectcolor = Spectcolor+ ligth_spect_c[i] * glm::pow( glm::dot(R,v) , spect_exp[i]);
 			}
 			glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
+			
 
 			drawTringleFlat(a, b, c, color, w, h);
 		}
-
 		if (type == 1)// Gouraud 
 		{
-			glm::vec3 cv1 = myModel->getNormalVertex()[face];
-			glm::vec3 cv2 = myModel->getNormalVertex()[face+1];
-			glm::vec3 cv3 = myModel->getNormalVertex()[face+2];
+			glm::vec3 cv1 = glm::normalize(myModel->getNormalVertex()[face]);
+			glm::vec3 cv2 = glm::normalize(myModel->getNormalVertex()[face+1]);
+			glm::vec3 cv3 = glm::normalize(myModel->getNormalVertex()[face+2]);
 
 			float x1 = 0.f;
 			float x2 = 0.f;
@@ -364,21 +358,14 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 					v3 = -v3;
 					cur_d3 = -cur_d3;
 				}
-				if ((!isnan(v1.x)) && (!isnan(v1.z)) && (!isnan(v1.y)) )
-					if ((norm(cur_d1) != 0.f) && (norm(v1) != 0.f) && (sum(v1) != 0.f))
-						x1 = norm(cur_d1 * v1) / (norm(cur_d1)*norm(v1));
+				cur_d1 = glm::normalize(cur_d1);
+				cur_d2 = glm::normalize(cur_d2);
+				cur_d3 = glm::normalize(cur_d3);
 
-				if ((!isnan(v2.x)) && (!isnan(v2.z)) && (!isnan(v2.y)) )
-					if ((norm(cur_d2) != 0.f) && (norm(v2) != 0.f) && (sum(v2) != 0.f))
-						x2 = norm(cur_d2* v2) / (norm(cur_d2)*norm(v2));
+				x1 = glm::dot(cur_d1, v1);
+				x2 = glm::dot(cur_d2, v3);
+				x3 = glm::dot(cur_d3, v2);
 
-				if ((!isnan(v3.x)) && (!isnan(v3.z)) && (!isnan(v3.y)) )
-					if ((norm(cur_d3) != 0.f) && (norm(v3) != 0.f) && (sum(v3) != 0.f))
-						x3 = norm(cur_d3 * v3) / (norm(cur_d3)*norm(v3));
-
-				x1 = fmin(1.f, x1);
-				x2 = fmin(1.f, x2);
-				x3 = fmin(1.f, x3);
 
 				Difuscolor1 = Difuscolor1 + glm::vec3( (diffus[i]*x1* myModel->Diffus));
 				Difuscolor2 = Difuscolor2 + glm::vec3( (diffus[i]*x2* myModel->Diffus));
@@ -394,6 +381,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 				R1 = glm::normalize(R1);
 				R2 = glm::normalize(R2);
 				R3 = glm::normalize(R3);
+
 				Spectcolor1 = Spectcolor1 + ligth_spect_c[i] * glm::pow(glm::dot(R1, v), spect_exp[i]);
 				Spectcolor2 = Spectcolor2 + ligth_spect_c[i] * glm::pow(glm::dot(R2, v), spect_exp[i]);
 				Spectcolor3 = Spectcolor3 + ligth_spect_c[i] * glm::pow(glm::dot(R3, v), spect_exp[i]);
@@ -677,7 +665,6 @@ void Renderer::createBuffers(int w, int h)
 	}
 }
 
-
 bool Renderer::shouldntFill(glm::vec2 a, glm::vec2 b, glm::vec2 c)
 {
 	float degA, degB, degC;
@@ -822,74 +809,64 @@ void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 poi
 		//only if there's two intersections with the edges so you should draw.
 		if (shouldFillGaps == true)
 		{
-			//if (xmin >= 0) draw left to right. else, draw right to left
-			if (xmin >= 0)
-			{
-				//scan left to right
+			if(xmin >= 0)
 				for (int x = xmin; (x <= xmax); x++)
 				{
-					if (y < (int(h)) && y > 0)
-						if ((x >= 0) && (x < int(w)))
+					if ((y<int(h)) && (y > 0) && (x<int(w)) && (x > 0))
+					{
+						if (put) //now we need to draw
 						{
-							if (put) //now we need to draw
+
+							if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+								bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+								bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 							{
 
-								if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+								//first draw the rest of the edge, and then stop drawing
+								while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
 									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
 									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 								{
-
-									//first draw the rest of the edge, and then stop drawing
-									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
-										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
-										bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
-									{
-										if (x < int(w)) //just to make sure
-											putPixel(x, y, point1, point2, point3, color);
-										x++;
-									}
-									x--;
-									put = FALSE;
-									//cont = FALSE; //this is the second edge. no need to continue
-								}
-								if (x < int(w)) //just to make sure
 									putPixel(x, y, point1, point2, point3, color);
-
+									x++;
+								}
+								x--;
+								put = FALSE;
+								//cont = FALSE; //this is the second edge. no need to continue
 							}
-							else
+							putPixel(x, y, point1, point2, point3, color);
+						}
+						else
+						{
+							//if we saw another edge. start drawing.
+							//but don't forget the edge can be several pixels long.
+							if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+								bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
+								bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 							{
-								//if we saw another edge. start drawing.
-								//but don't forget the edge can be several pixels long.
-								if (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
+								put = TRUE;
+								putPixel(x, y, point1, point2, point3, color);
+								x++;
+								//draw the whole edge, and only afterwards start looking for the next one
+								while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
 									bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
 									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 								{
-									put = TRUE;
-									if (x < int(w)) //just to make sure
-										putPixel(x, y, point1, point2, point3, color);
+									putPixel(x, y, point1, point2, point3, color);
 									x++;
-									//draw the whole edge, and only afterwards start looking for the next one
-									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
-										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
-										bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
-									{
-										if (x < int(w)) //just to make sure
-											putPixel(x, y, point1, point2, point3, color);
-										x++;
-									}
-									x--;
 								}
-
+								x--;
 							}
+
 						}
+					}
 				}
-			}
 			else
 			{
 				//scan right to left
 				for (int x = fmin(xmax,int(w)-1); x >= 0; x--)
 				{
-					if(y < int(h) && y >0)
+					if (y < int(h) && y >0)
 						if ((x >= 0) && (x< int(w)))
 						{
 							if (put) //now we need to draw
@@ -905,17 +882,14 @@ void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 poi
 										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
 										bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 									{
-										if (x < int(w)) //just to make sure
-											putPixel(x, y, point1, point2, point3, color);
+										putPixel(x, y, point1, point2, point3, color);
 										x--;
 									}
 									x++;
 									put = FALSE;
 									//cont = FALSE; //this is the second edge. no need to continue
 								}
-								if (x < int(w)) //just to make sure
-									putPixel(x, y, point1, point2, point3, color);
-
+								putPixel(x, y, point1, point2, point3, color);
 							}
 							else
 							{
@@ -926,16 +900,14 @@ void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 poi
 									bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 								{
 									put = TRUE;
-									if (x < int(w)) //just to make sure
-										putPixel(x, y, point1, point2, point3, color);
+									putPixel(x, y, point1, point2, point3, color);
 									x--;
 									//draw the whole edge, and only afterwards start looking for the next one
 									while (bad_color.x == colorBuffer[INDEX(width, x, y, 0)] &&
 										bad_color.y == colorBuffer[INDEX(width, x, y, 1)] &&
 										bad_color.z == colorBuffer[INDEX(width, x, y, 2)])
 									{
-										if (x < int(w)) //just to make sure
-											putPixel(x, y, point1, point2, point3, color);
+										putPixel(x, y, point1, point2, point3, color);
 										x--;
 									}
 									x++;
@@ -1043,9 +1015,7 @@ void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 poi
 	drawLine(point2, point3, color);
 
 }
-
-//draw Triangle Gouraud-shading --interpolation for coloring
-void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3, 
+void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	const glm::vec3&  color1, const glm::vec3&  color2, const glm::vec3&  color3, float w, float h)
 {
 	if (w < 3 || h < 3)
@@ -1236,7 +1206,6 @@ void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 
 		color1, color2, color3);
 }
 
-//draw Triangle Phong-shading --interpolation for normals 
 void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	const glm::vec3&  norm1, const glm::vec3&  norm2, const glm::vec3&  norm3,
 	float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> directions , vector<glm::vec3> positions
@@ -1446,7 +1415,6 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 		norm1,norm2,norm3,
 		Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor, spectcolor,types);
 }
-
 void Renderer::drawLine_z(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color)
 {
 	int p1 = point1.x, q1 = point1.y; // point1 parameters
