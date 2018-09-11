@@ -6,11 +6,17 @@
 
 #include <sstream>
 #define FACE_ELEMENTS 3
-
+int find(vector<glm::vec4> vec, glm::vec4 val)
+{
+	for (int i=0; i < vec.size(); i++)
+		if (vec[i] == val)
+			return i;
+	return -1;
+}
 using namespace std;
 MeshModel::MeshModel()
 {
-
+	this->normalPositions2 = vector<glm::vec4>();
 }
 void MeshModel::setModeltransform(glm::mat4x4 transform)
 {
@@ -108,6 +114,9 @@ glm::vec2 vec2fFromStream(std::istream& issLine)
 
 MeshModel::MeshModel(const string& fileName)
 {
+	//just to make sure, the vector is defined
+	this->normalPositions2 = vector<glm::vec4>();
+
 	LoadFile(fileName);
 	setBound(); //bounding box
 	setFaceNormals(); //faces' normals
@@ -308,6 +317,7 @@ void MeshModel::LoadFile(const string& fileName)
 	//Then vertexPositions should contain:
 	//vertexPositions={v1,v2,v3,v1,v3,v4}
 
+
 	this->vertexPosNum = FACE_ELEMENTS * faces.size();
 	this->vertexPositions = new glm::vec4[FACE_ELEMENTS * faces.size()]; /*BUG*/ //--changed array size
 	this->normalPositions = new glm::vec4[FACE_ELEMENTS * faces.size()];
@@ -327,8 +337,10 @@ void MeshModel::LoadFile(const string& fileName)
 			k++;
 
 			//now each normal is in the same place of his vertex (k)
+
 		}
 	}
+
 
 
 	//object in the center of the world, identity trans
@@ -356,10 +368,47 @@ void MeshModel::LoadFile(const string& fileName)
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 0.0f
 	);
+	load_normal_per_vertex();
+	
+}
+void MeshModel::load_normal_per_vertex()
+{
+
+	vector<glm::vec4> norm_ver;
+	vector<glm::vec4> sum_ver;
+	vector<int> count_ver;
+	vector<glm::vec4> vertex;
+	for (int i = 0; i < this->vertexPosNum; i++)
+	{
+			//now each normal is in the same place of his vertex (k)
+			glm::vec4 norm = normalPositions[i] ;
+			glm::vec4 ver = vertexPositions[i];
+			int place = find(vertex, ver);
+			if (place >= 0)
+				sum_ver[place] += norm, count_ver[place]++;
+			else
+			{
+				vertex.push_back(ver);
+				sum_ver.push_back(norm);
+				count_ver.push_back(1);
+			}
+	}
+
+	for (int i = 0; i < this->vertexPosNum; i++)
+	{
+			glm::vec4 ver = vertexPositions[i];
+			int place = find(vertex, ver);
+			glm::vec4 norm = sum_ver[place] / float(count_ver[place]);
+			this->normalPositions2.push_back(norm);
+	}
 }
 glm::vec4* MeshModel::GetVertex()
 {
 	return vertexPositions;
+}
+vector<glm::vec4> MeshModel::getNormalVertex2()
+{
+	return this->normalPositions2;
 }
 glm::vec4* MeshModel::getNormalVertex()
 {

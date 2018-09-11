@@ -65,7 +65,7 @@ PrimMeshModel::PrimMeshModel() //primitive MeshModel - task2
 		backwardN(0.0f, 0.0f, -1.0f, 1.0f);
 
 	glm::vec4* norm = new glm::vec4[36];
-	//build normals
+	//build normals per vertex per face
 	{ 
 		// *a b c d*
 		norm[0] = downN, norm[1] = downN, norm[2] = downN;
@@ -86,6 +86,8 @@ PrimMeshModel::PrimMeshModel() //primitive MeshModel - task2
 		norm[30] = rightN, norm[31] = rightN, norm[32] = rightN;
 		norm[33] = rightN, norm[34] = rightN, norm[35] = rightN;
 	}
+
+
 
 	this->normalPositions = norm;
 	//object in the center of the world, identity trans
@@ -129,4 +131,5 @@ PrimMeshModel::PrimMeshModel() //primitive MeshModel - task2
 	willDrawBox = 0;
 	willDrawFaceNormal = 0;
 	willDrawFaceNormal = 0;
+	load_normal_per_vertex();
 }
