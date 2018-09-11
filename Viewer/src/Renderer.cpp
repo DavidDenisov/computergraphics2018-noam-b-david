@@ -2547,6 +2547,29 @@ glm::vec2 Renderer::drawLineBADCOLOR(glm::vec3 point1, glm::vec3 point2, const g
 
 
 
+
+//Procedural Texture code
+
+//Grayscale - maps x-values to color 
+glm::vec3 Renderer::marble_color(float x)
+{
+	//first get a value in range [0,1]
+	x = x - (int)x;
+
+	//then return the color it represents (x, x, x) --gray-ish color
+	glm::vec3 retColor = glm::vec3(x, x, x);
+
+	return retColor;
+}
+
+//marble-texture - some random-ness
+glm::vec3 Renderer::marble(float x)
+{
+	return marble_color(sin(x));
+}
+
+
+
 //##############################
 //##OpenGL stuff. Don't touch.##
 //##############################

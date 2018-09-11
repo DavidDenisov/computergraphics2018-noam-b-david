@@ -160,4 +160,9 @@ public:
 	void printLineNaive();
 
 
+
+
+	//Procedural Texture code
+	glm::vec3 marble_color(float x); //Grayscale - maps x-values to color 
+	glm::vec3 marble(float x); //marble-texture - some random-ness 
 };
