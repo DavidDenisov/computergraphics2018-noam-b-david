@@ -665,8 +665,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 					removeLigth(scene,i);
 			}
 		}
-
-
+		bool b = scene->get_auto_color();
+		ImGui::Checkbox("add texture", &b);
+		scene->set_auto_color(b);
 		ImGui::End();
 		
 	}

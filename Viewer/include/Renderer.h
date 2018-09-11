@@ -16,6 +16,8 @@ using namespace std;
 class Renderer
 {
 private:
+	bool auto_color = false;
+	vector<vector<glm::vec3>> textur_map;// 10000*10000
 	glm::vec3 back_round_color;
 	// 3*width*height
 	float *colorBuffer;
@@ -65,6 +67,9 @@ private:
 	//##############################
 
 public:
+	
+	bool get_auto_color();
+	void set_auto_color(bool x); 
 	float **zBuffer;
 	void horizontal(int i, int i2, int j, int r);
 	void vertical(int j, int j2, int i, int r);
@@ -131,7 +136,7 @@ public:
 	void drawLine_z(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color);
 
 	void drawLine(glm::vec3 point1, glm::vec3 point2, const glm::vec3& color);
-
+	
 
 	void drawLine_ground(glm::vec2 start, glm::vec2 end,
 		glm::vec3 point1,glm::vec3 point2, glm::vec3 point3,
