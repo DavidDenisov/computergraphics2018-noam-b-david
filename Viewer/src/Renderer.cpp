@@ -6,7 +6,13 @@
 #include "Camera.h"
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
-
+bool Renderer::get_auto_color() { return auto_color; }
+void Renderer::set_auto_color(bool x) { auto_color = x; }
+float twoD_interp(float v0, float v1, float t)
+{
+	//return (1 - t) * v0 + t * v1;
+	return 5;
+}
 float sign(float f)
 {
 	if (f < 0.f)
@@ -57,11 +63,50 @@ void Renderer::SetProjection(const glm::mat4x4& projection)
 {
 	myProjection = projection;
 }
+float Noise(glm::vec2 p)
+{
+	int x1, y1;
+	x1 = p.x;
+	y1 = p.y;
+	if(x1==p.x&&y1==p.y)
+		return rand() /10000;
+	else
+	{
+		float x2= rand() / 10000, y2 = rand() / 10000;
+		//twoD_interp(x2,y2,...)
+		return (x2 + y2)/0.5;
+	}
+}
+float turbulence(glm::vec2 p,int N)
+{
+	float t = 0;
+	float scale = 1;
+	for(int i=0;i<N;i++)
+		t += Noise(p / scale)*scale;
+	scale /= 2;
+	return t;
+}
+glm::vec3 wood(glm::vec2 p)
+{
+	float x1 = (p.x + p.y) + turbulence(p,10);
+	//return woodcolor(sin(x1));
+	return glm::vec3(x1, x1, x1);
+	//return glm::vec3(1, 0, 0);
+}
 Renderer::Renderer() : width(1280), height(720),
 myCameraTransform(1.0f), myProjection(1.0f), worldTransform(1.0f), nTransform(1.0f)
 {
 	initOpenGLRendering();
 	createBuffers(1280,720);
+	textur_map.clear();
+	vector<glm::vec3> v;
+	for (int x = 0; x < 2000; x++)
+	{
+		v.clear();
+		for (int y = 0; y <4000; y++)
+			v.push_back(wood(glm::vec2(x, y)));
+		textur_map.push_back(v);
+	}
 }
 
 Renderer::Renderer(int w, int h) : width(w), height(h),
@@ -69,6 +114,15 @@ myCameraTransform(1.0f), myProjection(1.0f), worldTransform(1.0f), nTransform(1.
 {
 	initOpenGLRendering();
 	createBuffers(w,h);
+	textur_map.clear();
+	vector<glm::vec3> v;
+	for (int x = 0; x < 2000; x++)
+	{
+		v.clear();
+		for (int y = 0; y < 4000; y++)
+			v.push_back(wood(glm::vec2(x, y)));
+		textur_map.push_back(v);
+	}
 }
 
 Renderer::~Renderer()
@@ -106,12 +160,14 @@ void Renderer::putPixel(int i, int j,int z, const glm::vec3& color)
 {
 	if (i < 0) return; if (i >= width) return;
 	if (j < 0) return; if (j >= height) return;
-	if (z > zBuffer[i][j])
+	if (z >= zBuffer[i][j])
 	{
 		zBuffer[i][j] = z;
-		colorBuffer[INDEX(width, i, j, 0)] = color.x;
-		colorBuffer[INDEX(width, i, j, 1)] = color.y;
-		colorBuffer[INDEX(width, i, j, 2)] = color.z;
+		
+			colorBuffer[INDEX(width, i, j, 0)] = color.x;
+			colorBuffer[INDEX(width, i, j, 1)] = color.y;
+			colorBuffer[INDEX(width, i, j, 2)] = color.z;
+	
 	}
 }
 
@@ -140,7 +196,7 @@ void Renderer::putPixel(int i, int j, glm::vec3 point1, glm::vec3 point2, glm::v
 	float dist3 = abs(i - point3.x) + abs(j - point3.y);
 	float sum = dist1 + dist2 + dist3;
 	float point_z = point1.z*(dist1 / sum) + point2.z*(dist2 / sum) + point3.z*(dist3 / sum);
-	if (point_z > zBuffer[i][j])
+	if (point_z >= zBuffer[i][j])
 	{
 		zBuffer[i][j] = point_z;
 		colorBuffer[INDEX(width, i, j, 0)] = color.x;
@@ -161,7 +217,7 @@ void Renderer::putPixel2(int x1, int y1,glm::vec3 point1, glm::vec3 point2, glm:
 	float sum = dist1 + dist2 + dist3;
 	glm::vec3 color = color1 * (dist1 / sum) + color2 * (dist2 / sum) + color3 * (dist3 / sum);
 	float point_z = point1.z*(dist1 / sum) + point2.z*(dist2 / sum) + point3.z*(dist3 / sum);
-	if (point_z > zBuffer[x1][y1])
+	if (point_z >= zBuffer[x1][y1])
 	{
 		zBuffer[x1][y1] = point_z;
 		colorBuffer[INDEX(width, x1, y1, 0)] = color.x;
@@ -187,7 +243,7 @@ void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm
 	float sum1 = dist1 + dist2 + dist3;
 	glm::vec3 cur_norm = norm1 * (dist1 / sum1) + norm2 * (dist2 / sum1) + norm3 * (dist3 / sum1);
 	float point_z = point1.z*(dist1 / sum1) + point2.z*(dist2 / sum1) + point3.z*(dist3 / sum1);
-	if (point_z > zBuffer[x1][y1])
+	if (point_z >= zBuffer[x1][y1])
 	{
 	float x2 = 0.f;
 
@@ -237,7 +293,7 @@ void Renderer::SetObjectMatrices(const glm::mat4x4& worldTransform, const glm::m
 }
 
 void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
-	const glm::vec3 & amcolor, const glm::vec3 & difcolor, const glm::vec3 & spectcolor,
+	const glm::vec3 & amcolor1, const glm::vec3 & difcolor1, const glm::vec3 & spectcolor1,
 	float w, float h, glm::mat4x4 windowresizing,
 	MeshModel* myModel, Camera* activeCam, const glm::vec3 & am_vec, const vector<glm::vec3> & diffus
 	, const vector<glm::vec3> & positions, const vector<glm::vec3> & directions,
@@ -254,8 +310,21 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 	//the view matrix
 	glm::mat4x4 view = worldTransform * glm::inverse(myCameraTransform); // T = M * C^-1
 
-
+	//for
+	//texture
+	//we
+	//can
+	//set all the colors to (1,1,1), and only in put pixel multiplay them by the texture color
 	//now the project transformation:
+	glm::vec3 amcolor=amcolor1, difcolor=difcolor1, spectcolor=spectcolor1;
+	/*
+	if (auto_color)
+	{
+		amcolor = glm::vec3(0, 0, 1);
+		difcolor = glm::vec3(0, 1, 0);
+		spectcolor = glm::vec3(1, 0, 0);
+	}
+	*/
 	glm::mat4x4 T = myProjection * view; //first transform on the 3d world, then projet it
 
 
@@ -339,7 +408,8 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 				glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
 
 
-				drawTringleFlat(a, b, c, color, w, h);
+				//drawTringleFlat(a, b, c, color, w, h);
+				drawTringleGouraud(a, b, c, color, color, color, w, h);
 			
 		}
 		if (type == 1)// Gouraud 
@@ -933,7 +1003,8 @@ void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 poi
 									put = FALSE;
 									//cont = FALSE; //this is the second edge. no need to continue
 								}
-								putPixel(x, y, point1, point2, point3, color);
+								else
+									putPixel(x, y, point1, point2, point3, color);
 							}
 							else
 							{
@@ -962,85 +1033,10 @@ void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 poi
 				}
 			}
 		}
-		/*
-		if (count == 1) //special case. or tri out of bounds, or it's shpiz
-		{
-			//if out of bounds. should draw till the bound.
-			//if it's shpiz shouldn't bother...
-
-			int numDiff = 0; //number of different edges in this y-line
-
-			//first edge
-			if (y >= fmin(point1.y, point2.y) && y <= fmax(point1.y, point2.y))
-				numDiff++;
-			else
-			{
-				//even if it's really close, it's still count
-				if (abs(point1.y - y) <= 0.5f || abs(point2.y - y) <= 0.5f) //means it's bad color
-					numDiff++;
-			}
-
-			//second edge
-			if (y >= fmin(point2.y, point3.y) && y <= fmax(point2.y, point3.y))
-				numDiff++;
-			else
-			{
-				//even if it's really close, it's still count
-				if (abs(point2.y - y) <= 0.5f || abs(point3.y - y) <= 0.5f) //means it's bad color
-					numDiff++;
-			}
-
-			//third edge
-			if (y >= fmin(point1.y, point3.y) && y <= fmax(point1.y, point3.y))
-				numDiff++;
-			else
-			{
-				//even if it's really close, it's still count
-				if (abs(point1.y - y) <= 0.5f || abs(point3.y - y) <= 0.5f) //means it's bad color
-					numDiff++;
-			}
-			//means there's two edges in this y, but they're really close together
-			//or one of them is out of bounds
-			if (numDiff >= 2)
-			{
-				int blalbla; //ignore
-			}
-		}*/
+		
 		
 	}
-	/*for (int x = xmin; x < xmax; x++)
-	{
-		put = FALSE;
-		int count = 0;
-		for (int y = ymin; y < ymax; y++)
-		{
-			if (bad_color == glm::vec3(colorBuffer[INDEX(width, x, y, 0)]
-				, colorBuffer[INDEX(width, x, y, 1)],
-				colorBuffer[INDEX(width, x, y, 2)]))
-				count++;
-		}
-		if (count % 2 == 0)
-		{
-			for (int y = ymin; y < ymax; y++)
-			{
-				if (put)
-				{
-					if (bad_color == glm::vec3(colorBuffer[INDEX(width, x, y, 0)]
-						, colorBuffer[INDEX(width, x, y, 1)],
-						colorBuffer[INDEX(width, x, y, 2)]))
-						put = FALSE;
-					putPixel(x, y, color);
-				}
-				else
-				{
-					if (bad_color == glm::vec3(colorBuffer[INDEX(width, x, y, 0)]
-						, colorBuffer[INDEX(width, x, y, 1)],
-						colorBuffer[INDEX(width, x, y, 2)]))
-						put = TRUE;
-				}
-			}
-		}
-	}*/
+	
 
 	glm::vec2 cur_point;
 	glm::vec3 cur_color;
@@ -1054,7 +1050,7 @@ void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 poi
 		}
 	}
 
-	drawLine(point1, point2, color);
+	drawLine(point1, point2,  color);
 	drawLine(point1, point3, color);
 	drawLine(point2, point3, color);
 
@@ -1615,7 +1611,6 @@ void Renderer::drawLine_z(glm::vec2 point1, glm::vec2 point2, const glm::vec3& c
 		{
 			putPixel2(p1, h);
 			putPixel(p1, h,  color);
-			
 		}
 
 		return;

@@ -35,6 +35,8 @@ float norm2(const glm::vec3 v)
 		return 1.f;
 	return ans;
 }
+bool Scene::get_auto_color(){ return renderer->get_auto_color(); }
+void Scene::set_auto_color(bool x){ renderer->set_auto_color(x); }
 void  Scene::transformProjectionCam(glm::mat4x4 transform, int place)
 {
 	this->cameras[place]->set_projection(transform);

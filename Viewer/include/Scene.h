@@ -26,7 +26,8 @@ private:
 	vector<glm::vec3> SPECTcolors_camera;
 	Renderer *renderer;
 public:
-
+	bool get_auto_color(); 
+	void set_auto_color(bool x); 
 	void setModeltransform(glm::mat4x4 transform);
 	void set_renderer(Renderer *renderer);
 	void add_Light() { lights.push_back(new Light()); }
