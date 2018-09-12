@@ -72,7 +72,7 @@ void Camera::Frustum(const float left, const float right,
 		(top + bottom) / (top - bottom), -(zFar + zNear) / (zFar - zNear), -1.0f);
 	glm::vec4 fourthCol(0.0f, 0.0f, -2 * zFar*zNear / (zFar - zNear), 0.0f);
 
-	glm::mat4x4 frutsum(firstCol, secondCol, thirdCol, thirdCol);
+	glm::mat4x4 frutsum(firstCol, secondCol, thirdCol, fourthCol);
 	projection = frutsum;
 }
 

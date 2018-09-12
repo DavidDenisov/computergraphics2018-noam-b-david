@@ -310,14 +310,15 @@ void Scene::DrawScene(float w,float h)
 		position.clear();
 		for (int j = 0; j < lights.size(); j++)
 		{
-			glm::vec4 v55=
+			glm::vec4 v55= 
 				glm::inverse(models[i]->getModelTransform())
 				*glm::vec4((lights[j]->direction),1);
 			v55 = glm::normalize(v55);
 			directions.push_back(v55);
 
 			
-			v55 = glm::inverse(models[i]->getModelTransform())
+			v55 = 
+					glm::inverse(models[i]->getModelTransform())
 				*glm::vec4((lights[j]->getPosition()), 1);
 			position.push_back(v55);
 		}
