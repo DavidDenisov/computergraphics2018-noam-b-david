@@ -406,24 +406,20 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 
 			}
 
-			
+				
 			glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
 
 
 
-
-
-
-
-				//drawTringleFlat(a, b, c, color, w, h);
-				drawTringleGouraud(a, b, c, color, color, color, w, h);
+			//drawTringleFlat(a, b, c, color, w, h);
+			drawTringleGouraud(a, b, c, color, color, color, w, h);
 			
 		}
 		if (type == 1)// Gouraud 
 		{
-			glm::vec3 cv1 = glm::normalize(myModel->getNormalVertex()[face]);
-			glm::vec3 cv2 = glm::normalize(myModel->getNormalVertex()[face+1]);
-			glm::vec3 cv3 = glm::normalize(myModel->getNormalVertex()[face+2]);
+			glm::vec3 cv1 = glm::normalize(myModel->getNormalVertex2()[face]);
+			glm::vec3 cv2 = glm::normalize(myModel->getNormalVertex2()[face+1]);
+			glm::vec3 cv3 = glm::normalize(myModel->getNormalVertex2()[face+2]);
 
 			float x1 = 0.f;
 			float x2 = 0.f;
@@ -516,9 +512,9 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		//if (type == 2 && myModel->willDrawVertexNormal == 1)
 		if (type == 2)//Phong
 		{
-			glm::vec4 v1 = myModel->getNormalVertex()[face];
-			glm::vec4 v2 = myModel->getNormalVertex()[face + 1];
-			glm::vec4 v3 = myModel->getNormalVertex()[face + 2];
+			glm::vec4 v1 = myModel->getNormalVertex2()[face];
+			glm::vec4 v2 = myModel->getNormalVertex2()[face + 1];
+			glm::vec4 v3 = myModel->getNormalVertex2()[face + 2];
 			drawTringlePhong(a, b, c, v1,v2,v3, myModel->Diffus,diffus,directions,positions, am_vec,
 				amcolor,difcolor, spectcolor,  v_direction, spect_exp, ligth_spect_c, ligth_type,
 				glm::inverse(windowresizing), w, h);
