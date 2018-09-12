@@ -405,7 +405,14 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 					Spectcolor = Spectcolor + absc(ligth_spect_c[i] * glm::pow(abs(glm::dot(R, v)), spect_exp[i]));
 
 			}
-				glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
+
+			
+			glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
+
+
+
+
+
 
 
 				//drawTringleFlat(a, b, c, color, w, h);
@@ -1578,6 +1585,16 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 		Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor,
 		spectcolor, v_direction, spect_exp, ligth_spect_c,types, windowresizing_invers);
 }
+
+//glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
+//do drawTriangle algo' but chooses pixel color with texture + light (light is given ready to use)
+//this algo will work exacly the same for Gouraud & Flat shading because the normal doesn't change
+//thus light stays the same, and can be given as paramaters
+void Renderer::drawTriangleTexture(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3, glm::vec3 ambLight, glm::vec3 difLight, glm::vec3 spectLight)
+{
+
+}
+
 void Renderer::drawLine_z(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color)
 {
 	int p1 = point1.x, q1 = point1.y; // point1 parameters

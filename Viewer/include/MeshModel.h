@@ -31,6 +31,7 @@ public:
 	~MeshModel();
 	bool window_open = 0;
 	bool folow_the_mouse = 0;
+	bool willDrawTexture = 0;
 	bool willDrawBox=0;
 	bool willDrawVertexNormal = 0;
 	bool willDrawFaceNormal = 0;

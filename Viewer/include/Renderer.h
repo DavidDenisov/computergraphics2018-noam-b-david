@@ -96,6 +96,14 @@ public:
 		const vector<bool> & types, glm::mat4x4 windowresizing_invers, float w, float h);
 	// Draws wireframe triangles to the color buffer
 
+
+
+	//do drawTriangle algo' but chooses pixel color with texture + light (light is given ready to use)
+	//this algo will work exacly the same for Gouraud & Flat shading because the normal doesn't change
+	//thus light stays the same, and can be given as paramaters
+	void drawTriangleTexture(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3, glm::vec3 ambLight, glm::vec3 difLight, glm::vec3 spectLight);
+
+
 	//void DrawTriangles(glm::vec4* vertexPositionVECTOR, int size, glm::vec4 color
 		//, float w, float h, glm::mat4x4 windowresizing, MeshModel* myModel, Camera* activeCam,const glm::vec3 & am_vec);
 	void DrawTriangles(glm::vec4* vertexPositions, int size,
