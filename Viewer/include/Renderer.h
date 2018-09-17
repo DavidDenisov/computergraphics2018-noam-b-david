@@ -57,6 +57,10 @@ private:
 	//"putpixelBADCOLOR" - draws the color(if needed) but returns TRUE when hit s a given y
 	float putPixelBADCOLOR(int i, int j, const glm::vec3& color, int GIVENy);
 
+	//interpolate color by two points by x or y (value = the x/y value that we want his color)
+	static glm::vec3 interpolate(int value, bool xORy, glm::vec3 point1, glm::vec3 point2, glm::vec3 color1, glm::vec3 color2);
+
+
 	//##############################
 	//##openGL stuff. Don't touch.##
 	//##############################

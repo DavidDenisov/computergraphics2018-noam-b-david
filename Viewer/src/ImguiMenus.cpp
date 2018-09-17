@@ -542,6 +542,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 			ImGui::Checkbox("show the normals of the vertices of the active MODEL : "
 				,&Active->willDrawVertexNormal);
 
+			ImGui::Checkbox("show the normals2 of the vertices of the active MODEL : "
+				, &Active->willDrawVertexNormal2);
+
 			ImGui::Checkbox("show the normals of the faces of the active MODEL : "
 				, &Active->willDrawFaceNormal);
 

@@ -185,10 +185,36 @@ float Renderer::putPixelBADCOLOR(int i, int j, const glm::vec3& color, int GIVEN
 
 
 
-//interpolation by 3 points -- I think?
+//interpolate color by two points by x or y (value = the x/y value that we want his color
+glm::vec3 Renderer::interpolate(int value, bool xOry, glm::vec3 point1, glm::vec3 point2, glm::vec3 color1, glm::vec3 color2)
+{
+	float G;
+	float G1, G2;
+
+
+	//interpolate by x or by y?
+	if (xOry == true) //by x
+	{
+		G = value;
+		G1 = point1.x, G2 = point2.x;
+	}
+	else //by y
+	{
+		G = value;
+		G1 = point1.y, G2 = point2.y;
+	}
+	if (G2 == G1)
+		int duududuud = 0;
+	glm::vec3 colorOfG = color1 + (G - G1) * ((color2 - color1) / (G2 - G1));
+	return colorOfG;
+
+}
+
+
 void Renderer::putPixel(int i, int j, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 	const glm::vec3& color)
 {
+	//used for flat, I think. but we switched so flat would use Gouraud with 1 color.
 	if (i < 0) return; if (i >= width) return;
 	if (j < 0) return; if (j >= height) return;
 	float dist1 = abs(i - point1.x) + abs(j - point1.y);
@@ -211,18 +237,118 @@ void Renderer::putPixel2(int x1, int y1,glm::vec3 point1, glm::vec3 point2, glm:
 {
 	if (x1 < 0) return; if (x1 >= width) return;
 	if (y1 < 0) return; if (y1 >= height) return;
+
+	glm::vec3 c1 = color1, c2 = color2, c3 = color3, tmpC;
+
+	//sort the 3 points by y's
+	// 1 -> 2 -> 3 (from small to big)
+	{
+		glm::vec3 tmp;
+		if (point1.y > point2.y)
+		{
+			tmp = point1;
+			point1 = point2;
+			point2 = tmp;
+
+			tmp = c1;
+			c1 = c2;
+			c2 = tmp;
+		}
+		if (point1.y > point3.y)
+		{
+			tmp = point1;
+			point1 = point3;
+			point3 = tmp;
+
+			tmp = c1;
+			c1 = c3;
+			c3 = tmp;
+		}
+		//now 1 is the min. let 2&3 fight!
+		if (point2.y > point3.y)
+		{
+			tmp = point2;
+			point2 = point3;
+			point3 = tmp;
+
+			tmp = c2;
+			c2 = c3;
+			c3 = tmp;
+		}
+	}
+	// 1 -> 2 -> 3 (from small to big)
+	
+
+	glm::vec3 colorL, colorR;
+	float xL, xR, tmp;
+	if ((int)point1.y == (int)point2.y && y1 == (int)point1.y)
+		int dudududu = 0; //debug
+	if (y1 > (int)point2.y || /*special case*/ ((int)point1.y == (int)point2.y && (int)point1.y == y1)) //better use 2-3edge & 1-3edge
+	{
+		colorL = interpolate(y1, false, point2, point3, c2, c3); //inter' of colors by y's 2-3
+		colorR = interpolate(y1, false, point1, point3, c1, c3); //inter' of color by y's 1-3
+		xL = point2.x + ((float)y1 - point2.y)*((point3.x - point2.x) / (point3.y - point2.y));
+		xR = point1.x + ((float)y1 - point1.y)*((point3.x - point1.x) / (point3.y - point1.y));
+		if (xL > xR)
+		{
+			tmp = xL;
+			xL = xR;
+			xR = tmp;
+
+			tmpC = colorL;
+			colorL = colorR;
+			colorR = tmpC;
+		}
+	}
+	else //better use 1-2edge & 1-3edge
+	{
+		colorL = interpolate(y1, false, point1, point2, c1, c2); //inter' of colors by y's 1-2
+		colorR = interpolate(y1, false, point1, point3, c1, c3); //inter' of color by y's 1-3
+		xL = point1.x + ((float)y1 - point1.y)*((point2.x - point1.x) / (point2.y - point1.y));
+		xR = point1.x + ((float)y1 - point1.y)*((point3.x - point1.x) / (point3.y - point1.y));
+		if (xL > xR)
+		{
+			tmp = xL;
+			xL = xR;
+			xR = tmp;
+
+			tmpC = colorL;
+			colorL = colorR;
+			colorR = tmpC;
+		}
+	}
+
+	//glm::vec3 colorL = color1 * ((float)y1 - point1.y) / (point1.y - point2.y) + color2 * (point1.y - (float)y1) / (point1.y - point2.y);
+	//glm::vec3 colorR = color2 * ((float)y1 - point2.y) / (point2.y - point3.y) + color3 * (point2.y - (float)y1) / (point2.y - point3.y);
+	//now interpolate between R & L. but first we need their x's
+	//xL = point1.x + ((float)y1 - point1.y)*((point2.x - point1.x) / (point2.y - point1.y));
+	//xR = point2.x + ((float)y1 - point2.y)*((point3.x - point2.x) / (point3.y - point2.y));
+
+	glm::vec3 pointL = glm::vec3(xL, y1, 0.0f);
+	glm::vec3 pointR = glm::vec3(xR, y1, 0.0f);
+
+
+	//now interpolate
+	//glm::vec3 colorPixel = colorL * (xR - (float)x1) / (xR - xL) + colorR * ((float)x1 - xL) / (xR - xL);
+	glm::vec3 colorPixel = interpolate(x1, true, pointL, pointR, colorL, colorR); //inter' of colors by y's L-R
+
+
+	//old code.
 	float dist1 = abs(x1 - point1.x) +abs(y1 - point1.y);
 	float dist2 = abs(x1 - point2.x) + abs(y1 - point2.y);
 	float dist3 = abs(x1 - point3.x) + abs(y1 - point3.y);
 	float sum = dist1 + dist2 + dist3;
-	glm::vec3 color = color1 * (dist1 / sum) + color2 * (dist2 / sum) + color3 * (dist3 / sum);
+	glm::vec3 color = color1 * (1 - dist1 / sum) + color2 * (1 - dist2 / sum) + color3 * (1 - dist3 / sum);
 	float point_z = point1.z*(dist1 / sum) + point2.z*(dist2 / sum) + point3.z*(dist3 / sum);
+	
+
+
 	if (point_z >= zBuffer[x1][y1])
 	{
 		zBuffer[x1][y1] = point_z;
-		colorBuffer[INDEX(width, x1, y1, 0)] = color.x;
-		colorBuffer[INDEX(width, x1, y1, 1)] = color.y;
-		colorBuffer[INDEX(width, x1, y1, 2)] = color.z;
+		colorBuffer[INDEX(width, x1, y1, 0)] = colorPixel.x;
+		colorBuffer[INDEX(width, x1, y1, 1)] = colorPixel.y;
+		colorBuffer[INDEX(width, x1, y1, 2)] = colorPixel.z;
 
 	}
 	
@@ -234,6 +360,7 @@ void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm
 	glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor, const glm::vec3 & v_direction, const vector<int> & spect_exp,
 	const vector<glm::vec3> & ligth_spect_c, const vector<bool> & types, glm::mat4x4 windowresizing_invers)
 {
+	//used for phong
 	if (x1 < 0) return; if (x1 >= width) return;
 	if (y1 < 0) return; if (y1 >= height) return;
 
@@ -760,6 +887,82 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 
 		delete[] transAvg;
 		delete[] transFaces;
+	}
+
+
+	if (myModel->willDrawVertexNormal2 == 1 && false)
+	{
+		//calculate Model-View matrix
+		model = myModel->getModelTransform();
+		glm::mat4x4 mv = view * model;
+		normalMatrix = glm::transpose(glm::inverse(mv)); // (M^-1)^T
+
+		normalMatrix = myProjection * normalMatrix; //and projet them as usual
+
+		std::vector<glm::vec4> normalPositions = myModel->getNormalVertex2();
+
+		glm::vec4 *transNormalPositions = new glm::vec4[size];
+
+		//will help track the movement of the normals
+		glm::vec4 trackMovement = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); //(0,0,0,1)
+
+		for (int i = 0; i < size; i++)
+		{
+			//first copy the original. don't destory them
+			transNormalPositions[i] = normalPositions[i];
+			transNormalPositions[i].w = 1; //the normals shouldn't move, but we don't want to lose "w trans"
+		}
+
+		for (int i = 0; i < size; i++)
+		{
+			transNormalPositions[i] = normalMatrix * transNormalPositions[i]; //trans them with w=0?
+
+																			  //divide by w
+			transNormalPositions[i] = transNormalPositions[i] / transNormalPositions[i].w;
+
+			transNormalPositions[i] = windowresizing * transNormalPositions[i];
+		}
+
+		//track movement
+		trackMovement = normalMatrix * trackMovement;
+		trackMovement = trackMovement / trackMovement.w;
+		trackMovement = windowresizing * trackMovement;
+
+		//now draw each normal vertex. from vertex to the normal point
+		float sizeNormals;
+		for (int i = 0; i < size; i++)
+		{
+			//point
+			a.x = transVerticesPositions[i].x;
+			a.y = transVerticesPositions[i].y;
+			//normal
+			b.x = transNormalPositions[i].x;
+			b.y = transNormalPositions[i].y;
+
+			//return to the origin (only direction)
+			b.x = b.x - trackMovement.x;
+			b.y = b.y - trackMovement.y;
+
+			//normalize them? -- let them be the size of 40
+			if (!(b.x == 0.f && b.y == 0.f))
+				b = glm::normalize(b);
+
+			sizeNormals = 40;
+
+			b.x = sizeNormals * b.x;
+			b.y = sizeNormals * b.y;
+
+			//let him start from the point he's normal to
+			b.x = b.x + a.x;
+			b.y = b.y + a.y;
+
+			drawLine_z(a, b, glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)); //faces' normals with GREEN
+		}
+
+
+
+		delete[] transNormalPositions;
+		//delete[] normalPositions;
 	}
 
 	

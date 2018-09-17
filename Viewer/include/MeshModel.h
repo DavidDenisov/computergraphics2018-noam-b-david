@@ -13,8 +13,8 @@ class MeshModel : public Model
 {
 protected:
 	glm::vec4 *vertexPositions;
-	glm::vec4 *normalPositions;
-	vector<glm::vec4> normalPositions2;
+	glm::vec4 *normalPositions; //normal per face per vertex
+	vector<glm::vec4> normalPositions2; //only normal per vertex - each vertex will have the same value for every face he appears in
 	glm::vec4 *faceNormals;
 	glm::vec4 *faceAvgs;
 	// Add more attributes.
@@ -35,7 +35,8 @@ public:
 	bool folow_the_mouse = 0;
 	bool willDrawTexture = 0;
 	bool willDrawBox=0;
-	bool willDrawVertexNormal = 0;
+	bool willDrawVertexNormal = 0; //normal per face per vertex
+	bool willDrawVertexNormal2 = 0; //normal per vertex
 	bool willDrawFaceNormal = 0;
 	float Ambient =1.f;
 	float Diffus=1.f;
