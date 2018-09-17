@@ -364,52 +364,165 @@ void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm
 	if (x1 < 0) return; if (x1 >= width) return;
 	if (y1 < 0) return; if (y1 >= height) return;
 
+	//old code:
 	float dist1 = abs(x1 - point1.x) + abs(y1 - point1.y);
 	float dist2 = abs(x1 - point2.x) + abs(y1 - point2.y);
 	float dist3 = abs(x1 - point3.x) + abs(y1 - point3.y);
 	float sum1 = dist1 + dist2 + dist3;
-	glm::vec3 cur_norm = norm1 * (dist1 / sum1) + norm2 * (dist2 / sum1) + norm3 * (dist3 / sum1);
+	
+
+	glm::vec3 n1 = norm1, n2 = norm2, n3 = norm3, tmpN;
+	//sort the 3 points by y's
+	// 1 -> 2 -> 3 (from small to big)
+	{
+		glm::vec3 tmp;
+		if (point1.y > point2.y)
+		{
+			tmp = point1;
+			point1 = point2;
+			point2 = tmp;
+
+			tmpN = n1;
+			n1 = n2;
+			n2 = tmpN;
+		}
+		if (point1.y > point3.y)
+		{
+			tmp = point1;
+			point1 = point3;
+			point3 = tmp;
+
+			tmpN = n1;
+			n1 = n3;
+			n3 = tmpN;
+		}
+		//now 1 is the min. let 2&3 fight!
+		if (point2.y > point3.y)
+		{
+			tmp = point2;
+			point2 = point3;
+			point3 = tmp;
+
+			tmpN = n2;
+			n2 = n3;
+			n3 = tmpN;
+		}
+	}
+	// 1 -> 2 -> 3 (from small to big)
+
+
+	//interpolation of normals is exacly the same as interpolation of colors
+	//but, you need to normalize after every interpolation! (so the length will stay 1)
+	glm::vec3 normL, normR;
+	float xL, xR, tmp;
+	if ((int)point1.y == (int)point2.y && y1 == (int)point1.y)
+		int dudududu = 0; //debug
+	if (y1 > (int)point2.y || /*special case*/ ((int)point1.y == (int)point2.y && (int)point1.y == y1)) //better use 2-3edge & 1-3edge
+	{
+		normL = interpolate(y1, false, point2, point3, n2, n3); //inter' of colors by y's 2-3
+		normR = interpolate(y1, false, point1, point3, n1, n3); //inter' of color by y's 1-3
+
+		//dont forget to normalize:
+		normL = glm::normalize(normL);
+		normR = glm::normalize(normR);
+
+
+		xL = point2.x + ((float)y1 - point2.y)*((point3.x - point2.x) / (point3.y - point2.y));
+		xR = point1.x + ((float)y1 - point1.y)*((point3.x - point1.x) / (point3.y - point1.y));
+		if (xL > xR)
+		{
+			tmp = xL;
+			xL = xR;
+			xR = tmp;
+
+			tmpN = normL;
+			normL = normR;
+			normR = tmpN;
+		}
+	}
+	else //better use 1-2edge & 1-3edge
+	{
+		normL = interpolate(y1, false, point1, point2, n1, n2); //inter' of colors by y's 1-2
+		normR = interpolate(y1, false, point1, point3, n1, n3); //inter' of color by y's 1-3
+		
+		//dont forget to normalize:
+		normL = glm::normalize(normL);
+		normR = glm::normalize(normR);
+		
+		
+		xL = point1.x + ((float)y1 - point1.y)*((point2.x - point1.x) / (point2.y - point1.y));
+		xR = point1.x + ((float)y1 - point1.y)*((point3.x - point1.x) / (point3.y - point1.y));
+		if (xL > xR)
+		{
+			tmp = xL;
+			xL = xR;
+			xR = tmp;
+
+			tmpN = normL;
+			normL = normR;
+			normR = tmpN;
+		}
+	}
+
+	glm::vec3 pointL = glm::vec3(xL, y1, 0.0f);
+	glm::vec3 pointR = glm::vec3(xR, y1, 0.0f);
+
+
+	//now interpolate
+	//glm::vec3 colorPixel = colorL * (xR - (float)x1) / (xR - xL) + colorR * ((float)x1 - xL) / (xR - xL);
+	glm::vec3 normPixel = interpolate(x1, true, pointL, pointR, normL, normR); //inter' of colors by y's L-R
+
+	//dont forget normalize
+	normPixel = glm::normalize(normPixel);
+
+
+	//(oldcode)
+	//glm::vec3 cur_norm = norm1 * (dist1 / sum1) + norm2 * (dist2 / sum1) + norm3 * (dist3 / sum1);
+
+
+	//now the actual coloring...
 	float point_z = point1.z*(dist1 / sum1) + point2.z*(dist2 / sum1) + point3.z*(dist3 / sum1);
 	if (point_z >= zBuffer[x1][y1])
 	{
-	float x2 = 0.f;
+		float x2 = 0.f;
 
-	glm::vec3  am_color = am_vec * amcolor;
-	glm::vec3  dif_color = glm::vec3(0, 0, 0);
-	glm::vec3  spect_color = glm::vec3(0, 0, 0);
-	glm::vec3 pos_normalized = glm::vec3(x1, y1, point_z);
-	pos_normalized = windowresizing_invers *glm::vec4(pos_normalized,1);
-	for (int i = 0; i < diffus.size(); i++)
-	{
-		glm::vec3 dir = glm::normalize(positions[i] - pos_normalized);
-		if (types[i])
-			dir = direction[i];
-		dir = glm::normalize(dir);
-		glm::vec3 cur_norm2= glm::normalize(cur_norm);
-		if ((norm(dir) == 0.f) && (norm(-dir) != 0.f))
+		glm::vec3  am_color = am_vec * amcolor;
+		glm::vec3  dif_color = glm::vec3(0, 0, 0);
+		glm::vec3  spect_color = glm::vec3(0, 0, 0);
+		glm::vec3 pos_normalized = glm::vec3(x1, y1, point_z);
+		pos_normalized = windowresizing_invers * glm::vec4(pos_normalized, 1);
+		for (int i = 0; i < diffus.size(); i++)
 		{
+			glm::vec3 dir = glm::normalize(positions[i] - pos_normalized);
+			if (types[i])
+				dir = direction[i];
+			dir = glm::normalize(dir);
+			//glm::vec3 cur_norm2 = glm::normalize(cur_norm);
+			glm::vec3 cur_norm2 = glm::normalize(normPixel);
+			if ((norm(dir) == 0.f) && (norm(-dir) != 0.f))
+			{
+				dir = -dir;
+				cur_norm2 = -cur_norm2;
+			}
+
+
+			x2 = glm::dot(dir, cur_norm2);
+			dif_color = dif_color + absc(diffus[i] * x2*Diffus_st);
+
 			dir = -dir;
-			cur_norm2 = -cur_norm2;
+			glm::vec3 R = 2 * glm::dot(cur_norm2, dir)* dir - cur_norm2;
+
+			R = glm::normalize(R);
+			if (glm::dot(R, dir) < 0)
+				spect_color = spect_color + absc(ligth_spect_c[i] * glm::pow(abs(glm::dot(R, glm::normalize(v_direction))), spect_exp[i]));
 		}
-	
+		dif_color = dif_color * difcolor;
+		glm::vec3 cur_color = am_color + dif_color + spect_color;
 
-		x2 = glm::dot(dir, cur_norm2);
-		dif_color = dif_color + absc(diffus[i] * x2*Diffus_st);
-
-		dir = -dir;
-		glm::vec3 R = 2 * glm::dot(cur_norm2, dir)* dir - cur_norm2;
-
-		R = glm::normalize(R);
-		if (glm::dot(R, dir) < 0)
-			spect_color = spect_color + absc(ligth_spect_c[i] * glm::pow(abs(glm::dot(R, glm::normalize(v_direction))), spect_exp[i]));
-	}
-	dif_color = dif_color * difcolor;
-	glm::vec3 cur_color = am_color + dif_color + spect_color;
-
-	zBuffer[x1][y1] = point_z;
-	colorBuffer[INDEX(width, x1, y1, 0)] = cur_color.x;
-	colorBuffer[INDEX(width, x1, y1, 1)] = cur_color.y;
-	colorBuffer[INDEX(width, x1, y1, 2)] = cur_color.z;
+		zBuffer[x1][y1] = point_z;
+		colorBuffer[INDEX(width, x1, y1, 0)] = cur_color.x;
+		colorBuffer[INDEX(width, x1, y1, 1)] = cur_color.y;
+		colorBuffer[INDEX(width, x1, y1, 2)] = cur_color.z;
 	}
 
 }
