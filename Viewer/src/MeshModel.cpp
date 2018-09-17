@@ -373,7 +373,7 @@ void MeshModel::LoadFile(const string& fileName)
 }
 void MeshModel::load_normal_per_vertex()
 {
-
+	normalPositions2.clear();
 	vector<glm::vec4> norm_ver;
 	vector<glm::vec4> sum_ver;
 	vector<int> count_ver;

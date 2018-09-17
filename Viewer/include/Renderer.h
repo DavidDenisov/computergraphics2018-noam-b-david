@@ -88,7 +88,7 @@ public:
 
 	void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  color, float w, float h);
-
+	
 	void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  color1, const glm::vec3&  color2, const glm::vec3&  color3, float w, float h);
 

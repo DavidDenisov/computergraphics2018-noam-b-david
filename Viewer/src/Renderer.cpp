@@ -99,6 +99,7 @@ myCameraTransform(1.0f), myProjection(1.0f), worldTransform(1.0f), nTransform(1.
 	initOpenGLRendering();
 	createBuffers(1280,720);
 	textur_map.clear();
+	/*
 	vector<glm::vec3> v;
 	for (int x = 0; x < 2000; x++)
 	{
@@ -107,6 +108,7 @@ myCameraTransform(1.0f), myProjection(1.0f), worldTransform(1.0f), nTransform(1.
 			v.push_back(wood(glm::vec2(x, y)));
 		textur_map.push_back(v);
 	}
+	*/
 }
 
 Renderer::Renderer(int w, int h) : width(w), height(h),
@@ -115,7 +117,7 @@ myCameraTransform(1.0f), myProjection(1.0f), worldTransform(1.0f), nTransform(1.
 	initOpenGLRendering();
 	createBuffers(w,h);
 	textur_map.clear();
-	vector<glm::vec3> v;
+	/*vector<glm::vec3> v;
 	for (int x = 0; x < 2000; x++)
 	{
 		v.clear();
@@ -123,6 +125,7 @@ myCameraTransform(1.0f), myProjection(1.0f), worldTransform(1.0f), nTransform(1.
 			v.push_back(wood(glm::vec2(x, y)));
 		textur_map.push_back(v);
 	}
+	*/
 }
 
 Renderer::~Renderer()
@@ -231,6 +234,7 @@ void Renderer::putPixel(int i, int j, glm::vec3 point1, glm::vec3 point2, glm::v
 		
 	}
 }
+
 
 void Renderer::putPixel2(int x1, int y1,glm::vec3 point1, glm::vec3 point2, glm::vec3 point3
 	, const glm::vec3& color1,const glm::vec3& color2, const glm::vec3& color3)
@@ -548,7 +552,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 	//first do the transformations:
 	myCameraTransform = activeCam->get_camWorldTransform() * activeCam->get_camModelTransform();
 	//the view matrix
-	glm::mat4x4 view = worldTransform * glm::inverse(myCameraTransform); // T = M * C^-1
+	glm::mat4x4 view = worldTransform* glm::inverse(myCameraTransform); // T = M * C^-1
 
 	//for
 	//texture
@@ -582,9 +586,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		//now the points are NDC. normalized Device Coordinates
 		//now do window coordinates transformation
 		transVerticesPositions[i] = windowresizing * transVerticesPositions[i];
-		/*
-		transVerticesPositions[i].x = w/2 * transVerticesPositions[i].x + w/2;
-		*/
+
 	}
 
 	//now draw the triangles (and always before put them in vec2) !!!
@@ -619,12 +621,17 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 				dir= positions[i]- avg;
 				//dir = absc(dir);
 				
-
+				
 				if (ligth_type[i])
-					dir = directions[i];
+				{
+					//dir = glm::inverse(myProjection)*glm::vec4(directions[i], 1);
+					
+					dir = glm::vec4(directions[i], 1);
+					
+				}
 
 				glm::vec3 face_norm = cface_norm;
-
+				face_norm = glm::normalize(face_norm);
 				dir = glm::normalize(dir);
 				if ((norm(dir) == 0.f) && (norm(-dir) != 0.f))
 				{
@@ -657,18 +664,18 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		}
 		if (type == 1)// Gouraud 
 		{
-			glm::vec3 cv1 = glm::normalize(myModel->getNormalVertex2()[face]);
-			glm::vec3 cv2 = glm::normalize(myModel->getNormalVertex2()[face+1]);
-			glm::vec3 cv3 = glm::normalize(myModel->getNormalVertex2()[face+2]);
+			glm::vec4 cv1 = glm::normalize(myModel->getNormalVertex2()[face]);
+			glm::vec4 cv2 = glm::normalize(myModel->getNormalVertex2()[face+1]);
+			glm::vec4 cv3 = glm::normalize(myModel->getNormalVertex2()[face+2]);
 
 			float x1 = 0.f;
 			float x2 = 0.f;
 			float x3 = 0.f;
 			glm::vec3 a1, b1, c1;
 
-			a1 = glm::inverse(windowresizing)*glm::vec4(a,1);
-			b1 = glm::inverse(windowresizing)*glm::vec4(b, 1);
-			c1 = glm::inverse(windowresizing)*glm::vec4(c, 1);
+			a1 = glm::inverse(myCameraTransform) *glm::inverse(windowresizing)*glm::vec4(a,1);
+			b1 = glm::inverse(myCameraTransform) *glm::inverse(windowresizing)*glm::vec4(b, 1);
+			c1 = glm::inverse(myCameraTransform) *glm::inverse(windowresizing)*glm::vec4(c, 1);
 
 			glm::vec3  AMcolor1 = am_vec * amcolor;
 			glm::vec3  Difuscolor1 = glm::vec3(0, 0, 0);
