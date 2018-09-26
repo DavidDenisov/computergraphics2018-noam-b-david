@@ -132,6 +132,75 @@ Renderer::~Renderer()
 {
 	delete[] colorBuffer;
 }
+
+//find z value for (x1,y1) pixel given 3-points tri'. used for drawTriangle's putPixel
+// (putpixel, putpixel2, putpixel3 ~ flat,gouraud,phong)
+float Renderer::findZ(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3)
+{
+	float retZ;
+	/*
+	
+	#next level documentation :P
+
+
+	  __ p2
+	   /|   **plane**
+	  /
+	 /_ _ __ __\ p3
+	 p1        /
+	
+	
+	*/
+	glm::vec3 dir1 = point3 - point1;
+	glm::vec3 dir2 = point2 - point1;
+	dir1 = glm::normalize(dir1);
+	dir2 = glm::normalize(dir2);
+
+	if (dir1 == dir2) //means there's no plane to calc. it's just one line
+	{
+		//let's find z1, with 3d line equation
+		/*
+		dir1 = (a,b,c)
+		3d line equation:
+		(x - p1.x)/a = (y - p1.y)/b = (z - p1.z)/c
+
+		therefore,
+
+		z = (c / a)*(x - p1.x) + p1.z
+		*/
+		float x = (float)x1;
+		retZ = (dir1.z / dir1.x) * (x - point1.x) + point1.z;
+		return retZ;
+	}
+	else //means tri[p1,p2,p3] is a plane and we can use plane equations
+	{
+		//let's find z1, with 3d plane equation
+		/*
+		1. calc norm:
+		normal = dir1 x dir2
+		normal = (a,b,c)
+
+		2. calc d:
+		a*(p1.x) + b*(p1.y) + c*(p1.z) + d = 0   /-d
+		...
+
+		we got a,b,c,d
+
+		3. just find z1! (with x1 & y1)
+		a*x1 + b*y1 + c*retZ + d = 0    /-c*retZ
+		...
+		*/
+
+		glm::vec3 norm = glm::cross(dir1, dir2); //1.
+
+		float d = -(norm.x * point1.x + norm.y * point1.y + norm.z * point1.z); //2.
+
+		retZ = -(norm.x * (float)x1 + norm.y * (float)y1 + d) / norm.z; //3.
+		return retZ;
+	}
+
+}
+
 void Renderer::putPixel_no_check(int i, int j, const glm::vec3& color)
 {
 	if (i < 0) return; if (i >= width) return;
@@ -159,18 +228,22 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 	colorBuffer[INDEX(width, i, j, 1)] = color.y;
 	colorBuffer[INDEX(width, i, j, 2)] = color.z;
 }
-void Renderer::putPixel(int i, int j,int z, const glm::vec3& color)
+//minor fix, checking if z values are good for the edges...
+void Renderer::putPixel(int i, int j,int z, const glm::vec3& color, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3)
 {
 	if (i < 0) return; if (i >= width) return;
 	if (j < 0) return; if (j >= height) return;
-	if (z >= zBuffer[i][j])
+	
+	//instead of "z", trying to fix bug with the edges
+	float myZ = findZ(i, j, point1, point2, point3);
+	if (myZ >= zBuffer[i][j])
 	{
 		zBuffer[i][j] = z;
-		
-			colorBuffer[INDEX(width, i, j, 0)] = color.x;
-			colorBuffer[INDEX(width, i, j, 1)] = color.y;
-			colorBuffer[INDEX(width, i, j, 2)] = color.z;
-	
+
+		colorBuffer[INDEX(width, i, j, 0)] = color.x;
+		colorBuffer[INDEX(width, i, j, 1)] = color.y;
+		colorBuffer[INDEX(width, i, j, 2)] = color.z;
+
 	}
 }
 
@@ -208,7 +281,17 @@ glm::vec3 Renderer::interpolate(int value, bool xOry, glm::vec3 point1, glm::vec
 	}
 	if (G2 == G1)
 		int duududuud = 0;
-	glm::vec3 colorOfG = color1 + (G - G1) * ((color2 - color1) / (G2 - G1));
+	glm::vec3 colorOfG;
+	if(G1 != G2)
+		colorOfG = color1 + (G - G1) * ((color2 - color1) / (G2 - G1));
+	else
+	{
+		if (point1.z > point2.z)
+			colorOfG = color1;
+		else
+			colorOfG = color2;
+	}
+	
 	return colorOfG;
 
 }
@@ -220,11 +303,13 @@ void Renderer::putPixel(int i, int j, glm::vec3 point1, glm::vec3 point2, glm::v
 	//used for flat, I think. but we switched so flat would use Gouraud with 1 color.
 	if (i < 0) return; if (i >= width) return;
 	if (j < 0) return; if (j >= height) return;
+	/*
 	float dist1 = abs(i - point1.x) + abs(j - point1.y);
 	float dist2 = abs(i - point2.x) + abs(j - point2.y);
 	float dist3 = abs(i - point3.x) + abs(j - point3.y);
 	float sum = dist1 + dist2 + dist3;
-	float point_z = point1.z*(dist1 / sum) + point2.z*(dist2 / sum) + point3.z*(dist3 / sum);
+	//float point_z = point1.z*(dist1 / sum) + point2.z*(dist2 / sum) + point3.z*(dist3 / sum);*/
+	float point_z = findZ(i, j, point1, point2, point3);
 	if (point_z >= zBuffer[i][j])
 	{
 		zBuffer[i][j] = point_z;
@@ -291,8 +376,13 @@ void Renderer::putPixel2(int x1, int y1,glm::vec3 point1, glm::vec3 point2, glm:
 	{
 		colorL = interpolate(y1, false, point2, point3, c2, c3); //inter' of colors by y's 2-3
 		colorR = interpolate(y1, false, point1, point3, c1, c3); //inter' of color by y's 1-3
+		
 		xL = point2.x + ((float)y1 - point2.y)*((point3.x - point2.x) / (point3.y - point2.y));
+		
+		
 		xR = point1.x + ((float)y1 - point1.y)*((point3.x - point1.x) / (point3.y - point1.y));
+		
+		
 		if (xL > xR)
 		{
 			tmp = xL;
@@ -338,13 +428,14 @@ void Renderer::putPixel2(int x1, int y1,glm::vec3 point1, glm::vec3 point2, glm:
 
 
 	//old code.
+	/*
 	float dist1 = abs(x1 - point1.x) +abs(y1 - point1.y);
 	float dist2 = abs(x1 - point2.x) + abs(y1 - point2.y);
 	float dist3 = abs(x1 - point3.x) + abs(y1 - point3.y);
 	float sum = dist1 + dist2 + dist3;
 	glm::vec3 color = color1 * (1 - dist1 / sum) + color2 * (1 - dist2 / sum) + color3 * (1 - dist3 / sum);
-	float point_z = point1.z*(dist1 / sum) + point2.z*(dist2 / sum) + point3.z*(dist3 / sum);
-	
+	//float point_z = point1.z*(dist1 / sum) + point2.z*(dist2 / sum) + point3.z*(dist3 / sum);*/
+	float point_z = findZ(x1, y1, point1, point2, point3);
 
 
 	if (point_z >= zBuffer[x1][y1])
@@ -368,11 +459,11 @@ void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm
 	if (x1 < 0) return; if (x1 >= width) return;
 	if (y1 < 0) return; if (y1 >= height) return;
 
-	//old code:
+	/*//old code:
 	float dist1 = abs(x1 - point1.x) + abs(y1 - point1.y);
 	float dist2 = abs(x1 - point2.x) + abs(y1 - point2.y);
 	float dist3 = abs(x1 - point3.x) + abs(y1 - point3.y);
-	float sum1 = dist1 + dist2 + dist3;
+	float sum1 = dist1 + dist2 + dist3;*/
 	
 
 	glm::vec3 n1 = norm1, n2 = norm2, n3 = norm3, tmpN;
@@ -430,9 +521,27 @@ void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm
 		normL = glm::normalize(normL);
 		normR = glm::normalize(normR);
 
+		
+		if (point3.y != point2.y)
+			xL = point2.x + ((float)y1 - point2.y)*((point3.x - point2.x) / (point3.y - point2.y));
+		else //special case
+		{
+			if (point2.z > point3.z)
+				xL = point2.x;
+			else
+				xL = point3.x;
+		}
 
-		xL = point2.x + ((float)y1 - point2.y)*((point3.x - point2.x) / (point3.y - point2.y));
-		xR = point1.x + ((float)y1 - point1.y)*((point3.x - point1.x) / (point3.y - point1.y));
+		if (point2.y != point1.y)
+			xR = point1.x + ((float)y1 - point1.y)*((point3.x - point1.x) / (point3.y - point1.y));
+		else //special case
+		{
+			if (point1.z > point2.z)
+				xR = point1.x;
+			else
+				xR = point2.x;
+		}
+
 		if (xL > xR)
 		{
 			tmp = xL;
@@ -485,7 +594,8 @@ void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm
 
 
 	//now the actual coloring...
-	float point_z = point1.z*(dist1 / sum1) + point2.z*(dist2 / sum1) + point3.z*(dist3 / sum1);
+	//float point_z = point1.z*(dist1 / sum1) + point2.z*(dist2 / sum1) + point3.z*(dist3 / sum1);
+	float point_z = findZ(x1, y1, point1, point2, point3);
 	if (point_z >= zBuffer[x1][y1])
 	{
 		float x2 = 0.f;
@@ -602,7 +712,6 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		//draw triangle [a,b,c]
 		if (type == 0)//flat
 		{
-
 			glm::vec3 avg = (a + b + c) / 3.f;
 			avg = glm::inverse(windowresizing) *glm::vec4( avg,1);
 			glm::vec3 cface_norm = glm::normalize(myModel->getNormalFace()[face /3]);
@@ -650,7 +759,6 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 
 				if (glm::dot(R, dir) < 0)
 					Spectcolor = Spectcolor + absc(ligth_spect_c[i] * glm::pow(abs(glm::dot(R, v)), spect_exp[i]));
-
 			}
 
 				
@@ -2104,6 +2212,8 @@ void Renderer::drawLine_z(glm::vec2 point1, glm::vec2 point2, const glm::vec3& c
 }
 void Renderer::drawLine(glm::vec3 point1, glm::vec3 point2, const glm::vec3& color)
 {
+	glm::vec3 pointHalf = 0.5f * (point2 - point1) + point1; // middle of the line 1-2
+
 	int p1 = point1.x, q1 = point1.y, z1 = point1.z; // point1 parameters
 	int p2 = point2.x, q2 = point2.y, z2 = point2.z; // point2 parameters
 	float d_z;
@@ -2145,7 +2255,7 @@ void Renderer::drawLine(glm::vec3 point1, glm::vec3 point2, const glm::vec3& col
 		}
 		for (int h = min; h < max; h++)
 		{
-			putPixel(p1, h,z, color);
+			putPixel(p1, h,z, color, point1, pointHalf, point2);
 			z += d_z;
 		}
 
@@ -2168,7 +2278,7 @@ void Renderer::drawLine(glm::vec3 point1, glm::vec3 point2, const glm::vec3& col
 		}
 		for (int w = min; w < max; w++)
 		{
-			putPixel(w, q1,z, color);
+			putPixel(w, q1,z, color, point1, pointHalf, point2);
 			z = z + d_z;
 		}
 
@@ -2218,9 +2328,9 @@ void Renderer::drawLine(glm::vec3 point1, glm::vec3 point2, const glm::vec3& col
 				e = e - 2 * (p2 - p1);
 			}
 			if (replaced == 0)
-				putPixel(x, y,z, color);
+				putPixel(x, y,z, color, point1, pointHalf, point2);
 			else
-				putPixel(y, x,z, color);
+				putPixel(y, x,z, color, point1, pointHalf, point2);
 			z = z + z_d;
 			x = x + 1; //for next point
 			e = e + 2 * (q2 - q1); //line's y got bigger by m*dp
@@ -2291,9 +2401,9 @@ void Renderer::drawLine(glm::vec3 point1, glm::vec3 point2, const glm::vec3& col
 				y = y - 1; e = e + 2 * (p2-p1);
 			}
 			if (replaced == 0)
-				putPixel(x, y,z, color);
+				putPixel(x, y,z, color, point1, pointHalf, point2);
 			else
-				putPixel(y, x,z, color);
+				putPixel(y, x,z, color, point1, pointHalf, point2);
 			z = z + z_d;
 			x = x + 1; e = e + 2*(q2 - q1);
 		}

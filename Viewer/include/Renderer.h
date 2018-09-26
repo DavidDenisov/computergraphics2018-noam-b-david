@@ -34,6 +34,9 @@ private:
 	glm::mat4x4 myProjection;
 	glm::mat4x4 worldTransform;
 	glm::mat4x4 nTransform;
+
+	//find z-value of (x,y) in triangle (p1,p2,p3)
+	float findZ(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3);
 	void putPixel_no_check(int i, int j, const glm::vec3& color);
 	void putPixel2(int i, int j);
 	void putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
@@ -49,7 +52,7 @@ private:
 	// Draws a pixel in location p with color color
 	void putPixel(int i, int j, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3& color);
-	void putPixel(int i, int j, int z, const glm::vec3& color);
+	void putPixel(int i, int j, int z, const glm::vec3& color, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3);
 	void putPixel(int i, int j, const glm::vec3& color);
 	// creates float array of dimension [3,w,h]
 	void createBuffers(int w, int h);
