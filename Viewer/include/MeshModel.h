@@ -38,6 +38,7 @@ public:
 	bool willDrawVertexNormal = 0; //normal per face per vertex
 	bool willDrawVertexNormal2 = 0; //normal per vertex
 	bool willDrawFaceNormal = 0;
+	bool TEXTURE = 0;
 	float Ambient =1.f;
 	float Diffus=1.f;
 	float Specular =1.f;

@@ -27,7 +27,9 @@ private:
 	Renderer *renderer;
 public:
 	bool get_auto_color(); 
-	void set_auto_color(bool x); 
+	void set_auto_color(bool x);
+	bool get_texture();
+	void set_texture(bool x);
 	void setModeltransform(glm::mat4x4 transform);
 	void set_renderer(Renderer *renderer);
 	void add_Light() { lights.push_back(new Light()); }

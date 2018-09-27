@@ -522,25 +522,13 @@ void Renderer::putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm
 		normR = glm::normalize(normR);
 
 		
-		if (point3.y != point2.y)
-			xL = point2.x + ((float)y1 - point2.y)*((point3.x - point2.x) / (point3.y - point2.y));
-		else //special case
-		{
-			if (point2.z > point3.z)
-				xL = point2.x;
-			else
-				xL = point3.x;
-		}
+		
+		xL = point2.x + ((float)y1 - point2.y)*((point3.x - point2.x) / (point3.y - point2.y));
+		
 
-		if (point2.y != point1.y)
-			xR = point1.x + ((float)y1 - point1.y)*((point3.x - point1.x) / (point3.y - point1.y));
-		else //special case
-		{
-			if (point1.z > point2.z)
-				xR = point1.x;
-			else
-				xR = point2.x;
-		}
+		
+		xR = point1.x + ((float)y1 - point1.y)*((point3.x - point1.x) / (point3.y - point1.y));
+		
 
 		if (xL > xR)
 		{
@@ -701,6 +689,7 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 
 	//now draw the triangles (and always before put them in vec2) !!!
 	glm::vec3 a(0.0f, 0.0f, 0.0f), b(0.0f, 0.0f, 0.0f), c(0.0f, 0.0f, 0.0f);
+	glm::vec3 aBeforeTrans(0.0f, 0.0f, 0.0f), bBeforeTrans(0.0f, 0.0f, 0.0f), cBeforeTrans(0.0f, 0.0f, 0.0f); //for texture
 	for (int face = 0; face < size - 2; face = face + 3)
 	{
 
@@ -708,6 +697,10 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		b = transVerticesPositions[face + 1];
 		c = transVerticesPositions[face + 2];
 
+		//for texture
+		aBeforeTrans = myModel->GetVertex()[face];
+		bBeforeTrans = myModel->GetVertex()[face + 1];
+		cBeforeTrans = myModel->GetVertex()[face + 2];
 
 		//draw triangle [a,b,c]
 		if (type == 0)//flat
@@ -761,7 +754,18 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 					Spectcolor = Spectcolor + absc(ligth_spect_c[i] * glm::pow(abs(glm::dot(R, v)), spect_exp[i]));
 			}
 
-				
+			//difcolor & spectcolor are model's arttibutes. for TEXTURE, we will need to change them.
+			//Difuscolor & Spectcolor are light calculations. remains unchanged with TEXTURE
+			if (myModel->TEXTURE == 1)
+			{
+				glm::vec3 avgBeforeTrans = (aBeforeTrans + bBeforeTrans + cBeforeTrans) / 3.f;
+
+				amcolor = marble(avgBeforeTrans.x); //send to marble the point's x, and return color
+				difcolor = marble(avgBeforeTrans.x); //send to marble the point's x, and return color
+				spectcolor = spectcolor; //remain the specular mechanics! - no need to texture it...
+
+				AMcolor = am_vec * amcolor; //like previous calculation, but with the new amcolor
+			}
 			glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
 
 
@@ -785,13 +789,17 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 			b1 = glm::inverse(myCameraTransform) *glm::inverse(windowresizing)*glm::vec4(b, 1);
 			c1 = glm::inverse(myCameraTransform) *glm::inverse(windowresizing)*glm::vec4(c, 1);
 
-			glm::vec3  AMcolor1 = am_vec * amcolor;
+			//for texture purposes
+			glm::vec3 amcolor1 = amcolor, amcolor2 = amcolor, amcolor3 = amcolor;
+			glm::vec3 difcolor1 = difcolor, difcolor2 = difcolor, difcolor3 = difcolor;
+
+			glm::vec3  AMcolor1 = am_vec * amcolor1;
 			glm::vec3  Difuscolor1 = glm::vec3(0, 0, 0);
 			glm::vec3  Spectcolor1 = glm::vec3(0, 0, 0);
-			glm::vec3  AMcolor2 = am_vec * amcolor;
+			glm::vec3  AMcolor2 = am_vec * amcolor2;
 			glm::vec3  Difuscolor2 = glm::vec3(0, 0, 0);
 			glm::vec3  Spectcolor2 = glm::vec3(0, 0, 0);
-			glm::vec3  AMcolor3 = am_vec * amcolor;
+			glm::vec3  AMcolor3 = am_vec * amcolor3;
 			glm::vec3  Difuscolor3 = glm::vec3(0, 0, 0);
 			glm::vec3  Spectcolor3 = glm::vec3(0, 0, 0);
 			glm::vec3 R1,R2,R3,v = glm::normalize(v_direction);
@@ -859,6 +867,28 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 					Spectcolor3 = Spectcolor3 + absc(ligth_spect_c[i] * glm::pow(abs(glm::dot(R3, v)), spect_exp[i]));
 				
 			}
+			//difcolor & spectcolor are model's arttibutes. for TEXTURE, we will need to change them.
+			//Difuscolor & Spectcolor are light calculations. remains unchanged with TEXTURE
+			if (myModel->TEXTURE == 1)
+			{
+				amcolor1 = marble(aBeforeTrans.x);
+				amcolor2 = marble(bBeforeTrans.x);
+				amcolor3 = marble(cBeforeTrans.x);
+
+				difcolor1 = amcolor1;
+				difcolor2 = amcolor2;
+				difcolor3 = amcolor3;
+
+				spectcolor = spectcolor; //remain the specular mehcanics..
+
+				AMcolor1 = am_vec * amcolor1;
+				AMcolor2 = am_vec * amcolor2;
+				AMcolor3 = am_vec * amcolor3;
+			}
+
+
+
+
 			glm::vec3 color1 = AMcolor1 + (Difuscolor1 * difcolor) + (Spectcolor1 * spectcolor);
 			glm::vec3 color2 = AMcolor2 + (Difuscolor2 * difcolor) + (Spectcolor2 * spectcolor);
 			glm::vec3 color3 = AMcolor3 + (Difuscolor3 * difcolor) + (Spectcolor3 * spectcolor);
@@ -3010,6 +3040,7 @@ glm::vec3 Renderer::marble_color(float x)
 //marble-texture - some random-ness
 glm::vec3 Renderer::marble(float x)
 {
+	x *= 100.0f; //just so the numbers will spread a little bit...
 	return marble_color(sin(x));
 }
 

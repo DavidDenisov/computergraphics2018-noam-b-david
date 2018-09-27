@@ -668,9 +668,14 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 					removeLigth(scene,i);
 			}
 		}
-		bool b = scene->get_auto_color();
+		//changed the original code for texture. auto_color -> texture
+		//I think no need for the get call in my case.
+
+		//bool b = scene->get_auto_color();
+		bool b = scene->get_texture();
 		ImGui::Checkbox("add texture", &b);
-		scene->set_auto_color(b);
+		//scene->set_auto_color(b);
+		scene->set_texture(b);
 		ImGui::End();
 		
 	}
