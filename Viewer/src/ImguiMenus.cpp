@@ -687,9 +687,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		ImGui::InputFloat("fog zFar", &z);
 		scene->set_zFar(z);
 
-		bool b3 = scene->get_SuperSampling();
+		bool b3 = scene->getSuperSampling();
 		ImGui::Checkbox(" SuperSampling ", &b3);
-		scene->set_SuperSampling(b3);
+		scene->set_superSampling(b3);
 
 		float z1 = scene->get_sampel_size();
 		ImGui::InputFloat(" SuperSampling size ", &z1);

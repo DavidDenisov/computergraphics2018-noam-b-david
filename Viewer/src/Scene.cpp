@@ -23,7 +23,7 @@ float Scene::get_zFar() { return renderer->get_zFar(); }
 void Scene::set_zFar(float f) { renderer->set_zFar(f); }
 bool Scene::getSuperSampling() { return renderer->getSuperSampling(); }
 void Scene::set_superSampling(bool x) { renderer->set_superSampling(x); }
-bool Scene::get_fog() { renderer->get_fog(); }
+bool Scene::get_fog() { return renderer->get_fog(); }
 void Scene::set_fog(bool x) { renderer->set_fog(x); }
 
 
