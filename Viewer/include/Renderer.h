@@ -64,6 +64,12 @@ private:
 	//interpolate color by two points by x or y (value = the x/y value that we want his color)
 	static glm::vec3 interpolate(int value, bool xORy, glm::vec3 point1, glm::vec3 point2, glm::vec3 color1, glm::vec3 color2);
 
+	bool fog = false;
+	bool superSampling = false;
+	float zFar = 1;
+
+
+
 
 	//##############################
 	//##openGL stuff. Don't touch.##
@@ -76,6 +82,16 @@ private:
 
 public:
 	
+	float sampel_size = 1.f;
+	float get_zFar();
+	void set_zFar(float f);
+	bool getSuperSampling();
+	void set_superSampling(bool x);
+	bool get_fog();
+	void set_fog(bool x);
+	void drawLine_reset(glm::vec3 point1, glm::vec3 point2, glm::vec3 color);
+
+
 	bool get_auto_color();
 	void set_auto_color(bool x); 
 	float **zBuffer;
@@ -120,7 +136,7 @@ public:
 		const vector<glm::vec3> & diffus, const vector<glm::vec3> & positions,
 		const vector<glm::vec3> & directions,const vector<bool> & ligth_type,
 		const glm::vec3 & v_direction,const vector<int> & spect_exp,
-		const vector<glm::vec3> & ligth_spect_c, int type);
+		const vector<glm::vec3> & ligth_spect_c, int type, int count);
 	
 	// Sets the camera transformations with relation to world coordinates
 	void SetCameraTransform(const glm::mat4x4& cTransform);

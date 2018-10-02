@@ -676,10 +676,33 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		ImGui::Checkbox("add texture", &b);
 		//scene->set_auto_color(b);
 		scene->set_texture(b);
+
+
+
+		bool b2 = scene->get_fog();
+		ImGui::Checkbox("fog effect", &b2);
+		scene->set_fog(b2);
+
+		float z = scene->get_zFar();
+		ImGui::InputFloat("fog zFar", &z);
+		scene->set_zFar(z);
+
+		bool b3 = scene->get_SuperSampling();
+		ImGui::Checkbox(" SuperSampling ", &b3);
+		scene->set_SuperSampling(b3);
+
+		float z1 = scene->get_sampel_size();
+		ImGui::InputFloat(" SuperSampling size ", &z1);
+		scene->set_sampel_size(z1);
+
+
+
+
+
+
 		ImGui::End();
 		
 	}
-
 	for (int i = 0; i < scene->getLights().size(); i++)
 	{
 		if (Lightswid[i])

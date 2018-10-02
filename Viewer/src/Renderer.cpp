@@ -6,8 +6,26 @@
 #include "Camera.h"
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
+
+float Renderer::get_zFar() { return zFar; }
+void Renderer::set_zFar(float f) { zFar = f; }
+bool Renderer::getSuperSampling() { return superSampling; }
+void Renderer::set_superSampling(bool x) { superSampling = x; }
+bool Renderer::get_fog() { return fog; }
+void Renderer::set_fog(bool x) { fog = x; }
+
 bool Renderer::get_auto_color() { return auto_color; }
 void Renderer::set_auto_color(bool x) { auto_color = x; }
+
+int find(vector<glm::vec2> vec, glm::vec2 val)
+{
+	for (int i = 0; i < vec.size(); i++)
+		if (vec[i] == val)
+			return i;
+
+	return -1;
+}
+
 float twoD_interp(float v0, float v1, float t)
 {
 	//return (1 - t) * v0 + t * v1;
@@ -240,9 +258,16 @@ void Renderer::putPixel(int i, int j,int z, const glm::vec3& color, glm::vec3 po
 	{
 		zBuffer[i][j] = z;
 
-		colorBuffer[INDEX(width, i, j, 0)] = color.x;
-		colorBuffer[INDEX(width, i, j, 1)] = color.y;
-		colorBuffer[INDEX(width, i, j, 2)] = color.z;
+
+		glm::vec3 color2 = color;
+
+		if (fog)
+			color2 = color * (myZ / zFar);
+
+
+		colorBuffer[INDEX(width, i, j, 0)] = color2.x;
+		colorBuffer[INDEX(width, i, j, 1)] = color2.y;
+		colorBuffer[INDEX(width, i, j, 2)] = color2.z;
 
 	}
 }
@@ -441,6 +466,28 @@ void Renderer::putPixel2(int x1, int y1,glm::vec3 point1, glm::vec3 point2, glm:
 	if (point_z >= zBuffer[x1][y1])
 	{
 		zBuffer[x1][y1] = point_z;
+
+
+		glm::vec3 color2 = colorPixel;
+
+		if (fog)
+		{
+			if (point_z < 0)
+			{
+				point_z = abs(point_z);
+				point_z++;
+				color2 = color2 / (point_z / zFar);
+			}
+			else
+			{
+				point_z = abs(point_z);
+				point_z--;
+				color2 = color2 * (point_z / zFar);
+			}
+		}
+
+
+
 		colorBuffer[INDEX(width, x1, y1, 0)] = colorPixel.x;
 		colorBuffer[INDEX(width, x1, y1, 1)] = colorPixel.y;
 		colorBuffer[INDEX(width, x1, y1, 2)] = colorPixel.z;
@@ -669,11 +716,10 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 	MeshModel* myModel, Camera* activeCam, const glm::vec3 & am_vec, const vector<glm::vec3> & diffus
 	, const vector<glm::vec3> & positions, const vector<glm::vec3> & directions,
 	const vector<bool> & ligth_type, const glm::vec3 & v_direction, const vector<int> & spect_exp,
-	const vector<glm::vec3> & ligth_spect_c,int type)
+	const vector<glm::vec3> & ligth_spect_c,int type, int count)
 {
 	//we recieve the object to draw with a vector of verticesPositions
 	//we will draw these triangles but first will do the transformations
-
 
 
 	//first do the transformations:
@@ -1006,6 +1052,10 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 
 	glm::mat4x4 model;
 	glm::mat4x4 normalMatrix;
+
+	colorBuffer2.clear(); //fog effect code related?
+	colorBuffer3.clear(); //fog effect code related?
+
 	
 	//also, draw vertices' normals, if needed
 	if (myModel->willDrawVertexNormal == 1)
@@ -1253,6 +1303,11 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 	}
 
 	
+	int place;
+	glm::vec3 colorofpoint;
+	float fog_val;
+
+
 	delete[] transVerticesPositions; //they take a lot of memory and will not be used again
 	delete[] drawVertexPositions;
 	delete[] vertexPositions;
@@ -1792,6 +1847,11 @@ void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 
 	drawLine_ground(point1, point3,
 		point1, point2, point3,
 		color1, color2, color3);
+
+
+
+	colorBuffer3.clear();
+	colorBuffer2.clear();
 }
 
 void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
@@ -2070,6 +2130,12 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 		norm1,norm2,norm3,
 		Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor,
 		spectcolor, v_direction, spect_exp, ligth_spect_c,types, windowresizing_invers, myModel, face);
+
+
+
+
+	colorBuffer3.clear();
+	colorBuffer2.clear();
 }
 
 //glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
@@ -3167,8 +3233,11 @@ void Renderer::SwapBuffers()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void Renderer::ClearColorBuffer(const glm::vec3& color)
+void Renderer::ClearColorBuffer(const glm::vec3& color2)
 {
+	glm::vec3 color = color2;
+	if (fog)
+		color = glm::vec3(0.f, 0.f, 0.0000001f);
 	back_round_color = color;
 	for (int i = 0; i < width; i++)
 	{
