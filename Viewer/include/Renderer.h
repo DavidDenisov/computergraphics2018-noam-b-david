@@ -24,13 +24,13 @@ private:
 	vector<glm::vec3>  colorBuffer2;
 	vector<glm::vec2>  colorBuffer3;
 	// width*height
-	
+
 	// Screen dimensions
 	int width, height;
 
 	// Added more attributes. all you need to keep to drawTriangle
 	glm::vec3 bad_color = glm::vec3(0.33349, 0.6349, 0.46539);
-	glm::mat4x4 myCameraTransform; 
+	glm::mat4x4 myCameraTransform;
 	glm::mat4x4 myProjection;
 	glm::mat4x4 worldTransform;
 	glm::mat4x4 nTransform;
@@ -81,7 +81,7 @@ private:
 	//##############################
 
 public:
-	
+
 	float sampel_size = 1.f;
 	float get_zFar();
 	void set_zFar(float f);
@@ -93,11 +93,11 @@ public:
 
 
 	bool get_auto_color();
-	void set_auto_color(bool x); 
+	void set_auto_color(bool x);
 	float **zBuffer;
 	void horizontal(int i, int i2, int j, int r);
 	void vertical(int j, int j2, int i, int r);
-	void Bresenham(int i, int j, int i2, int j2,int r);
+	void Bresenham(int i, int j, int i2, int j2, int r);
 	Renderer();
 	Renderer(int w, int h);
 	~Renderer();
@@ -108,7 +108,7 @@ public:
 
 	void Renderer::drawTringleFlat(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  color, float w, float h);
-	
+
 	void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3&  color1, const glm::vec3&  color2, const glm::vec3&  color3, float w, float h);
 
@@ -131,13 +131,13 @@ public:
 	//void DrawTriangles(glm::vec4* vertexPositionVECTOR, int size, glm::vec4 color
 		//, float w, float h, glm::mat4x4 windowresizing, MeshModel* myModel, Camera* activeCam,const glm::vec3 & am_vec);
 	void DrawTriangles(glm::vec4* vertexPositions, int size,
-		const glm::vec3 & AMcolor, const glm::vec3 & Difcolor, const glm::vec3 & SPECTcolor,float w, float h,
-		glm::mat4x4 windowresizing,MeshModel* myModel, Camera* activeCam, const glm::vec3 & am_vec,
+		const glm::vec3 & AMcolor, const glm::vec3 & Difcolor, const glm::vec3 & SPECTcolor, float w, float h,
+		glm::mat4x4 windowresizing, MeshModel* myModel, Camera* activeCam, const glm::vec3 & am_vec,
 		const vector<glm::vec3> & diffus, const vector<glm::vec3> & positions,
-		const vector<glm::vec3> & directions,const vector<bool> & ligth_type,
-		const glm::vec3 & v_direction,const vector<int> & spect_exp,
+		const vector<glm::vec3> & directions, const vector<bool> & ligth_type,
+		const glm::vec3 & v_direction, const vector<int> & spect_exp,
 		const vector<glm::vec3> & ligth_spect_c, int type, int count);
-	
+
 	// Sets the camera transformations with relation to world coordinates
 	void SetCameraTransform(const glm::mat4x4& cTransform);
 
@@ -163,22 +163,22 @@ public:
 
 	// Draw wide vertical and horizontal lines on the screen
 	void SetDemoBuffer();
-  
+
 	//new function for home work
 	void drawLine_z(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color);
 
 	void drawLine(glm::vec3 point1, glm::vec3 point2, const glm::vec3& color);
-	
+
 
 	void drawLine_ground(glm::vec2 start, glm::vec2 end,
-		glm::vec3 point1,glm::vec3 point2, glm::vec3 point3,
+		glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3& color1, const glm::vec3& color2, const glm::vec3& color3);
 
 	void drawLine_phong(glm::vec2 start, glm::vec2 end,
 		glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		const glm::vec3& norm1, const glm::vec3& norm2, const glm::vec3& norm3,
 		float Diffus_st, vector<glm::vec3> diffus, vector<glm::vec3> directions, vector<glm::vec3> positions,
-		glm::vec3 am_vec, glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor,  const glm::vec3 & v_direction, const vector<int> & spect_exp,
+		glm::vec3 am_vec, glm::vec3 amcolor, glm::vec3 difcolor, glm::vec3 spectcolor, const glm::vec3 & v_direction, const vector<int> & spect_exp,
 		const vector<glm::vec3> & ligth_spect_c, vector<bool> type, glm::mat4x4 windowresizing_invers, MeshModel* myModel, int face);
 
 
