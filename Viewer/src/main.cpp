@@ -1,8 +1,9 @@
-// ImGui - standalone example application for GLFW + OpenGL 3, using programmable pipeline
+﻿// ImGui - standalone example application for GLFW + OpenGL 3, using programmable pipeline
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 // (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
 // (Glad is a helper library to access OpenGL functions since there is no standard header to access modern OpenGL functions easily. Alternatives are GLEW, GL3W, etc.)
 
+#include <iostream>
 #include <imgui/imgui.h>
 #include <stdio.h>
 #include <glad/glad.h>    // This example is using glad to access OpenGL functions. You may freely use any other OpenGL loader such as: glew, gl3w, glLoadGen, etc.
@@ -37,13 +38,54 @@ int main(int argc, char **argv)
 	if (!window)
 		return 1;
 	// Setup renderer and scene
-	Renderer renderer = Renderer(w,h);
+	
+	Renderer renderer = Renderer(w , h);
 	Scene scene = Scene(&renderer);
+	Camera cam =Camera();
+	glm::vec4 eye(0.0f, 0.0f, 0.0f, 0.0f); //left-down corner
+	glm::vec4 at(0.0f, 0.0f, -1.0f, 0.0f); 
+	glm::vec4 up(0.5f, 0.5f, 0.0f, 0.0f);
+	int num = 0;
+	int w2 = w, h2 = h;
+	//task3 - part1
+	
+	
+	//cam.LookAt(eye, at, up);
+
+	//scene.LoadOBJModel("../Data/cow.obj");
+	double a = 1, b = 270;
+	scene.remove_cam(0);
+	scene.load_cam(&cam);
+	glm::vec4 avg ;
+	scene.setcur_model(0);
+	
+	//scene.transformModel(cam.GetScaleTransform(a, a, a));
+
+
+	//we normalize the mouse on the avereg of all the vertexes and it will be the center 
+	//of all the rotations 
+	//cam.LookAt(glm::vec4(0, 1, 2, 3), glm::vec4(0, 0, 0, 0), glm::vec4(1, 0, 0, 0));
     // Setup Dear ImGui binding
 	ImGuiIO& io = SetupDearImgui(window);
+	//scene.transformProjection(0, 1, 0, 1, 0, 1);
+	glm::mat4x4 d = glm::mat4x4(1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1);
+	double xpos, ypos;
+	int active = 1;
+	float x, y, z;
+	float x1=0, y1=0, z1=0;
+	glfwGetWindowSize(window, &w, &h);
+	glm::vec2 old_size = glm::vec2(1280,720);
+	glm::vec2 size;
+
+	
+	//GLFWwindow* my_window = SetupGlfwWindow(w, h, "the window");
     // Main loop - the famous "Game Loop" in video games :)
     while (!glfwWindowShouldClose(window))
     {
+
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -51,12 +93,58 @@ int main(int argc, char **argv)
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
 		// draw scene here
-		scene.DrawDemo(); // from task1
 
-        // Start the ImGui frame
+		
+		
+			//if (glfwGetKey(window, 'R') == GLFW_PRESS)
+			//scene.transformProjection(1, 2, 1, 2, 1, 2);
+			//resizing
+		glfwGetWindowSize(window, &w, &h);
+		if (scene.getModels().size()>0)
+		{
+			size = glm::vec2(w, h);
+			glfwGetCursorPos(window, &xpos, &ypos);
+			ypos = h - ypos;
+			avg = scene.GetVertexAvg(scene.ActiveModel);
+			x = (avg.x);
+			//x = (avg.x);
+			y = (avg.y);
+			z = avg.z;
+
+			//update lookAt:
+			if (glfwGetKey(window, 'C') == GLFW_PRESS)
+			{
+				glm::vec4 eye(0, 0, 0.0f, 0.0f), up(0.0f, 1.0f, 0.0f, 0.0f);
+				scene.getCameras().at(scene.ActiveCamera)->LookAt(eye, avg, up);
+			}
+
+
+			if ((size.x != old_size.x || size.y != old_size.y)
+				&& size.x != 0 && size.y != 0) //window resizing
+			{
+
+				scene.transformModel(cam.GetScaleTransform
+				(old_size.x / size.x, old_size.x / size.x, 1));
+				old_size.x = size.x;
+				old_size.y = size.y;
+			}
+
+
+
+			if ((x != xpos || y != ypos) &&
+				scene.getModels()[scene.ActiveModel]->folow_the_mouse)//follow the mouse
+				scene.transformModel(cam.GetTranslateTransform((xpos/h - x)
+				,(ypos/w - y) ,0 ));
+		}
+		glfwGetWindowSize(window, &w, &h);
+		scene.DrawScene(float(w),float(h)); //task3 - part2
+		
+		//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*
+		//cam.GetrotationTransform(1, 0)*cam.GetTranslateTransform(b, b, b) );
+		// Start the ImGui frame
 		StartFrame();
 		// imgui stuff here
-		DrawImguiMenus(io,&scene);
+		DrawImguiMenus(io,&scene,window);
         // Rendering + user rendering - finishing the ImGui frame
 		// go to function implementation to add your rendering calls.
 		RenderFrame(window, &renderer);// --> go to line 137

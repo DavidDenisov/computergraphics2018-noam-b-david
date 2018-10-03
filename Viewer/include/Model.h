@@ -9,6 +9,16 @@ using namespace std;
 class Model
 {
 protected:
-	virtual ~Model() {}
-	virtual const vector<glm::vec3>* Draw() = 0;
+	std::string nameModel;
+public:
+	virtual ~Model() {};
+	bool folow_the_mouse = 0;
+	virtual int getVertexPosNum() = 0;
+	virtual const glm::vec4* Draw() = 0; //changed it from vector<glm::vec4>* to glm::vec4*
+	virtual void transformModel(glm::mat4x4 transform) = 0;
+	virtual glm::vec4* GetVertex()=0;
+	std::string getNameModel()
+	{
+		return this->nameModel;
+	}
 };
