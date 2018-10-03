@@ -58,6 +58,7 @@ int main(int argc, char **argv)
 
 	/*********************************/
 
+
 	float vertices[] = {
 	-0.5f, -0.5f, 0.0f,
 	 0.5f, -0.5f, 0.0f,
@@ -70,6 +71,7 @@ int main(int argc, char **argv)
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	//glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
+
 
 
 
