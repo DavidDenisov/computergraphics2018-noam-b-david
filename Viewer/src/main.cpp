@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 	int num = 0;
 	int w2 = w, h2 = h;
 	//task3 - part1
-	
+	while (true) {}
 
 
 
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 	//in the scene (no use for renderer)
 
 	/*********************************/
-
+	while (true) {}
 
 	float vertices[] = {
 	-0.5f, -0.5f, 0.0f,
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 
 
 
-
+	
 
 
 
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
 			glfwPollEvents();
 			
 
-
+			
 
 
 
