@@ -19,6 +19,18 @@ void Scene::set_sampel_size(float f) { renderer->sampel_size = f; }
 float Scene::get_zFar() {return renderer->get_zFar();}
 void Scene::set_zFar(float f) {renderer->set_zFar(f);}
 using namespace std;
+
+float Scene::get_sampel_size() { return renderer->sampel_size; }
+void Scene::set_sampel_size(float f) { renderer->sampel_size = f; }
+float Scene::get_zFar() { return renderer->get_zFar(); }
+void Scene::set_zFar(float f) { renderer->set_zFar(f); }
+bool Scene::getSuperSampling() { return renderer->getSuperSampling(); }
+void Scene::set_superSampling(bool x) { renderer->set_superSampling(x); }
+bool Scene::get_fog() { return renderer->get_fog(); }
+void Scene::set_fog(bool x) { renderer->set_fog(x); }
+
+
+
 /*
 void  Scene::transformcam(glm::mat4x4 transform, int place)
 {
@@ -38,6 +50,7 @@ float norm2(const glm::vec3 v)
 		return 1.f;
 	return ans;
 }
+<<<<<<< HEAD
 void Scene::set_SuperSampling(bool x) { renderer->set_SuperSampling(x); }
 bool Scene::get_SuperSampling() { return renderer->get_SuperSampling(); }
 bool Scene::get_auto_color(){ return renderer->get_auto_color(); }
@@ -45,6 +58,12 @@ void Scene::set_auto_color(bool x){ renderer->set_auto_color(x); }
 
 bool Scene::get_fog() { return renderer->get_fog(); }
 void Scene::set_fog(bool x) { renderer->set_fog(x); }
+=======
+bool Scene::get_auto_color() { return renderer->get_auto_color(); }
+void Scene::set_auto_color(bool x) { renderer->set_auto_color(x); }
+bool Scene::get_texture() { return models[ActiveModel]->TEXTURE; }
+void Scene::set_texture(bool x) { models[ActiveModel]->TEXTURE = x; }
+>>>>>>> 017297312cfcc5bedaa0b74f4d3cbea5e70acb96
 void  Scene::transformProjectionCam(glm::mat4x4 transform, int place)
 {
 	this->cameras[place]->set_projection(transform);
@@ -339,7 +358,11 @@ void Scene::DrawScene(float w,float h)
 			, AMcolors_model[i], Difcolors_model[i], SPECTcolors_model[i],
 			w, h, windowresizing, models.at(i), cameras[this->ActiveCamera]
 			, ambient * strengte_ambient, diffus, position, directions, ligth_type
+<<<<<<< HEAD
 			, v55,sp_exp, sp_ligth_colors,type,i);
+=======
+			, v55,sp_exp, sp_ligth_colors,type, i);
+>>>>>>> 017297312cfcc5bedaa0b74f4d3cbea5e70acb96
 	}
 
 	//render cameras as well, if needed
@@ -379,7 +402,11 @@ void Scene::DrawScene(float w,float h)
 					, AMcolors_model[i], Difcolors_model[i], SPECTcolors_model[i],
 					w, h, windowresizing, cameras[i]->getCamBox(), cameras[this->ActiveCamera]
 					, ambient * strengte_ambient, diffus, position, directions, ligth_type
+<<<<<<< HEAD
 					, v55, sp_exp, sp_ligth_colors, type,i+models.size());
+=======
+					, v55, sp_exp, sp_ligth_colors, type, i + models.size());
+>>>>>>> 017297312cfcc5bedaa0b74f4d3cbea5e70acb96
 			}
 		}
 	}
