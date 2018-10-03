@@ -34,7 +34,7 @@ private:
 	glm::mat4x4 myProjection;
 	glm::mat4x4 worldTransform;
 	glm::mat4x4 nTransform;
-	void putPixel_no_check(int i, int j, const glm::vec3& color);
+	void putPixel_no_check2(int i, int j, const glm::vec3& color);
 	void putPixel2(int i, int j);
 	void putPixel3(int x1, int y1, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
 		glm::vec3 norm1, glm::vec3 norm2, glm::vec3 norm3,
@@ -65,9 +65,18 @@ private:
 	void createOpenGLBuffer();
 	void initOpenGLRendering();
 	//##############################
-
+	bool fog = false;
+	bool SuperSampling = false;
+	float zFar=1;
 public:
-	
+	float sampel_size = 1.f;
+	float get_zFar();
+	void set_zFar(float f);
+	bool get_SuperSampling();
+	void set_SuperSampling(bool x);
+	bool get_fog();
+	void set_fog(bool x);
+	void Renderer::drawLine_reset(glm::vec3 point1, glm::vec3 point2, glm::vec3 color);
 	bool get_auto_color();
 	void set_auto_color(bool x); 
 	float **zBuffer;
@@ -112,7 +121,7 @@ public:
 		const vector<glm::vec3> & diffus, const vector<glm::vec3> & positions,
 		const vector<glm::vec3> & directions,const vector<bool> & ligth_type,
 		const glm::vec3 & v_direction,const vector<int> & spect_exp,
-		const vector<glm::vec3> & ligth_spect_c, int type);
+		const vector<glm::vec3> & ligth_spect_c, int type, int count);
 	
 	// Sets the camera transformations with relation to world coordinates
 	void SetCameraTransform(const glm::mat4x4& cTransform);

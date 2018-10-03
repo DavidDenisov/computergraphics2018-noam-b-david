@@ -14,7 +14,10 @@ int ActiveModel=0;
 int ActiveLight=0;
 int ActiveCamera=0;
 */
-
+float Scene::get_sampel_size() { return renderer->sampel_size; }
+void Scene::set_sampel_size(float f) { renderer->sampel_size = f; }
+float Scene::get_zFar() {return renderer->get_zFar();}
+void Scene::set_zFar(float f) {renderer->set_zFar(f);}
 using namespace std;
 /*
 void  Scene::transformcam(glm::mat4x4 transform, int place)
@@ -35,8 +38,13 @@ float norm2(const glm::vec3 v)
 		return 1.f;
 	return ans;
 }
+void Scene::set_SuperSampling(bool x) { renderer->set_SuperSampling(x); }
+bool Scene::get_SuperSampling() { return renderer->get_SuperSampling(); }
 bool Scene::get_auto_color(){ return renderer->get_auto_color(); }
 void Scene::set_auto_color(bool x){ renderer->set_auto_color(x); }
+
+bool Scene::get_fog() { return renderer->get_fog(); }
+void Scene::set_fog(bool x) { renderer->set_fog(x); }
 void  Scene::transformProjectionCam(glm::mat4x4 transform, int place)
 {
 	this->cameras[place]->set_projection(transform);
@@ -331,7 +339,7 @@ void Scene::DrawScene(float w,float h)
 			, AMcolors_model[i], Difcolors_model[i], SPECTcolors_model[i],
 			w, h, windowresizing, models.at(i), cameras[this->ActiveCamera]
 			, ambient * strengte_ambient, diffus, position, directions, ligth_type
-			, v55,sp_exp, sp_ligth_colors,type);
+			, v55,sp_exp, sp_ligth_colors,type,i);
 	}
 
 	//render cameras as well, if needed
@@ -345,14 +353,33 @@ void Scene::DrawScene(float w,float h)
 		{
 			if (ActiveCamera != i)
 			{
+				directions.clear();
+				position.clear();
+				for (int j = 0; j < lights.size(); j++)
+				{
+					glm::vec4 v55 =
+						glm::inverse(models[i]->getModelTransform())
+						*glm::vec4((lights[j]->direction), 1);
+					v55 = glm::normalize(v55);
+					directions.push_back(v55);
+
+
+					v55 =
+						glm::inverse(models[i]->getModelTransform())
+						*glm::vec4((lights[j]->getPosition()), 1);
+					position.push_back(v55);
+				}
+				glm::vec4 v55 = glm::inverse(models[i]->getModelTransform())
+					*(cameras[ActiveCamera]->pos - cameras[ActiveCamera]->at);
+				//first set worldTransformation & nTransformation of the object in renderer
 				renderer->SetObjectMatrices(cameras[i]->getCamBox()->getWorldTransform(),
 					cameras[i]->getCamBox()->getNormalTransform());
 				renderer->DrawTriangles(cameras[i]->getCamBox()->Draw(),
 					cameras[i]->getCamBox()->getVertexPosNum()
-					, AMcolors_camera[i],Difcolors_camera[i], SPECTcolors_camera[i],
-					w, h, windowresizing, cameras[i]->getCamBox(),cameras[this->ActiveCamera],
-					ambient * strengte_ambient,diffus,position, directions, ligth_type,
-					cameras[ActiveCamera]->at - cameras[ActiveCamera]->pos ,sp_exp, sp_ligth_colors,type);
+					, AMcolors_model[i], Difcolors_model[i], SPECTcolors_model[i],
+					w, h, windowresizing, cameras[i]->getCamBox(), cameras[this->ActiveCamera]
+					, ambient * strengte_ambient, diffus, position, directions, ligth_type
+					, v55, sp_exp, sp_ligth_colors, type,i+models.size());
 			}
 		}
 	}

@@ -6,8 +6,26 @@
 #include "Camera.h"
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
+
+bool Renderer::get_SuperSampling(){return SuperSampling;}
+void Renderer::set_SuperSampling(bool x){SuperSampling=x;}
+
+float Renderer::get_zFar(){return zFar;}
+void Renderer::set_zFar(float f) {zFar=f;}
+
+bool Renderer::get_fog() { return fog; }
+void Renderer::set_fog(bool x) { fog = x; }
+
 bool Renderer::get_auto_color() { return auto_color; }
 void Renderer::set_auto_color(bool x) { auto_color = x; }
+
+int find(vector<glm::vec2> vec, glm::vec2 val)
+{
+	for (int i = 0; i < vec.size(); i++)
+		if (vec[i] == val)
+			return i;
+	return -1;
+}
 float twoD_interp(float v0, float v1, float t)
 {
 	//return (1 - t) * v0 + t * v1;
@@ -132,7 +150,7 @@ Renderer::~Renderer()
 {
 	delete[] colorBuffer;
 }
-void Renderer::putPixel_no_check(int i, int j, const glm::vec3& color)
+void Renderer::putPixel_no_check2(int i, int j, const glm::vec3& color)
 {
 	if (i < 0) return; if (i >= width) return;
 	if (j < 0) return; if (j >= height) return;
@@ -202,10 +220,14 @@ void Renderer::putPixel(int i, int j, glm::vec3 point1, glm::vec3 point2, glm::v
 	if (point_z >= zBuffer[i][j])
 	{
 		zBuffer[i][j] = point_z;
-		colorBuffer[INDEX(width, i, j, 0)] = color.x;
-		colorBuffer[INDEX(width, i, j, 1)] = color.y;
-		colorBuffer[INDEX(width, i, j, 2)] = color.z;
-		
+		glm::vec3 color2 = color;
+
+		if (fog)
+			color2 = color2 * (point_z/zFar);
+		colorBuffer[INDEX(width, i, j, 0)] = color2.x;
+		colorBuffer[INDEX(width, i, j, 1)] = color2.y;
+		colorBuffer[INDEX(width, i, j, 2)] = color2.z;
+	
 	}
 }
 
@@ -224,10 +246,27 @@ void Renderer::putPixel2(int x1, int y1,glm::vec3 point1, glm::vec3 point2, glm:
 	if (point_z >= zBuffer[x1][y1])
 	{
 		zBuffer[x1][y1] = point_z;
-		colorBuffer[INDEX(width, x1, y1, 0)] = color.x;
-		colorBuffer[INDEX(width, x1, y1, 1)] = color.y;
-		colorBuffer[INDEX(width, x1, y1, 2)] = color.z;
+		glm::vec3 color2 = color;
 
+		if (fog)
+		{
+			if (point_z < 0)
+			{
+				point_z = abs(point_z);
+				point_z++;
+				color2 = color2 / (point_z / zFar);
+			}
+			else
+			{
+				point_z = abs(point_z);
+				point_z--;
+				color2 = color2 * (point_z / zFar);
+			}
+		}
+			
+		colorBuffer[INDEX(width, x1, y1, 0)] = color2.x;
+		colorBuffer[INDEX(width, x1, y1, 1)] = color2.y;
+		colorBuffer[INDEX(width, x1, y1, 2)] = color2.z;
 	}
 	
 }
@@ -302,13 +341,30 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 	MeshModel* myModel, Camera* activeCam, const glm::vec3 & am_vec, const vector<glm::vec3> & diffus
 	, const vector<glm::vec3> & positions, const vector<glm::vec3> & directions,
 	const vector<bool> & ligth_type, const glm::vec3 & v_direction, const vector<int> & spect_exp,
-	const vector<glm::vec3> & ligth_spect_c,int type)
+	const vector<glm::vec3> & ligth_spect_c,int type,int count)
 {
 	//we recieve the object to draw with a vector of verticesPositions
 	//we will draw these triangles but first will do the transformations
 
+	/*
+	float** a_super = new float*[w];
+	if (SuperSampling)
+	{
+		for (int i = 0; i < w; i++)
+		{
+			a_super[i] = new float[h * 3];
+			if(count==0)
+				for (int j = 0; j < h; j += 3)
+				{
+					a_super[i][j] = back_round_color.x;
+					a_super[i][j + 1] = back_round_color.y;
+					a_super[i][j + 2] = back_round_color.z;
+				}
+		}
 
 
+	}
+	*/
 	//first do the transformations:
 	myCameraTransform = activeCam->get_camWorldTransform() * activeCam->get_camModelTransform();
 	//the view matrix
@@ -353,11 +409,14 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 	glm::vec3 a(0.0f, 0.0f, 0.0f), b(0.0f, 0.0f, 0.0f), c(0.0f, 0.0f, 0.0f);
 	for (int face = 0; face < size - 2; face = face + 3)
 	{
-
-		a = transVerticesPositions[face];
-		b = transVerticesPositions[face + 1];
-		c = transVerticesPositions[face + 2];
-
+		/*
+		a = sampel_size* transVerticesPositions[face];
+		b = sampel_size* transVerticesPositions[face + 1];
+		c = sampel_size* transVerticesPositions[face + 2];
+		*/
+		a =  transVerticesPositions[face];
+		b =  transVerticesPositions[face + 1];
+		c =  transVerticesPositions[face + 2];
 
 		//draw triangle [a,b,c]
 		if (type == 0)//flat
@@ -415,7 +474,6 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 
 				
 			glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
-
 
 
 			//drawTringleFlat(a, b, c, color, w, h);
@@ -599,7 +657,29 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 
 	glm::mat4x4 model;
 	glm::mat4x4 normalMatrix;
-	
+	colorBuffer2.clear();
+	colorBuffer3.clear();
+	/*
+	if(SuperSampling)
+		for(int i=0;i<h;i++)
+			for (int j = 0; j < w; j++)
+			{
+				glm::vec3 sum_color = glm::vec3(0, 0, 0);
+				glm::vec3 cur_color;
+				long count = 0;
+				int startw=i*sampel_size, endw= (i+1) * sampel_size,
+					starth = j * sampel_size, endh = (j + 1) * sampel_size;
+				for(int placew=startw;placew<endw-1; placew++)
+					for (int placeh = starth; placeh < endh-1; placeh++)
+					{
+						sum_color+= glm::vec3(colorBuffer[INDEX(width, placew, placeh, 1)],
+							colorBuffer[INDEX(width, placew, placeh, 1)]
+							, colorBuffer[INDEX(width, placew, placeh, 1)]);
+						count++;
+						
+					}
+				putPixel(i, j, sum_color / float(count));
+			}*/
 	//also, draw vertices' normals, if needed
 	if (myModel->willDrawVertexNormal == 1)
 	{
@@ -768,8 +848,9 @@ void Renderer::DrawTriangles(glm::vec4* vertexPositions, int size,
 		delete[] transAvg;
 		delete[] transFaces;
 	}
-
-	
+	int place;
+	glm::vec3 colorofpoint;
+	float fog_val;
 	delete[] transVerticesPositions; //they take a lot of memory and will not be used again
 	delete[] drawVertexPositions;
 	delete[] vertexPositions;
@@ -1309,6 +1390,8 @@ void Renderer::drawTringleGouraud(glm::vec3 point1, glm::vec3 point2, glm::vec3 
 	drawLine_ground(point1, point3,
 		point1, point2, point3,
 		color1, color2, color3);
+	colorBuffer3.clear();
+	colorBuffer2.clear();
 }
 
 void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
@@ -1587,6 +1670,8 @@ void Renderer::drawTringlePhong(glm::vec3 point1, glm::vec3 point2, glm::vec3 po
 		norm1,norm2,norm3,
 		Diffus_st, diffus, directions, positions, am_vec, amcolor, difcolor,
 		spectcolor, v_direction, spect_exp, ligth_spect_c,types, windowresizing_invers);
+	colorBuffer3.clear();
+	colorBuffer2.clear();
 }
 
 //glm::vec3 color = AMcolor + (Difuscolor*difcolor) + (Spectcolor*spectcolor);
@@ -1598,6 +1683,192 @@ void Renderer::drawTriangleTexture(glm::vec3 point1, glm::vec3 point2, glm::vec3
 
 }
 
+//like draw line but when we put pixel we reset the z buff
+//not finished
+void Renderer::drawLine_reset(glm::vec3 point1, glm::vec3 point2, glm::vec3 color)
+{int p1 = point1.x, q1 = point1.y; // point1 parameters
+int p2 = point2.x, q2 = point2.y; // point2 parameters
+
+int y, x;
+float m;
+int c;
+if (p1 > p2)
+{
+	int temp = p1;
+	p1 = p2;
+	p2 = temp;
+
+	temp = q1;
+	q1 = q2;
+	q2 = temp;
+
+
+}
+int replaced = 0;
+
+//first deal with special cases like p2 - p1 = 0 or q2 - q1 = 0
+if (p2 - p1 == 0)
+{
+	int min = q2 >= q1 ? q1 : q2;
+	int max = q2 <= q1 ? q1 : q2;
+
+
+	for (int h = min; h < max; h++)
+	{
+		putPixel2(p1, h);
+		putPixel(p1, h, color);
+	}
+
+	return;
+}
+if (q2 - q1 == 0)
+{
+	int min = p2 >= p1 ? p1 : p2;
+	int max = p2 <= p1 ? p1 : p2;
+
+	for (int w = min; w < max; w++)
+	{
+		putPixel2(w, q1);
+		putPixel(w, q1, color);
+
+	}
+
+	return;
+}
+
+
+
+
+
+//for measuring distance between the line's y and the approximation's y
+int e;
+int tmp;
+
+m = float(q2 - q1) / float(p2 - p1);
+
+if (m >= 0.0f) //m>=0
+{
+	if (m > 1.0f) // if m>1 replace x & y for both points
+	{
+		//switch(p1,q1)
+		tmp = p1;
+		p1 = q1;
+		q1 = tmp;
+
+		//switch(p2,q2)
+		tmp = p2;
+		p2 = q2;
+		q2 = tmp;
+
+		replaced = 1;
+	}
+
+	// y = mx + c
+	m = (q2 - q1) / (p2 - p1);
+	c = q1 - m * p1;
+	x = p1, y = q1, e = -1 * (p2 - p1);
+
+
+	while (x <= p2)
+	{
+		//e = m*x*(dp) + c*dp - y*dp - dp; //measuring distance
+		if (e > 0)
+		{
+			y = y + 1;
+			e = e - 2 * (p2 - p1);
+		}
+		if (replaced == 0)
+		{
+			putPixel2(x, y);
+			putPixel(x, y, color);
+
+		}
+		else
+		{
+			putPixel2(y, x);
+			putPixel(y, x, color);
+
+		}
+
+		x = x + 1; //for next point
+		e = e + 2 * (q2 - q1); //line's y got bigger by m*dp
+	}
+}
+
+
+//m < 0 - similar to m>0 but it's less readable if we would try to combine
+else
+{
+
+
+
+	//if m<-1 should swap(x,y) for both points
+	// and also swap the two points between themselves
+	/*
+	1*           2*
+	\            -----
+	\     =>          -------
+	2*                         ---1*
+
+	***now 2* is before 1* and -1 < m < 0
+	*/
+	if (m < -1.0f)
+	{
+		//switch(p1,q1)
+		tmp = p1;
+		p1 = q1;
+		q1 = tmp;
+
+		//switch(p2,q2)
+		tmp = p2;
+		p2 = q2;
+		q2 = tmp;
+
+
+		//***now switch(point1, point2):
+		//switch(p1,p2)
+		tmp = p1;
+		p1 = p2;
+		p2 = tmp;
+
+		//switch(q1,q2)
+		tmp = q1;
+		q1 = q2;
+		q2 = tmp;
+
+
+
+		replaced = 1;
+	}
+
+
+	// y = mx + c
+	m = (q2 - q1) / (p2 - p1);
+	c = q1 - m * p1;
+	x = p1; y = q1; e = p2 - p1;
+	while (x <= p2)
+	{
+		//e = m * x + c - y;
+
+		if (e < 0)
+		{
+			y = y - 1; e = e + 2 * (p2 - p1);
+		}
+		if (replaced == 0)
+		{
+			putPixel2(x, y);
+			putPixel(x, y, color);
+		}
+		else
+		{
+			putPixel2(y, x);
+			putPixel(y, x, color);
+		}
+
+		x = x + 1; e = e + 2 * (q2 - q1);
+	}
+
+}}
 void Renderer::drawLine_z(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color)
 {
 	int p1 = point1.x, q1 = point1.y; // point1 parameters
@@ -2681,8 +2952,11 @@ void Renderer::SwapBuffers()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void Renderer::ClearColorBuffer(const glm::vec3& color)
-{
+void Renderer::ClearColorBuffer(const glm::vec3& color2)
+{	
+	glm::vec3 color = color2;
+	if (fog)
+		color = glm::vec3(0, 0, 0.0000001f);
 	back_round_color = color;
 	for (int i = 0; i < width; i++)
 	{
@@ -2695,6 +2969,13 @@ void Renderer::ClearColorBuffer(const glm::vec3& color)
 
 void Renderer::Viewport(int w, int h)
 {
+	/*
+	if (SuperSampling)
+	{
+		h = h * sampel_size;
+		w = w * sampel_size;
+	}
+	*/
 	if (w == width && h == height)
 	{
 		return;

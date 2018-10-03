@@ -25,7 +25,16 @@ private:
 	vector<glm::vec3> SPECTcolors_model;
 	vector<glm::vec3> SPECTcolors_camera;
 	Renderer *renderer;
+
 public:
+	float get_sampel_size();
+	void set_sampel_size(float f);
+	float get_zFar();
+	void set_zFar(float f);
+	bool get_fog();
+	void set_SuperSampling(bool x);
+	bool get_SuperSampling();
+	void set_fog(bool x);
 	bool get_auto_color(); 
 	void set_auto_color(bool x); 
 	void setModeltransform(glm::mat4x4 transform);
