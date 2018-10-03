@@ -58,22 +58,20 @@ int main(int argc, char **argv)
 
 	/*********************************/
 
-	float vertexBuffer[] =
-	{
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f
+
+	float vertices[] = {
+	-0.5f, -0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
+	 0.0f,  0.5f, 0.0f
 	};
-	unsigned int vboID;
-	glGenBuffers(1, &vboID);
-	glBindBuffer(GL_VERTEX_ARRAY, vboID);
-	glBufferData(GL_VERTEX_ARRAY, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
+	unsigned int VBO;
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	unsigned int vertexShader;
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	//glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
 
-
-	//compile our shader file into the openGL
-	unsigned int vsID;
-	vsID = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vsID, 1, );
 
 
 
@@ -119,72 +117,98 @@ int main(int argc, char **argv)
 	
 	//GLFWwindow* my_window = SetupGlfwWindow(w, h, "the window");
     // Main loop - the famous "Game Loop" in video games :)
-    while (!glfwWindowShouldClose(window))
-    {
-
-        // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-        glfwPollEvents();
-		// draw scene here
-
-		
-		
-			//if (glfwGetKey(window, 'R') == GLFW_PRESS)
-			//scene.transformProjection(1, 2, 1, 2, 1, 2);
-			//resizing
-		glfwGetWindowSize(window, &w, &h);
-		if (scene.getModels().size()>0)
+	if(false)
+	{
+		while (!glfwWindowShouldClose(window))
 		{
-			size = glm::vec2(w, h);
-			glfwGetCursorPos(window, &xpos, &ypos);
-			ypos = h - ypos;
-			avg = scene.GetVertexAvg(scene.ActiveModel);
-			x = (avg.x);
-			//x = (avg.x);
-			y = (avg.y);
-			z = avg.z;
 
-			//update lookAt:
-			if (glfwGetKey(window, 'C') == GLFW_PRESS)
+			// Poll and handle events (inputs, window resize, etc.)
+			// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+			// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
+			// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
+			// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+			glfwPollEvents();
+			// draw scene here
+
+
+
+				//if (glfwGetKey(window, 'R') == GLFW_PRESS)
+				//scene.transformProjection(1, 2, 1, 2, 1, 2);
+				//resizing
+			glfwGetWindowSize(window, &w, &h);
+			if (scene.getModels().size() > 0)
 			{
-				glm::vec4 eye(0, 0, 0.0f, 0.0f), up(0.0f, 1.0f, 0.0f, 0.0f);
-				scene.getCameras().at(scene.ActiveCamera)->LookAt(eye, avg, up);
+				size = glm::vec2(w, h);
+				glfwGetCursorPos(window, &xpos, &ypos);
+				ypos = h - ypos;
+				avg = scene.GetVertexAvg(scene.ActiveModel);
+				x = (avg.x);
+				//x = (avg.x);
+				y = (avg.y);
+				z = avg.z;
+
+				//update lookAt:
+				if (glfwGetKey(window, 'C') == GLFW_PRESS)
+				{
+					glm::vec4 eye(0, 0, 0.0f, 0.0f), up(0.0f, 1.0f, 0.0f, 0.0f);
+					scene.getCameras().at(scene.ActiveCamera)->LookAt(eye, avg, up);
+				}
+
+
+				if ((size.x != old_size.x || size.y != old_size.y)
+					&& size.x != 0 && size.y != 0) //window resizing
+				{
+
+					scene.transformModel(cam.GetScaleTransform
+					(old_size.x / size.x, old_size.x / size.x, 1));
+					old_size.x = size.x;
+					old_size.y = size.y;
+				}
+
+
+
+				if ((x != xpos || y != ypos) &&
+					scene.getModels()[scene.ActiveModel]->folow_the_mouse)//follow the mouse
+					scene.transformModel(cam.GetTranslateTransform((xpos / h - x)
+						, (ypos / w - y), 0));
 			}
+			glfwGetWindowSize(window, &w, &h);
+			scene.DrawScene(float(w), float(h)); //task3 - part2
 
-
-			if ((size.x != old_size.x || size.y != old_size.y)
-				&& size.x != 0 && size.y != 0) //window resizing
-			{
-
-				scene.transformModel(cam.GetScaleTransform
-				(old_size.x / size.x, old_size.x / size.x, 1));
-				old_size.x = size.x;
-				old_size.y = size.y;
-			}
-
-
-
-			if ((x != xpos || y != ypos) &&
-				scene.getModels()[scene.ActiveModel]->folow_the_mouse)//follow the mouse
-				scene.transformModel(cam.GetTranslateTransform((xpos/h - x)
-				,(ypos/w - y) ,0 ));
+			//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*
+			//cam.GetrotationTransform(1, 0)*cam.GetTranslateTransform(b, b, b) );
+			// Start the ImGui frame
+			StartFrame();
+			// imgui stuff here
+			DrawImguiMenus(io, &scene, window);
+			// Rendering + user rendering - finishing the ImGui frame
+			// go to function implementation to add your rendering calls.
+			RenderFrame(window, &renderer);// --> go to line 137
 		}
-		glfwGetWindowSize(window, &w, &h);
-		scene.DrawScene(float(w),float(h)); //task3 - part2
-		
-		//scene.transformModel(cam.GetTranslateTransform(-b, -b, -b)*
-		//cam.GetrotationTransform(1, 0)*cam.GetTranslateTransform(b, b, b) );
-		// Start the ImGui frame
-		StartFrame();
-		// imgui stuff here
-		DrawImguiMenus(io,&scene,window);
-        // Rendering + user rendering - finishing the ImGui frame
-		// go to function implementation to add your rendering calls.
-		RenderFrame(window, &renderer);// --> go to line 137
-    }
+	}
+	else
+	{
+		while (!glfwWindowShouldClose(window))
+		{
+
+			// Poll and handle events (inputs, window resize, etc.)
+			// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+			// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
+			// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
+			// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+			glfwPollEvents();
+			
+
+
+
+
+
+			// Start the ImGui frame
+			//StartFrame();
+			// imgui stuff here
+			//DrawImguiMenus(io, &scene, window);
+		}
+	}
     // Cleanup
 	Cleanup(window);
     return 0;
