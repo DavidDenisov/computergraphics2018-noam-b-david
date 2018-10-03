@@ -1,14 +1,15 @@
 #version 150
 
 in  vec2 vTexCoord;
-in  vec2 vPosition;
+
+layout (location = 0) in vec3 aPos;
+
+
 
 out vec2 texCoord;
 
 void main()
 {
-    gl_Position.xy = vPosition;
-    gl_Position.z=0;
-    gl_Position.w=1;
+    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
     texCoord = vTexCoord;
 }

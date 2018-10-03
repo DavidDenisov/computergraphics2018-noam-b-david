@@ -58,8 +58,22 @@ int main(int argc, char **argv)
 
 	/*********************************/
 
+	float vertexBuffer[] =
+	{
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.0f, 0.5f, 0.0f
+	};
+	unsigned int vboID;
+	glGenBuffers(1, &vboID);
+	glBindBuffer(GL_VERTEX_ARRAY, vboID);
+	glBufferData(GL_VERTEX_ARRAY, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
 
 
+	//compile our shader file into the openGL
+	unsigned int vsID;
+	vsID = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vsID, 1, );
 
 
 
