@@ -49,6 +49,28 @@ int main(int argc, char **argv)
 	int w2 = w, h2 = h;
 	//task3 - part1
 	
+
+
+
+	//openGL testing. draw simple box and so on...
+	//once I'm able to do that the code should be deleted and move on to implement real code
+	//in the scene (no use for renderer)
+
+	/*********************************/
+
+
+
+
+
+
+
+
+
+	/*********************************/
+
+
+
+
 	
 	//cam.LookAt(eye, at, up);
 
