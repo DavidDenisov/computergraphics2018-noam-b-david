@@ -53,7 +53,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
 "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
 
-int main()
+int main2(int argc, char **argv)
 {
 	// glfw: initialize and configure
 	// ------------------------------
@@ -220,7 +220,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
 }
-int main2(int argc, char **argv)
+int main()
 {
     // Setup window
 	int w = 1280, h = 720;
@@ -354,9 +354,11 @@ int main2(int argc, char **argv)
 
 	//"specify how OpenGL should interpret the vertex data[attributes] before rendering..."  ~Learn_openGL
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //position attributes
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); //position attributes
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(3 * sizeof(float))); //color attributes
+
+	//useless for our project. all the vertices has the same color (before lighting) -- should use uniform instead!
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); //color attributes
 	glEnableVertexAttribArray(1);
 
 	//unbind vbo & vao (so later calls calls won't accidentally modify this objects
@@ -506,15 +508,16 @@ int main2(int argc, char **argv)
 
 
 			/** uniform testing **/
+			/*
 			float timeValue = glfwGetTime();
 			float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 			int uniformColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 			glUniform4f(uniformColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+			*/
 
 
 
-
-
+			
 			glBindVertexArray(VAO); //bind it again, incase we bound someone else, before... (other object)
 			glDrawArrays(GL_TRIANGLES, 0, 3);
 		
