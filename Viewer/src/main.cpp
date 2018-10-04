@@ -497,7 +497,8 @@ int main()
 			// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
 			glfwPollEvents();
 
-			
+			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
 
 			
 			
@@ -513,13 +514,12 @@ int main()
 			*/
 
 
-
+			
 			
 			glBindVertexArray(VAO); //bind it again, incase we bound someone else, before... (other object)
 			glDrawArrays(GL_TRIANGLES, 0, 3);
 		
-			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
+			
 			// Start the ImGui frame
 			StartFrame(); 
 			// imgui stuff here
@@ -528,8 +528,7 @@ int main()
 			// go to function implementation to add your rendering calls.
 			RenderFrame(window);// --> go to line 137 //*******************************************************************************
 
-			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
+			
 
 		}
 	}
@@ -632,13 +631,15 @@ void RenderFrame(GLFWwindow* window)
 
 	//*** I added instead the following lines in the main loop:
 
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	
 	// #######################################
 	
 	// Actual rendering of ImGui. ImGui only creates buffers and textures, 
 	// which are sent to opengl for the actual rendering.
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+
 
 	glfwMakeContextCurrent(window);
 	glfwSwapBuffers(window);
