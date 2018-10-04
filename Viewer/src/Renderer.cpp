@@ -243,6 +243,8 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 //minor fix, checking if z values are good for the edges...
 void Renderer::putPixel(int i, int j,int z, const glm::vec3& color, glm::vec3 point1, glm::vec3 point2, glm::vec3 point3)
 {
+	int fog = 0; //PLEASE IGNORE OR DELETE, THIS IS JUST TO FIX BUGS
+	float zFar = 0.0f; //PLEASE IGNORE OR DELETE, THIS IS JUST TO FIX BUGS
 	if (i < 0) return; if (i >= width) return;
 	if (j < 0) return; if (j >= height) return;
 	
@@ -343,6 +345,10 @@ void Renderer::putPixel(int i, int j, glm::vec3 point1, glm::vec3 point2, glm::v
 void Renderer::putPixel2(int x1, int y1,glm::vec3 point1, glm::vec3 point2, glm::vec3 point3
 	, const glm::vec3& color1,const glm::vec3& color2, const glm::vec3& color3)
 {
+	int fog = 0; //PLEASE IGNORE OR DELETE, THIS IS JUST TO FIX BUGS
+	float zFar = 0.0f; //PLEASE IGNORE OR DELETE, THIS IS JUST TO FIX BUGS
+
+
 	if (x1 < 0) return; if (x1 >= width) return;
 	if (y1 < 0) return; if (y1 >= height) return;
 
@@ -3232,6 +3238,9 @@ void Renderer::SwapBuffers()
 
 void Renderer::ClearColorBuffer(const glm::vec3& color2)
 {
+	int fog = 0; //PLEASE IGNORE OR DELETE, THIS IS JUST TO FIX BUGS
+	float zFar = 0; //PLEASE IGNORE OR DELETE, THIS IS JUST TO FIX BUGS
+
 	glm::vec3 color = color2;
 	if (fog)
 		color = glm::vec3(0.f, 0.f, 0.0000001f);
