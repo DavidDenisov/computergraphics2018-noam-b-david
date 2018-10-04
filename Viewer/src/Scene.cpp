@@ -203,21 +203,7 @@ Scene::Scene() : ActiveModel(0), ActiveLight(0), ActiveCamera(0)
 	lights.push_back(new Light());
 };
 
-Scene::Scene(Renderer *renderer) : renderer(renderer),
-ActiveModel(0), ActiveLight(0), ActiveCamera(0)
-{
-	num = 0;
-	if(int(cameras.size())==0)
-	{
-		Camera* c = new Camera();
-		cameras.push_back(c);
-		AMcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
-		Difcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
-		SPECTcolors_camera.push_back(glm::vec4(0, 0, 0, 1));
-		//colors_model.push_back(glm::vec4(0, 0, 0, 1));
-	}
-	lights.push_back(new Light());
-};
+
 
 glm::vec3 Scene::getColor(int i,int type, int type_ligth)
 {
@@ -279,6 +265,10 @@ void Scene::setcur_model(int i)
 {
 	ActiveModel = i;
 }
+
+//void Scene::DrawScene(float w, float h)
+/*
+
 void Scene::DrawScene(float w,float h)
 {
 	// 1. Send the renderer the current camera transform and the projection
@@ -395,6 +385,10 @@ void Scene::DrawScene(float w,float h)
 		delete[] renderer->zBuffer[i];
 	delete[] renderer->zBuffer;
 }
+*/
+
+
+//should stay under /*  */ !
 /*
 void Scene::Draw()
 {

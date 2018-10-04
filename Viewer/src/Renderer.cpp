@@ -2141,6 +2141,9 @@ void Renderer::drawTriangleTexture(glm::vec3 point1, glm::vec3 point2, glm::vec3
 
 }
 
+
+
+
 void Renderer::drawLine_z(glm::vec2 point1, glm::vec2 point2, const glm::vec3& color)
 {
 	int p1 = point1.x, q1 = point1.y; // point1 parameters

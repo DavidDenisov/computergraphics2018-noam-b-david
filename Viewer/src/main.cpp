@@ -28,7 +28,7 @@ ImGuiIO& SetupDearImgui(GLFWwindow* window);
 // Takes care of all the opengl and glfw backend for rendering a new frame.
 void StartFrame();
 // Renders imgui. Takes care of screen resize, and finally renders the scene
-void RenderFrame(GLFWwindow* window, Renderer* renderer);
+void RenderFrame(GLFWwindow* window);
 // Cleanup routines of all the systems used here.
 void Cleanup(GLFWwindow* window);
 
@@ -230,7 +230,7 @@ int main()
 	// Setup renderer and scene
 	
 	//Renderer renderer = Renderer(w , h);
-	//Scene scene = Scene(&renderer);
+	Scene scene = Scene();
 	Camera cam =Camera();
 	glm::vec4 eye(0.0f, 0.0f, 0.0f, 0.0f); //left-down corner
 	glm::vec4 at(0.0f, 0.0f, -1.0f, 0.0f); 
@@ -384,10 +384,10 @@ int main()
 
 	//scene.LoadOBJModel("../Data/cow.obj");
 	double a = 1, b = 270;
-	//scene.remove_cam(0);
-	//scene.load_cam(&cam);
-	//glm::vec4 avg ;
-	//scene.setcur_model(0);
+	scene.remove_cam(0);
+	scene.load_cam(&cam);
+	glm::vec4 avg ;
+	scene.setcur_model(0);
 	
 	//scene.transformModel(cam.GetScaleTransform(a, a, a));
 
@@ -497,10 +497,7 @@ int main()
 			// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
 			glfwPollEvents();
 
-			glfwSwapBuffers(window); //it's called in function "RenderFrame", but we don't use the renderer
-
-			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
+			
 
 			
 			
@@ -521,11 +518,19 @@ int main()
 			glBindVertexArray(VAO); //bind it again, incase we bound someone else, before... (other object)
 			glDrawArrays(GL_TRIANGLES, 0, 3);
 		
-			
+			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
 			// Start the ImGui frame
-			//StartFrame();
+			StartFrame(); 
 			// imgui stuff here
-			//DrawImguiMenus(io, &scene, window);
+			DrawImguiMenus(io, &scene, window); 
+			// Rendering + user rendering - finishing the ImGui frame
+			// go to function implementation to add your rendering calls.
+			RenderFrame(window);// --> go to line 137 //*******************************************************************************
+
+			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+
 		}
 	}
     // Cleanup
@@ -606,7 +611,7 @@ void StartFrame()
 }
 
 // Renders imgui. Takes care of screen resize, and finally renders the scene
-void RenderFrame(GLFWwindow* window, Renderer* renderer)
+void RenderFrame(GLFWwindow* window)
 {
 	// creates ImGui's vertex buffers and textures
 	ImGui::Render();
@@ -623,7 +628,12 @@ void RenderFrame(GLFWwindow* window, Renderer* renderer)
 	//renderer->printLine();
 
 	//renderer->Viewport(displayW-100, displayH-100);
-	renderer->ClearColorBuffer(GetClearColor());
+	//renderer->ClearColorBuffer(GetClearColor()); -----------------I removed this function because there's no renderer anymore!
+
+	//*** I added instead the following lines in the main loop:
+
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 	// #######################################
 	
 	// Actual rendering of ImGui. ImGui only creates buffers and textures, 
