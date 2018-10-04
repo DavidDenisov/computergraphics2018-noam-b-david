@@ -16,6 +16,8 @@
 #include "Scene.h"
 #include "ImguiMenus.h"
 
+#include "InitShader.h" //for the function "string ReadShaderSource(const string& shaderFile);"
+
 
 // Callback for the error state of glfw
 static void GlfwErrorCallback(int error, const char* description);
@@ -39,8 +41,8 @@ int main(int argc, char **argv)
 		return 1;
 	// Setup renderer and scene
 	
-	Renderer renderer = Renderer(w , h);
-	Scene scene = Scene(&renderer);
+	//Renderer renderer = Renderer(w , h);
+	//Scene scene = Scene(&renderer);
 	Camera cam =Camera();
 	glm::vec4 eye(0.0f, 0.0f, 0.0f, 0.0f); //left-down corner
 	glm::vec4 at(0.0f, 0.0f, -1.0f, 0.0f); 
@@ -48,7 +50,7 @@ int main(int argc, char **argv)
 	int num = 0;
 	int w2 = w, h2 = h;
 	//task3 - part1
-	while (true) {}
+	
 
 
 
@@ -57,24 +59,128 @@ int main(int argc, char **argv)
 	//in the scene (no use for renderer)
 
 	/*********************************/
-	while (true) {}
+
+
+	//Learn_openGL's shaders. just to try them... :)
+	//this is just copy pased, not used in this code.
+	//we use the file shaders, and send them to openGL with the function "InitShader"
+	char *vertexShaderSource = "#version 330 core\n"
+		"layout (location = 0) in vec3 aPos;\n"
+		"void main()\n"
+		"{\n"
+		"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+		"}\0";
+	char *fragmentShaderSource = "#version 330 core\n"
+		"out vec4 FragColor;\n"
+		"void main()\n"
+		"{\n"
+		"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+		"}\n\0";
+
+	
+	//openGL hello-triangle code
+	
+
+
+
+	//shaders init & compilation...
+	/*
+	int  success;
+	char infoLog[512];
+
+	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
+	//check vshader compiling errors
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+
+
+
+	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);
+	//check fshader compiling errors
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+	*/
+
+	//program init...
+	/*
+	unsigned int shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+	//check linking errors
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+
+
+	//after linking the shaders into the program object, we don't need the shaders anymore
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+	*/
+
+	//do shaders init & compilation
+	//do program init & linking
+	//above is learn_openGL code for this. but it's the same (same openGL calls)
+	GLuint shaderProgram = InitShader("vshader.glsl", "fshader.glsl"); 
+
+
+
 
 	float vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f
+		// positions         // colors
+		0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+		0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
 	};
+
+
+
+	//vertex array object init...
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
+
+
+	//vertex buffer object init...
 	unsigned int VBO;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	//glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 
+
+	//"specify how OpenGL should interpret the vertex data[attributes] before rendering..."  ~Learn_openGL
+	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //position attributes
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(3 * sizeof(float))); //color attributes
+	glEnableVertexAttribArray(1);
+
+	//unbind vbo & vao (so later calls calls won't accidentally modify this objects
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 
 	
+
+	
+
+
+	//only thing to do is useProgram and call draw function in the main while --below--
 
 
 
@@ -88,10 +194,10 @@ int main(int argc, char **argv)
 
 	//scene.LoadOBJModel("../Data/cow.obj");
 	double a = 1, b = 270;
-	scene.remove_cam(0);
-	scene.load_cam(&cam);
-	glm::vec4 avg ;
-	scene.setcur_model(0);
+	//scene.remove_cam(0);
+	//scene.load_cam(&cam);
+	//glm::vec4 avg ;
+	//scene.setcur_model(0);
 	
 	//scene.transformModel(cam.GetScaleTransform(a, a, a));
 
@@ -119,6 +225,8 @@ int main(int argc, char **argv)
     // Main loop - the famous "Game Loop" in video games :)
 	if(false)
 	{
+		//while (!glfwWindowShouldClose(window))
+		/*
 		while (!glfwWindowShouldClose(window))
 		{
 
@@ -185,6 +293,7 @@ int main(int argc, char **argv)
 			// go to function implementation to add your rendering calls.
 			RenderFrame(window, &renderer);// --> go to line 137
 		}
+		*/
 	}
 	else
 	{
@@ -198,60 +307,30 @@ int main(int argc, char **argv)
 			// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
 			glfwPollEvents();
 
-			if(false)
-			{
-				unsigned int VBO;
-				glGenBuffers(1, &VBO);
-				glBindBuffer(GL_ARRAY_BUFFER, VBO);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+			glfwSwapBuffers(window); //it's called in function "RenderFrame", but we don't use the renderer
 
-				unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-				//glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-				glCompileShader(vertexShader);
+			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
 
-				int  success;
-				char infoLog[512];
-				glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-				if (!success)
-				{
-					glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-					std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-				}
-
-				unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-				//glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-				glCompileShader(fragmentShader);
+			
+			
+			glUseProgram(shaderProgram);
 
 
-				
-				glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-				if (!success)
-				{
-					glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-					std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-				}
+			/** uniform testing **/
+			float timeValue = glfwGetTime();
+			float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+			int uniformColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+			glUniform4f(uniformColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
-				unsigned int shaderProgram = glCreateProgram();
-				glAttachShader(shaderProgram, vertexShader);
-				glAttachShader(shaderProgram, fragmentShader);
-				glLinkProgram(shaderProgram);
-				glUseProgram(shaderProgram);
-				glDeleteShader(vertexShader);
-				glDeleteShader(fragmentShader);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-				glEnableVertexAttribArray(0);
-				
 
-			}
-			else
-			{
-				long float i = 1;
-				for(int x=0;x<10000;x++)
-					i = i * 2;
-				cout << i;
-			}
+
+
+
+			glBindVertexArray(VAO); //bind it again, incase we bound someone else, before... (other object)
+			glDrawArrays(GL_TRIANGLES, 0, 3);
+		
+			
 			// Start the ImGui frame
 			//StartFrame();
 			// imgui stuff here
@@ -260,7 +339,11 @@ int main(int argc, char **argv)
 	}
     // Cleanup
 	Cleanup(window);
-    return 0;
+    
+	
+	
+	
+	return 0;
 }
 
 // Callback for the error state of glfw
