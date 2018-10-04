@@ -17,14 +17,14 @@ int ActiveCamera=0;
 
 using namespace std;
 
-float Scene::get_sampel_size() { return renderer->sampel_size; }
-void Scene::set_sampel_size(float f) { renderer->sampel_size = f; }
-float Scene::get_zFar() { return renderer->get_zFar(); }
-void Scene::set_zFar(float f) { renderer->set_zFar(f); }
-bool Scene::getSuperSampling() { return renderer->getSuperSampling(); }
-void Scene::set_superSampling(bool x) { renderer->set_superSampling(x); }
-bool Scene::get_fog() { return renderer->get_fog(); }
-void Scene::set_fog(bool x) { renderer->set_fog(x); }
+float Scene::get_sampel_size() { return sampel_size; }
+void Scene::set_sampel_size(float f) { sampel_size = f; }
+float Scene::get_zFar() { return zFar; }
+void Scene::set_zFar(float f) { zFar = f; }
+bool Scene::getSuperSampling() { return superSampling; }
+void Scene::set_superSampling(bool x) { superSampling = x; }
+bool Scene::get_fog() { return fog; }
+void Scene::set_fog(bool x) { fog = x; }
 
 
 
@@ -47,8 +47,8 @@ float norm2(const glm::vec3 v)
 		return 1.f;
 	return ans;
 }
-bool Scene::get_auto_color() { return renderer->get_auto_color(); }
-void Scene::set_auto_color(bool x) { renderer->set_auto_color(x); }
+bool Scene::get_auto_color() { return auto_color; }
+void Scene::set_auto_color(bool x) { auto_color = x; }
 bool Scene::get_texture() { return models[ActiveModel]->TEXTURE; }
 void Scene::set_texture(bool x) { models[ActiveModel]->TEXTURE = x; }
 void  Scene::transformProjectionCam(glm::mat4x4 transform, int place)

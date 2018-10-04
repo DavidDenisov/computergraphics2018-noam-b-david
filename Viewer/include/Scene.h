@@ -14,6 +14,17 @@ using namespace std;
 
 class Scene {
 private:
+
+	bool auto_color = false;
+	float sampel_size = 1.f;
+	bool fog = false;
+	bool superSampling = false;
+	float zFar = 1;
+
+
+
+
+
 	int num;
 	vector<MeshModel*> models;
 	vector<Light*> lights;
@@ -93,6 +104,7 @@ public:
 
 
 	bool willCamerasRender = 0;
+	
 
 
 	int ActiveModel;

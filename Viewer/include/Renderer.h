@@ -16,7 +16,7 @@ using namespace std;
 class Renderer
 {
 private:
-	bool auto_color = false;
+	
 	vector<vector<glm::vec3>> textur_map;// 10000*10000
 	glm::vec3 back_round_color;
 	// 3*width*height
@@ -64,9 +64,7 @@ private:
 	//interpolate color by two points by x or y (value = the x/y value that we want his color)
 	static glm::vec3 interpolate(int value, bool xORy, glm::vec3 point1, glm::vec3 point2, glm::vec3 color1, glm::vec3 color2);
 
-	bool fog = false;
-	bool superSampling = false;
-	float zFar = 1;
+	
 
 
 
@@ -82,8 +80,7 @@ private:
 
 public:
 
-	float sampel_size = 1.f;
-	float get_zFar();
+	
 	void set_zFar(float f);
 	bool getSuperSampling();
 	void set_superSampling(bool x);

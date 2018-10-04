@@ -7,15 +7,9 @@
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
-float Renderer::get_zFar() { return zFar; }
-void Renderer::set_zFar(float f) { zFar = f; }
-bool Renderer::getSuperSampling() { return superSampling; }
-void Renderer::set_superSampling(bool x) { superSampling = x; }
-bool Renderer::get_fog() { return fog; }
-void Renderer::set_fog(bool x) { fog = x; }
 
-bool Renderer::get_auto_color() { return auto_color; }
-void Renderer::set_auto_color(bool x) { auto_color = x; }
+
+
 
 int find(vector<glm::vec2> vec, glm::vec2 val)
 {
