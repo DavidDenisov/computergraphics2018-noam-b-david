@@ -387,11 +387,15 @@ void Scene::DrawScene(float w,float h)
 }
 */
 
-void Scene::DrawOpenGL()
+void Scene::DrawOpenGL(unsigned int shaderProgram)
 {
+	//build cameraTrans
+	//glm::mat4 cameras[activeCam]->get_camWorldTransform() * activeCam->get_camModelTransform();
+	glm::mat4 cameraTrans = cameras[ActiveCamera]->get_camWorldTransform() * cameras[ActiveCamera]->get_camModelTransform();
+	glm::mat4 camProject = cameras[ActiveCamera]->get_projection();
 	for (int i = 0; i < models.size(); i++)
 	{
-		
+		models[i]->DrawOpenGL(shaderProgram, cameraTrans, camProject);
 	}
 }
 

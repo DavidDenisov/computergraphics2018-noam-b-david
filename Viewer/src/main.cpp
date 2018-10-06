@@ -303,7 +303,7 @@ int main()
 	//above is learn_openGL code for this. but it's the same (same openGL calls)
 	GLuint shaderProgram = InitShader("vshader.glsl", "fshader.glsl"); 
 
-
+	glEnable(GL_DEPTH_TEST); //z-buffer! :)
 
 
 	float vertices[] = {
@@ -480,7 +480,7 @@ int main()
 			glfwPollEvents();
 
 			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			
 			
@@ -497,11 +497,13 @@ int main()
 
 			if (scene.getModels().size() > 0)
 			{
+				/*
 				MeshModel* activeM = scene.getModels().at(scene.ActiveModel);
 				unsigned int sizeVertices = activeM->getVertexPosNum();
 				activeM->bindVaoModel();
-				//glBindVertexArray(VAO); //bind it again, incase we bound someone else, before... (other object)
 				glDrawArrays(GL_TRIANGLES, 0, sizeVertices);
+				*/
+				scene.DrawOpenGL(shaderProgram);
 			}
 			
 			// Start the ImGui frame

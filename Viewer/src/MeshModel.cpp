@@ -9,6 +9,7 @@
 #include <glad/glad.h> 
 #include <GLFW/glfw3.h>
 
+#include <glm/gtc/type_ptr.hpp> //for uniform setting
 int find(vector<glm::vec4> vec, glm::vec4 val)
 {
 	for (int i=0; i < vec.size(); i++)
@@ -20,10 +21,6 @@ using namespace std;
 MeshModel::MeshModel()
 {
 	this->normalPositions2 = vector<glm::vec4>();
-
-	//this is only for primitive.
-	this->initVaoModel();
-
 }
 void MeshModel::setModeltransform(glm::mat4x4 transform)
 {
@@ -439,7 +436,34 @@ glm::vec4* MeshModel::Draw()
 		transVertexPositions[i] = modelTransform * vertexPositions[i];
 	return transVertexPositions;
 }
+void MeshModel::DrawOpenGL(unsigned int shaderProgram, glm::mat4 cameraTrans, glm::mat4 camProject)
+{
+	/*
+	openGL pipeline: --to make the vertices NDC (normalized Device Coordinates)
+	1. modelTransform
+	2. cameraTrans^-1
+	3. worldTransform
+	4. projection
+	5. divide by .w (will be done in the shader)
+	*/
 
+	// I think it's wrong what we do here, but this is what we did, so not going to change it.
+	// it's based on "practical viewing" on moodle, but it contradicts openGL explanations
+	glm::mat4 modelview = this->worldTransform * glm::inverse(cameraTrans) * this->modelTransform;
+	glm::mat4 finalTRANS = camProject * modelview;
+	
+	//sending our finalTRANS to the vshader
+	unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(finalTRANS)); 
+
+
+	//we're ready. now call the shaders!!!
+	glBindVertexArray(VAO); //bind our vao
+	glDrawArrays(GL_TRIANGLES, 0, vertexPosNum);
+	glBindVertexArray(0); //unbind our vao
+
+
+}
 
 
 //openGL help functions

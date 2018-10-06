@@ -83,7 +83,7 @@ public:
 	// Draws an example.
 	void DrawDemo();
 
-	void DrawOpenGL();
+	void DrawOpenGL(unsigned int shaderProgram);
 
 
 
