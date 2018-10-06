@@ -6,6 +6,9 @@
 
 #include <sstream>
 #define FACE_ELEMENTS 3
+#include <glad/glad.h> 
+#include <GLFW/glfw3.h>
+
 int find(vector<glm::vec4> vec, glm::vec4 val)
 {
 	for (int i=0; i < vec.size(); i++)
@@ -17,6 +20,10 @@ using namespace std;
 MeshModel::MeshModel()
 {
 	this->normalPositions2 = vector<glm::vec4>();
+
+	//this is only for primitive.
+	this->initVaoModel();
+
 }
 void MeshModel::setModeltransform(glm::mat4x4 transform)
 {
@@ -123,6 +130,10 @@ MeshModel::MeshModel(const string& fileName)
 	willDrawBox = 0;
 	willDrawFaceNormal = 0;
 	willDrawFaceNormal = 0;
+
+	
+	initVaoModel(); //make our model ready to be drawn!!!
+
 }
 
 
@@ -427,4 +438,51 @@ glm::vec4* MeshModel::Draw()
 	for (int i = 0; i < (int)(this->getVertexPosNum()); i++)
 		transVertexPositions[i] = modelTransform * vertexPositions[i];
 	return transVertexPositions;
+}
+
+
+
+//openGL help functions
+
+//this will create our vao with all the vertex buffers
+void MeshModel::initVaoModel()
+{
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(3, buffers);
+	glBindVertexArray(VAO); //bind this for vao's buffers init
+
+	GLint sizeVertices = getVertexPosNum();
+
+	//  vertex buffer:
+	/*-----------------*/
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * sizeVertices, &(vertexPositions[0]), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //position attributes
+	glEnableVertexAttribArray(0); //#0 attribute
+
+
+	//  normal buffer:
+	/*-----------------
+	glBindBuffer(GL_VERTEX_ARRAY, buffers[1]);
+	glBufferData(GL_VERTEX_ARRAY, sizeof(glm::vec4) * (this->normalPositions2.size()), &(this->normalPositions2.at(0)), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //normal per vertex attributes
+	glEnableVertexAttribArray(1); //#1 attribute
+	*/
+
+	//  tex' coor buffer:
+	/*-----------------*/
+	//have to support text' in LoadFile for this code... :/
+	
+
+
+
+	//finally, unbind our vao & vbo, just incase.
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+}
+//this will just bind our vao :)
+void MeshModel::bindVaoModel()
+{
+	glBindVertexArray(this->VAO); //just bind. it has all of our buffers!
 }

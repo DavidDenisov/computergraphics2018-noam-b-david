@@ -83,6 +83,9 @@ public:
 	// Draws an example.
 	void DrawDemo();
 
+	void DrawOpenGL();
+
+
 
 	void drawf();
 

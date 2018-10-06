@@ -3,6 +3,8 @@
 #include <string>
 #include "Model.h"
 
+
+
 using namespace std;
 
 /*
@@ -27,7 +29,25 @@ protected:
 
 	void setFaceNormals(); //build the faces' normals - in constructor
 	void setBound(); //find max's and min's indices - in constructor 
+
+
+	//openGL attributes
+	unsigned int VAO; //this is what we're going to bind everytime we're drawing...
+
+	//buffers[0] - vertexPositions
+	//buffers[1] - normalPositions -- this will be our normal per vertex! >:)
+	//(and not normal per face per vertex)
+	//buffers[2] - textureCoordinates
+	unsigned int buffers[3];
+	//* I don't think it should be save as an attribute, but learn openGL does it...
+
+
 public:
+	//openGL help functions
+	void initVaoModel(); //this will create our vao with all the vertex buffers
+	void bindVaoModel(); //this will just bind our vao :)
+	
+
 	void load_normal_per_vertex();
 	MeshModel();//for PrimMeshModel()
 	~MeshModel();

@@ -15,7 +15,7 @@
 #include "Renderer.h"
 #include "Scene.h"
 #include "ImguiMenus.h"
-
+#include "PrimMeshModel.h"
 #include "InitShader.h" //for the function "string ReadShaderSource(const string& shaderFile);"
 
 
@@ -237,11 +237,7 @@ int main()
 	glm::vec4 up(0.5f, 0.5f, 0.0f, 0.0f);
 	int num = 0;
 	int w2 = w, h2 = h;
-	//task3 - part1
 	
-
-
-
 	//openGL testing. draw simple box and so on...
 	//once I'm able to do that the code should be deleted and move on to implement real code
 	//in the scene (no use for renderer)
@@ -249,27 +245,9 @@ int main()
 	/*********************************/
 
 
-	//Learn_openGL's shaders. just to try them... :)
-	//this is just copy pased, not used in this code.
+	
 	//we use the file shaders, and send them to openGL with the function "InitShader"
-	char *vertexShaderSource = "#version 330 core\n"
-		"layout (location = 0) in vec3 aPos;\n"
-		"void main()\n"
-		"{\n"
-		"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-		"}\0";
-	char *fragmentShaderSource = "#version 330 core\n"
-		"out vec4 FragColor;\n"
-		"void main()\n"
-		"{\n"
-		"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-		"}\n\0";
-
-	
-	//openGL hello-triangle code
-	
-
-
+	//openGL hello-triangle code --- InitShaders does all that hard work for us
 
 	//shaders init & compilation...
 	/*
@@ -334,37 +312,41 @@ int main()
 		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
 		0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
 	};
+	/*****add prim object and draw him instead of our "hello triangle"*****/
+	//scene.LoadPrim();
+	//glm::vec4* helloPrim = scene.getModels()[scene.ActiveModel]->GetVertex();
+	//GLint sizeVertices = scene.getModels()[scene.ActiveModel]->getVertexPosNum();
 
-
-
+	//openGL init testing (some hello Triangle vao's & bao's for it)
+	/*
 	//vertex array object init...
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
-
-
-	//vertex buffer object init...
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-
-
-	//"specify how OpenGL should interpret the vertex data[attributes] before rendering..."  ~Learn_openGL
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); //position attributes
-	glEnableVertexAttribArray(0);
+	
+	//vertex buffer object init...
+	unsigned int VBO[2];
+	glGenBuffers(2, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * sizeVertices, &helloPrim[0], GL_STATIC_DRAW);
 
-	//useless for our project. all the vertices has the same color (before lighting) -- should use uniform instead!
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); //color attributes
+
+	//"specify how OpenGL should interpret the vertex data[i.e. attributes] before rendering..."  ~Learn_openGL
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //position attributes
+	glEnableVertexAttribArray(0);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * sizeVertices, &helloPrim[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //position attributes
 	glEnableVertexAttribArray(1);
+
 
 	//unbind vbo & vao (so later calls calls won't accidentally modify this objects
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
+	*/
 	
 
 	
@@ -513,12 +495,14 @@ int main()
 			glUniform4f(uniformColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 			*/
 
-
-			
-			
-			glBindVertexArray(VAO); //bind it again, incase we bound someone else, before... (other object)
-			glDrawArrays(GL_TRIANGLES, 0, 3);
-		
+			if (scene.getModels().size() > 0)
+			{
+				MeshModel* activeM = scene.getModels().at(scene.ActiveModel);
+				unsigned int sizeVertices = activeM->getVertexPosNum();
+				activeM->bindVaoModel();
+				//glBindVertexArray(VAO); //bind it again, incase we bound someone else, before... (other object)
+				glDrawArrays(GL_TRIANGLES, 0, sizeVertices);
+			}
 			
 			// Start the ImGui frame
 			StartFrame(); 

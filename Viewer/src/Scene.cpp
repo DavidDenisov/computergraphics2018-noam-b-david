@@ -387,6 +387,15 @@ void Scene::DrawScene(float w,float h)
 }
 */
 
+void Scene::DrawOpenGL()
+{
+	for (int i = 0; i < models.size(); i++)
+	{
+		
+	}
+}
+
+
 
 //should stay under /*  */ !
 /*
