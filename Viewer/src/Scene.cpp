@@ -49,8 +49,17 @@ float norm2(const glm::vec3 v)
 }
 bool Scene::get_auto_color() { return auto_color; }
 void Scene::set_auto_color(bool x) { auto_color = x; }
-bool Scene::get_texture() { return models[ActiveModel]->TEXTURE; }
-void Scene::set_texture(bool x) { models[ActiveModel]->TEXTURE = x; }
+bool Scene::get_texture()
+{	
+if (models.size()>0)
+	return models[ActiveModel]->TEXTURE;
+return FALSE;
+}
+void Scene::set_texture(bool x) 
+{ 
+if (models.size() > 0)
+	models[ActiveModel]->TEXTURE = x; 
+}
 void  Scene::transformProjectionCam(glm::mat4x4 transform, int place)
 {
 	this->cameras[place]->set_projection(transform);

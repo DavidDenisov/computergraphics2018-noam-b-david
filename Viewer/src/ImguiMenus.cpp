@@ -1185,7 +1185,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 						else
 							f31[i] = auo.x, f32[i] = auo.y, f33[i] = auo.z;
 							*/
-				ImGui::InputInt("Specularity exponent", scene->getModels[i].Specularity_exponent);
+				ImGui::InputInt("Specularity exponent", &(scene->getModels()[i]->Specularity_exponent));
 			}
 			ImGui::End();
 		}

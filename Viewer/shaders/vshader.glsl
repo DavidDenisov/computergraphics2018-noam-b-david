@@ -1,6 +1,6 @@
 #version 330 core
 layout (location = 0) in vec4 aPos;
-layout (location = 1) in vec4 n;
+layout (location = 1) in vec3 n;
 
 
 uniform mat4 transformPos;
@@ -8,7 +8,7 @@ uniform mat4 transformNorm;
 
 
 //uniform bool auto_textur;
-out vec4 norm;
+out vec3 norm;
 
 
 void main()
