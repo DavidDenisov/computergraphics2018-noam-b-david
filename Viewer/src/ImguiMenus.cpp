@@ -1250,7 +1250,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 
 					ImGui::InputFloat("LEFT:", &leftLIST_Frustum[i]);
 					ImGui::InputFloat("RIGHT :", &rightLIST_Frustum[i]);
-					cam->Ortho(leftLIST_Frustum[i], rightLIST_Frustum[i], bottomLIST_Frustum[i],
+					cam->Frustum(leftLIST_Frustum[i], rightLIST_Frustum[i], bottomLIST_Frustum[i],
 						topLIST_Frustum[i], nearLIST_Frustom[i], farLIST_Frustom[i]);
 				}
 				if (prespective[i])
@@ -1288,7 +1288,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (frustom[i])
 				{
 					orto[i] = prespective[i] = FALSE;
-					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, -2, -1);
+					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, 1, -1);
 				}
 
 				ImGui::Checkbox("orto", &orto[i]);
@@ -1302,7 +1302,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (prespective[i])
 				{
 					frustom[i] = orto[i] = FALSE;
-					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, -2, -1);
+					cam->Frustum(-(wF) / hF, (wF) / hF, -1, 1, 1, -1);
 				}
 
 

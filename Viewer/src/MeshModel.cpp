@@ -447,34 +447,25 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, glm::mat4 cameraTrans, gl
 	5. divide by .w (will be done in the shader)
 	*/
 
-	// I think it's wrong what we do here, but this is what we did, so not going to change it.
-	// it's based on "practical viewing" on moodle, but it contradicts openGL explanations
+	/*  vertex trans  */
+	// --------------
 	glm::mat4 view = this->worldTransform * glm::inverse(cameraTrans);
 	glm::mat4 model = this->modelTransform;
 	glm::mat4 finalTRANS = camProject * view * model;
 
-
-
-	/*
-	//first do the transformations:
-	myCameraTransform = activeCam->get_camWorldTransform() * activeCam->get_camModelTransform();
-	//the view matrix
-	glm::mat4x4 view = worldTransform* glm::inverse(myCameraTransform); // T = M * C^-1
-
-	
-	glm::mat4x4 T = myProjection * view; //first transform on the 3d world, then projet it
-
-
-	glm::vec4* transVerticesPositions = new glm::vec4[size];
-	*/
-
-
-
-	
 	//sending our finalTRANS to the vshader
-	unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(finalTRANS)); 
+	unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transformPos");
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(finalTRANS));
 
+	/* normal trans  */
+	//--------------
+	glm::mat4x4 mv = view * model;
+	glm::mat4x4 finalNormalMatrix = glm::transpose(glm::inverse(mv)); // (M^-1)^T
+	
+	transformLoc = glGetUniformLocation(shaderProgram, "transformNorm");
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(finalNormalMatrix));
+	
+	
 
 	//we're ready. now call the shaders!!!
 	glBindVertexArray(VAO); //bind our vao
@@ -500,17 +491,17 @@ void MeshModel::initVaoModel()
 	/*-----------------*/
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * sizeVertices, &(vertexPositions[0]), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //position attributes
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //position attributes
 	glEnableVertexAttribArray(0); //#0 attribute
 
 
 	//  normal buffer:
-	/*-----------------
+	//-----------------
 	glBindBuffer(GL_VERTEX_ARRAY, buffers[1]);
 	glBufferData(GL_VERTEX_ARRAY, sizeof(glm::vec4) * (this->normalPositions2.size()), &(this->normalPositions2.at(0)), GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //normal per vertex attributes
 	glEnableVertexAttribArray(1); //#1 attribute
-	*/
+	
 
 	//  tex' coor buffer:
 	/*-----------------*/

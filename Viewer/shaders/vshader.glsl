@@ -1,14 +1,17 @@
 #version 330 core
-layout (location = 0) in vec3 aPos;
-
-uniform mat4 transform;
-
-
+layout (location = 0) in vec4 aPos;
+layout (location = 1) in vec4 n;
+uniform mat4 transformPos;
+uniform mat4 transformNorm;
+out vec4 norm;
 
 void main()
 {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = aPos;
 
-	gl_Position = transform * gl_Position;
+	gl_Position = transformPos * gl_Position;
 	gl_Position = gl_Position / gl_Position.w; // now he's NDC!
+
+	norm = n;
+
 }
