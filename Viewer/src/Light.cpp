@@ -42,3 +42,30 @@ void Light::resetPosition()
 Light::~Light()
 {
 }
+glm::vec3 CalcDirLight(Light light, glm::vec3 normal, glm::vec3 am, glm::vec3 viewDir,float textur
+,glm::vec3 am_c, glm::vec3 dif_c, glm::vec3 spec_c)
+{
+	glm::vec3 lightDir = normalize(-light.direction);
+	// diffuse shading
+	float diff = fmax(dot(normal, lightDir), 0.0);
+	// specular shading
+	glm::vec3 reflectDir = reflect(-lightDir, normal);
+	float spec = pow(fmax(dot(viewDir, reflectDir), 0.0), light.Specularity_exponent);
+	// combine results
+	glm::vec3 ambient = glm::vec3(0, 0, 0);
+	glm::vec3 diffuse = glm::vec3(0, 0, 0);
+	glm::vec3 specular = glm::vec3(0, 0, 0);
+	if (textur) 
+	{
+		//glm::vec3 ambient = am * vec3(texture(material.diffuse, TexCoords));
+		//glm::vec3 diffuse = light.difus*light.strengte_difus * diff * vec3(texture(material.diffuse, TexCoords));
+		//glm::vec3 specular = light.specalar*light.strengte_ambient * spec * vec3(texture(material.specular, TexCoords));
+	}
+	else
+	{
+		ambient = am * am_c;
+		diffuse = light.difus*light.strengte_difus*diff *dif_c;
+		specular = light.specalar*light.strengte_ambient * spec*spec_c;
+	}
+	return (ambient + diffuse + specular);
+}

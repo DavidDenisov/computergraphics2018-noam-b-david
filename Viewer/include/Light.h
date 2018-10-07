@@ -20,5 +20,6 @@ public:
 	glm::vec3 ambient , difus , specalar, direction;
 	float strengte_specalar, strengte_difus, strengte_ambient;
 	int Specularity_exponent;
+	glm::vec3 CalcDirLight(Light light, glm::vec3 normal, glm::vec3 viewDir);
 	bool type=true;
 };
