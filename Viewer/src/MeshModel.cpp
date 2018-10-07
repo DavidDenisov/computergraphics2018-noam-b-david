@@ -449,8 +449,27 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, glm::mat4 cameraTrans, gl
 
 	// I think it's wrong what we do here, but this is what we did, so not going to change it.
 	// it's based on "practical viewing" on moodle, but it contradicts openGL explanations
-	glm::mat4 modelview = this->worldTransform * glm::inverse(cameraTrans) * this->modelTransform;
-	glm::mat4 finalTRANS = camProject * modelview;
+	glm::mat4 view = this->worldTransform * glm::inverse(cameraTrans);
+	glm::mat4 model = this->modelTransform;
+	glm::mat4 finalTRANS = camProject * view * model;
+
+
+
+	/*
+	//first do the transformations:
+	myCameraTransform = activeCam->get_camWorldTransform() * activeCam->get_camModelTransform();
+	//the view matrix
+	glm::mat4x4 view = worldTransform* glm::inverse(myCameraTransform); // T = M * C^-1
+
+	
+	glm::mat4x4 T = myProjection * view; //first transform on the 3d world, then projet it
+
+
+	glm::vec4* transVerticesPositions = new glm::vec4[size];
+	*/
+
+
+
 	
 	//sending our finalTRANS to the vshader
 	unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
