@@ -526,9 +526,18 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, 
 	uniformLoc = glGetUniformLocation(shaderProgram, "ligth_type");
 	glUniform1iv(uniformLoc, 15, ligth_type);
 
-	glm::vec3 view_dir = 
-	uniformLoc = glGetUniformLocation(shaderProgram, "view_dir"); 
 
+	/*
+	glm::vec4 v55 = glm::inverse(models[i]->getModelTransform())
+			*(cameras[ActiveCamera]->pos - cameras[ActiveCamera]->at);
+	*/
+
+
+	glm::vec4 view_dir_before = scene->cameras[scene->ActiveCamera]->pos - scene->cameras[scene->ActiveCamera]->at;
+	glm::vec3 view_dir = glm::inverse(getModelTransform()) * view_dir_before;
+	view_dir = glm::normalize(view_dir);
+	uniformLoc = glGetUniformLocation(shaderProgram, "view_dir"); 
+	glUniform3f(uniformLoc, view_dir.x, view_dir.y, view_dir.z);
 
 
 	//we're ready. now call the shaders!!!

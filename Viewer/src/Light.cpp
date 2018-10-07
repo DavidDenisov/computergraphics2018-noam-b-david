@@ -1,8 +1,6 @@
 #include "Light.h"
-#include "Camera.h"
-#include <glm/glm.hpp>
-#include <GLFW/glfw3.h>
-#include <imgui/imgui.h>
+
+
 
 
 Light::Light()

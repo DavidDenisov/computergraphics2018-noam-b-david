@@ -13,9 +13,9 @@ uniform int active_ligths_arry_size;
 uniform vec3 pos_dir[15];
 uniform bool ligth_type[15];
 uniform vec3 view_dir;
- uniform int constant[15];
- uniform int linear[15];
- uniform int quadratic[15];
+//uniform int constant[15];
+//uniform int linear[15];
+//uniform int quadratic[15];
 //uniform bool auto_textur;
 
 out vec4 FragColor;
@@ -30,9 +30,9 @@ vec3 CalcPointLight(int place)
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(view_dir, reflectDir), 0.0),exp);
     // attenuation
-    float distance    = length( pos_dir[place] - vec3(gl_PointCoord.x,gl_PointCoord.y,gl_FragCoord.z));
-    float attenuation = 1.0 / (constant[place] + linear[place] * distance + 
-  			     quadratic[place] * (distance * distance));
+    //float distance    = length( pos_dir[place] - vec3(gl_PointCoord.x,gl_PointCoord.y,gl_FragCoord.z));
+    //float attenuation = 1.0 / (constant[place] + linear[place] * distance + 
+  	//		     quadratic[place] * (distance * distance));
 				
     // combine results
 	vec3 ambient = vec3(0, 0, 0);
@@ -43,10 +43,13 @@ vec3 CalcPointLight(int place)
 	diffuse = dif_ligth[place] * dif_color*diff;
 	specular = spec_ligth[place] * spec_color * spec;
 
-    ambient  *= attenuation;
-    diffuse  *= attenuation;
-    specular *= attenuation;
-    return (ambient + diffuse + specular);
+	
+    //ambient  *= attenuation;
+    //diffuse  *= attenuation;
+    //specular *= attenuation;
+    
+
+	return (ambient + diffuse + specular);
 }
 
 vec3 CalcDirLight(int place)
