@@ -761,7 +761,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				if (ImGui::Button("Reset  position"))
 					scene->getLights()[i]->resetPosition();
 			}
-			ImGui::InputInt("Specularity exponent", &scene->getLights()[i]->Specularity_exponent);
 			if (!scene->get_Light(i)->type)
 			{
 			glm::mat4x4 rot;
@@ -1186,7 +1185,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 						else
 							f31[i] = auo.x, f32[i] = auo.y, f33[i] = auo.z;
 							*/
-
+				ImGui::InputInt("Specularity exponent", &(scene->getModels()[i]->Specularity_exponent));
 			}
 			ImGui::End();
 		}

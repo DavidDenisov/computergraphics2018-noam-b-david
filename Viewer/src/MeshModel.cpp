@@ -436,6 +436,7 @@ glm::vec4* MeshModel::Draw()
 		transVertexPositions[i] = modelTransform * vertexPositions[i];
 	return transVertexPositions;
 }
+
 void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, glm::mat4 cameraTrans, glm::mat4 camProject)
 {
 	/*
@@ -468,24 +469,66 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, 
 	
 	/*  light data  */
 	/*
-	uniform vec3 am_color;
-	uniform vec3 dif_color;
-	uniform vec3 spec_color;
-
-	uniform vec3 am_ligth[15];
-	uniform vec3 dif_ligth[15];
-	uniform vec3 spec_ligth[15];
 	uniform vec3 exp[15];
 	uniform int active_ligths_arry_size;
 	uniform vec3 pos_dir[15];
 	uniform vec3 view_dir;
 	*/
 	glm::vec3 am_color, diff_color, spect_color;
-	am_color = scene->AMcolors_model[index];
 	unsigned int uniformLoc;
 
+	am_color = scene->AMcolors_model[index];
 	uniformLoc = glGetUniformLocation(shaderProgram, "am_color");
-	glUniform3f(uniformLoc, )
+	glUniform3f(uniformLoc, am_color.x, am_color.y, am_color.z);
+
+	diff_color = scene->Difcolors_model[index];
+	uniformLoc = glGetUniformLocation(shaderProgram, "dif_color");
+	glUniform3f(uniformLoc, diff_color.x, diff_color.y, diff_color.z);
+
+	spect_color = scene->SPECTcolors_model[index];
+	uniformLoc = glGetUniformLocation(shaderProgram, "spec_color");
+	glUniform3f(uniformLoc, spect_color.x, spect_color.y, spect_color.z);
+
+	glm::vec3 am_ligth = scene->ambient * scene->strengte_ambient;
+	uniformLoc = glGetUniformLocation(shaderProgram, "am_ligth");
+	glUniform3f(uniformLoc, am_ligth.x, am_ligth.y, am_ligth.z);
+
+	glm::vec3 dif_ligth[15], spec_ligth[15];
+	for (int i = 0; i < fmin(scene->lights.size(), 15); i++)
+	{
+		dif_ligth[i] = scene->lights[i]->difus * scene->lights[i]->strengte_difus;
+		spec_ligth[i] = scene->lights[i]->specalar * scene->lights[i]->strengte_specalar;
+	}
+	uniformLoc = glGetUniformLocation(shaderProgram, "dif_ligth");
+	glUniform3fv(uniformLoc, 15, glm::value_ptr(dif_ligth[0]));
+	uniformLoc = glGetUniformLocation(shaderProgram, "spec_ligth");
+	glUniform3fv(uniformLoc, 15, glm::value_ptr(spec_ligth[0]));
+
+	uniformLoc = glGetUniformLocation(shaderProgram, "exp");
+	glUniform1i(uniformLoc, Specularity_exponent);
+	
+	uniformLoc = glGetUniformLocation(shaderProgram, "active_ligths_arry_size");
+	glUniform1i(uniformLoc, fmin(scene->lights.size(), 15));
+
+	glm::vec3 pos_dir[15];
+	GLint ligth_type[15];
+	for (int i = 0; i < fmin(scene->lights.size(), 15); i++)
+	{
+		ligth_type[i] = scene->lights[i]->type;
+
+		if (scene->lights[i]->type)
+			pos_dir[i] = scene->lights[i]->direction;
+		else
+			pos_dir[i] = scene->lights[i]->getPosition();
+	}
+	uniformLoc = glGetUniformLocation(shaderProgram, "pos_dir");
+	glUniform3fv(uniformLoc, 15, glm::value_ptr(pos_dir[0]));
+	uniformLoc = glGetUniformLocation(shaderProgram, "ligth_type");
+	glUniform1iv(uniformLoc, 15, ligth_type);
+
+	glm::vec3 view_dir = 
+	uniformLoc = glGetUniformLocation(shaderProgram, "view_dir"); 
+
 
 
 	//we're ready. now call the shaders!!!

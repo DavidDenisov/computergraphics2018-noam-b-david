@@ -22,7 +22,6 @@ protected:
 	// Add more attributes.
 	int vertexPosNum; // 3 * #vertices
 	
-	
 	glm::mat4x4 worldTransform; //transformations according to the world's origin
 	glm::mat4x4 modelTransform; //transformations according to model's origin
 	glm::mat4x4 normalTransform; //transformations on normals
@@ -59,9 +58,6 @@ public:
 	bool willDrawVertexNormal2 = 0; //normal per vertex
 	bool willDrawFaceNormal = 0;
 	bool TEXTURE = 0;
-	float Ambient =1.f;
-	float Diffus=1.f;
-	float Specular =1.f;
 	void setModeltransform(glm::mat4x4 transform);
 	MeshModel(const string& fileName);
 	void LoadFile(const string& fileName);
@@ -79,7 +75,7 @@ public:
 	glm::mat4x4& getWorldTransform();
 	glm::mat4x4& getNormalTransform();
 
-
+	int Specularity_exponent = 1;
 	//keep the vertices indices that bounds the object
 	int xMax;
 	int xMin;
