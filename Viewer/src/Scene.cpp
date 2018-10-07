@@ -398,7 +398,7 @@ void Scene::DrawOpenGL(unsigned int shaderProgram)
 
 	for (int i = 0; i < models.size(); i++)
 	{
-		models[i]->DrawOpenGL(shaderProgram, myCameraTransform, camProject);
+		models[i]->DrawOpenGL(shaderProgram, i, this, myCameraTransform, camProject);
 	}
 }
 

@@ -436,7 +436,7 @@ glm::vec4* MeshModel::Draw()
 		transVertexPositions[i] = modelTransform * vertexPositions[i];
 	return transVertexPositions;
 }
-void MeshModel::DrawOpenGL(unsigned int shaderProgram, glm::mat4 cameraTrans, glm::mat4 camProject)
+void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, glm::mat4 cameraTrans, glm::mat4 camProject)
 {
 	/*
 	openGL pipeline: --to make the vertices NDC (normalized Device Coordinates)
@@ -466,6 +466,27 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, glm::mat4 cameraTrans, gl
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(finalNormalMatrix));
 	
 	
+	/*  light data  */
+	/*
+	uniform vec3 am_color;
+	uniform vec3 dif_color;
+	uniform vec3 spec_color;
+
+	uniform vec3 am_ligth[15];
+	uniform vec3 dif_ligth[15];
+	uniform vec3 spec_ligth[15];
+	uniform vec3 exp[15];
+	uniform int active_ligths_arry_size;
+	uniform vec3 pos_dir[15];
+	uniform vec3 view_dir;
+	*/
+	glm::vec3 am_color, diff_color, spect_color;
+	am_color = scene->AMcolors_model[index];
+	unsigned int uniformLoc;
+
+	uniformLoc = glGetUniformLocation(shaderProgram, "am_color");
+	glUniform3f(uniformLoc, )
+
 
 	//we're ready. now call the shaders!!!
 	glBindVertexArray(VAO); //bind our vao

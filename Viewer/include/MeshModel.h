@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include "Model.h"
-
+#include "Scene.h"
 
 
 using namespace std;
@@ -70,7 +70,7 @@ public:
 	void transformWorld(glm::mat4x4 transform);
 	vector<glm::vec4> getNormalVertex2();
 	glm::vec4* Draw();
-	void DrawOpenGL(unsigned int shaderProgram, glm::mat4 cameraTrans, glm::mat4 camProject);
+	void DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, glm::mat4 cameraTrans, glm::mat4 camProject);
 	glm::vec4* GetVertex();
 	glm::vec4* getNormalVertex();
 	glm::vec4* getNormalFace();

@@ -25,6 +25,9 @@ private:
 
 
 
+	
+	Renderer *renderer;
+public:
 	int num;
 	vector<MeshModel*> models;
 	vector<Light*> lights;
@@ -35,8 +38,7 @@ private:
 	vector<glm::vec3> Difcolors_camera;
 	vector<glm::vec3> SPECTcolors_model;
 	vector<glm::vec3> SPECTcolors_camera;
-	Renderer *renderer;
-public:
+
 
 	float get_sampel_size();
 	void set_sampel_size(float f);

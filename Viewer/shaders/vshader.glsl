@@ -13,7 +13,7 @@ uniform vec3 spec_color;
 uniform vec3 am_ligth[15];
 uniform vec3 dif_ligth[15];
 uniform vec3 spec_ligth[15];
-uniform bool int active_ligths_arry_size;
+uniform int active_ligths_arry_size;
 uniform vec3 exp[15];
 uniform vec3 pos_dir[15];
 uniform vec3 view_dir;
