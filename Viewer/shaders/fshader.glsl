@@ -1,5 +1,7 @@
 #version 330 core
- in vec3 norm;
+
+uniform mat4 transformNorm;
+in vec3 norm;
 
 uniform vec3 am_color;
 uniform vec3 dif_color;
@@ -39,7 +41,7 @@ vec3 CalcPointLight(int place)
 	vec3 diffuse = vec3(0, 0, 0);
 	vec3 specular = vec3(0, 0, 0);
 
-	ambient = am_ligth[place] * am_color;
+	ambient = am_ligth * am_color;
 	diffuse = dif_ligth[place] * dif_color*diff;
 	specular = spec_ligth[place] * spec_color * spec;
 
@@ -65,7 +67,7 @@ vec3 CalcDirLight(int place)
 	vec3 diffuse = vec3(0, 0, 0);
 	vec3 specular = vec3(0, 0, 0);
 
-	ambient = am_ligth[place] * am_color;
+	ambient = am_ligth * am_color;
 	diffuse = dif_ligth[place] * dif_color*diff;
 	specular = spec_ligth[place] * spec_color * spec;
 	
@@ -87,7 +89,6 @@ void main()
 	}
 
 	
-
 }
 
 

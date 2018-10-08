@@ -4,7 +4,7 @@ layout (location = 1) in vec3 n;
 
 
 uniform mat4 transformPos;
-uniform mat4 transformNorm;
+
 
 out vec3 norm;
 
@@ -16,6 +16,7 @@ void main()
 	gl_Position = transformPos * gl_Position;
 	gl_Position = gl_Position / gl_Position.w; // now he's NDC!
 
-	norm = n;
+	vec4 transNorm = vec4(n, 1.0);
+	norm = vec3(transNorm.x, transNorm.y, transNorm.z);
 
 }
