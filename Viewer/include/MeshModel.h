@@ -2,9 +2,9 @@
 #include <glm/glm.hpp>
 #include <string>
 #include "Model.h"
-#include "Scene.h"
-
-
+#include <glad/glad.h> 
+#include <GLFW/glfw3.h>
+class Scene;
 using namespace std;
 
 /*

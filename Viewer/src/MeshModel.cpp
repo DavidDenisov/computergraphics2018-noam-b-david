@@ -3,11 +3,10 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-
+#include "Scene.h"
 #include <sstream>
 #define FACE_ELEMENTS 3
-#include <glad/glad.h> 
-#include <GLFW/glfw3.h>
+
 
 #include <glm/gtc/type_ptr.hpp> //for uniform setting
 int find(vector<glm::vec4> vec, glm::vec4 val)

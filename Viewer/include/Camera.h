@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include "MeshModel.h"
+#include "PrimMeshModel.h"
 /*
  * Camera class. This class takes care of all the camera transformations and manipulations.
  */

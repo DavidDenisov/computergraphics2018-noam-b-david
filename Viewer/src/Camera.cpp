@@ -1,6 +1,5 @@
 #include "Camera.h"
 #include <iostream>
-#include "PrimMeshModel.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 # define PI 3.141592653589793238462643383279502884L /* pi */
