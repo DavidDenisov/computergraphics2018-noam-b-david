@@ -58,6 +58,7 @@ public:
 	bool willDrawVertexNormal2 = 0; //normal per vertex
 	bool willDrawFaceNormal = 0;
 	bool TEXTURE = 0;
+	bool norm_as_color = 0;
 	void setModeltransform(glm::mat4x4 transform);
 	MeshModel(const string& fileName);
 	void LoadFile(const string& fileName);

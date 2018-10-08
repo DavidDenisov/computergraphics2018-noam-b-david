@@ -516,9 +516,12 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, 
 		ligth_type[i] = scene->lights[i]->type;
 
 		if (scene->lights[i]->type)
-			pos_dir[i] = scene->lights[i]->direction;
+		{
+			pos_dir[i] = glm::inverse(finalTRANS)*  glm::vec4(scene->lights[i]->direction, 1);
+			std::cout << pos_dir[i].x  <<" "<<  pos_dir[i].y  << " " << pos_dir[i].z <<'\n';
+		}
 		else
-			pos_dir[i] = scene->lights[i]->getPosition();
+			pos_dir[i] = glm::inverse(getModelTransform())*glm::vec4(scene->lights[i]->getPosition(),1);
 	}
 	uniformLoc = glGetUniformLocation(shaderProgram, "pos_dir");
 	glUniform3fv(uniformLoc, 15, glm::value_ptr(pos_dir[0]));
@@ -526,19 +529,22 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, 
 	glUniform1iv(uniformLoc, 15, ligth_type);
 
 
-	/*
+	/* 
 	glm::vec4 v55 = glm::inverse(models[i]->getModelTransform())
 			*(cameras[ActiveCamera]->pos - cameras[ActiveCamera]->at);
 	*/
 
 
 	glm::vec4 view_dir_before = scene->cameras[scene->ActiveCamera]->pos - scene->cameras[scene->ActiveCamera]->at;
+	//glm::vec3 view_dir = glm::inverse(getModelTransform()) * view_dir_before;
 	glm::vec3 view_dir = glm::inverse(getModelTransform()) * view_dir_before;
 	view_dir = glm::normalize(view_dir);
 	uniformLoc = glGetUniformLocation(shaderProgram, "view_dir"); 
 	glUniform3f(uniformLoc, view_dir.x, view_dir.y, view_dir.z);
 
 
+	uniformLoc = glGetUniformLocation(shaderProgram, "norm_as_color");
+	glUniform1i(uniformLoc,norm_as_color);
 	//we're ready. now call the shaders!!!
 	glBindVertexArray(VAO); //bind our vao
 	glDrawArrays(GL_TRIANGLES, 0, vertexPosNum);

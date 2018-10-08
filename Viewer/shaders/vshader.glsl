@@ -16,6 +16,7 @@ void main()
 	gl_Position = transformPos * gl_Position;
 	gl_Position = gl_Position / gl_Position.w; // now he's NDC!
 
-	norm = n;
-
+	//vec4 norm2 = vec4(n,1)*transformNorm;
+	//norm= vec3( norm2.x, norm2.y, norm2.z);
+	norm =normalize(n);
 }
