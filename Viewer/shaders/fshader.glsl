@@ -30,7 +30,6 @@ vec3 CalcDirLight(int place,vec3 ligt_direction)
 	float spec = min(pow(max(dot(view_dir,reflectDir), 0.0), exp),1.0);
 	// combine results
 
-	ambient = am_ligth * am_color;
 	vec3 ambient = am_ligth * am_color;
 	vec3 diffuse = dif_ligth[place] * dif_color*diff;
 	vec3 specular = spec_ligth[place] * spec_color * spec;
