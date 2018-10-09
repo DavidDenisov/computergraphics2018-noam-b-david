@@ -20,23 +20,20 @@ uniform vec3 view_dir;
 uniform bool norm_as_color;
 out vec4 FragColor;
 
-vec3 CalcDirLight(int place,vec3 norm)
+vec3 CalcDirLight(int place,vec3 ligt_direction)
 {
-	vec3 lightDir = norm;
+	vec3 lightDir = ligt_direction;
 	// diffuse shading
 	float diff = min(max(dot(norm, lightDir), 0.0),1.0);
 	// specular shading
-	vec3 reflectDir = reflect(lightDir, norm);
+	vec3 reflectDir = reflect(-lightDir, norm);
 	float spec = min(pow(max(dot(view_dir,reflectDir), 0.0), exp),1.0);
 	// combine results
-	vec3 ambient = vec3(0, 0, 0);
-	vec3 diffuse = vec3(0, 0, 0);
-	vec3 specular = vec3(0, 0, 0);
 
 	ambient = am_ligth * am_color;
-	diffuse = dif_ligth[place] * dif_color*diff;
-	specular = spec_ligth[place] * spec_color * spec;
-	
+	vec3 ambient = am_ligth * am_color;
+	vec3 diffuse = dif_ligth[place] * dif_color*diff;
+	vec3 specular = spec_ligth[place] * spec_color * spec;
 	return (ambient + diffuse + specular);
 }
 
