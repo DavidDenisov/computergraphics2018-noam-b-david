@@ -517,11 +517,12 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, 
 
 		if (scene->lights[i]->type)
 		{
-			pos_dir[i] = glm::inverse(finalTRANS)*  glm::vec4(scene->lights[i]->direction, 1);
+			pos_dir[i] =   glm::vec4(scene->lights[i]->direction, 1);
+			pos_dir[i] = glm::normalize(-pos_dir[i]);
 			std::cout << pos_dir[i].x  <<" "<<  pos_dir[i].y  << " " << pos_dir[i].z <<'\n';
 		}
 		else
-			pos_dir[i] = glm::inverse(getModelTransform())*glm::vec4(scene->lights[i]->getPosition(),1);
+			pos_dir[i] =glm::vec4(scene->lights[i]->getPosition(),1);
 	}
 	uniformLoc = glGetUniformLocation(shaderProgram, "pos_dir");
 	glUniform3fv(uniformLoc, 15, glm::value_ptr(pos_dir[0]));
@@ -537,7 +538,7 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, 
 
 	glm::vec4 view_dir_before = scene->cameras[scene->ActiveCamera]->pos - scene->cameras[scene->ActiveCamera]->at;
 	//glm::vec3 view_dir = glm::inverse(getModelTransform()) * view_dir_before;
-	glm::vec3 view_dir = glm::inverse(getModelTransform()) * view_dir_before;
+	glm::vec3 view_dir =  view_dir_before;
 	view_dir = glm::normalize(view_dir);
 	uniformLoc = glGetUniformLocation(shaderProgram, "view_dir"); 
 	glUniform3f(uniformLoc, view_dir.x, view_dir.y, view_dir.z);

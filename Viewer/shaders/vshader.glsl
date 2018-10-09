@@ -18,5 +18,7 @@ void main()
 
 	//vec4 norm2 = vec4(n,1)*transformNorm;
 	//norm= vec3( norm2.x, norm2.y, norm2.z);
-	norm =normalize(n);
+	vec4 norm2 = transformNorm*vec4(n,1);
+	 norm2 =  norm2 / norm2.w;
+	norm =  normalize(vec3(norm2));
 }

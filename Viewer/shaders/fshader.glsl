@@ -54,12 +54,12 @@ vec3 CalcPointLight(int place)
 
 vec3 CalcDirLight(int place)
 {
-	vec3 lightDir = normalize(-pos_dir[place]);
+	vec3 lightDir = pos_dir[place];
 	// diffuse shading
-	float diff = max(dot(norm, lightDir), 0.0);
+	float diff = min(max(dot(norm, lightDir), 0.0),1.0);
 	// specular shading
-	vec3 reflectDir =reflect(lightDir, norm);
-	float spec = pow(max(dot(-view_dir,reflectDir), 0.0), exp);
+	vec3 reflectDir = reflect(-lightDir, norm);
+	float spec = min(pow(max(dot(view_dir,reflectDir), 0.0), exp),1.0);
 	// combine results
 	vec3 ambient = vec3(0, 0, 0);
 	vec3 diffuse = vec3(0, 0, 0);
@@ -79,13 +79,13 @@ void main()
 	int i=0;
 	if(! norm_as_color)
 	{
-		FragColor =vec4(0,0,0,1);
+		FragColor =vec4(0.0,0.0,0.0,1.0);
 		for(i=0;i<active_ligths_arry_size;i++)
 		{
 		if(ligth_type[i])
-		   FragColor=FragColor+vec4(CalcDirLight(i),10);
+		   FragColor=FragColor+vec4(CalcDirLight(i),0.0);
 	    else
-		  FragColor=FragColor+vec4(CalcPointLight(i),0);
+		  FragColor=FragColor+vec4(CalcPointLight(i),0.0);
 		}
 	}
 	else
