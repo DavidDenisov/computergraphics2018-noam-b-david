@@ -517,7 +517,7 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, 
 
 		if (scene->lights[i]->type)
 		{
-			pos_dir[i] =   glm::vec4(scene->lights[i]->direction, 1);
+			pos_dir[i] =   glm::vec4(scene->lights[i]->direction, 0);
 			pos_dir[i] = glm::normalize(-pos_dir[i]);
 			std::cout << pos_dir[i].x  <<" "<<  pos_dir[i].y  << " " << pos_dir[i].z <<'\n';
 		}
@@ -538,7 +538,7 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, 
 
 	glm::vec4 view_dir_before = scene->cameras[scene->ActiveCamera]->pos - scene->cameras[scene->ActiveCamera]->at;
 	//glm::vec3 view_dir = glm::inverse(getModelTransform()) * view_dir_before;
-	glm::vec3 view_dir =  view_dir_before;
+	glm::vec3 view_dir = glm::inverse(getModelTransform()) * view_dir_before;
 	view_dir = glm::normalize(view_dir);
 	uniformLoc = glGetUniformLocation(shaderProgram, "view_dir"); 
 	glUniform3f(uniformLoc, view_dir.x, view_dir.y, view_dir.z);
@@ -577,8 +577,8 @@ void MeshModel::initVaoModel()
 	//  normal buffer:
 	//-----------------
 	glBindBuffer(GL_VERTEX_ARRAY, buffers[1]);
-	glBufferData(GL_VERTEX_ARRAY, sizeof(glm::vec4) * (this->normalPositions2.size()), &(this->normalPositions2.at(0)), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //normal per vertex attributes
+	glBufferData(GL_VERTEX_ARRAY, sizeof(glm::vec3) * (this->normalPositions2.size()), &(this->normalPositions2.at(0)), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //normal per vertex attributes
 	glEnableVertexAttribArray(1); //#1 attribute
 	
 

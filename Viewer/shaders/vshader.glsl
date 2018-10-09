@@ -7,7 +7,7 @@ uniform mat4 transformPos;
 uniform mat4 transformNorm;
 
 out vec3 norm;
-
+out vec3 pos;
 
 void main()
 {
@@ -18,8 +18,10 @@ void main()
 
 	//vec4 norm2 = vec4(n,1)*transformNorm;
 	//norm= vec3( norm2.x, norm2.y, norm2.z);
-	vec4 norm2 = transformNorm*vec4(n,0);
-	 //snorm2 =  norm2 / norm2.w;
-	norm =  normalize(vec3(norm2));
+	//vec4 norm2 = transformNorm*vec4(n,0);
+	//snorm2 =  norm2 / norm2.w;
+	//norm =  normalize(vec3(norm2));
 
+	norm =  normalize(n);
+	pos= vec3(gl_Position);
 }

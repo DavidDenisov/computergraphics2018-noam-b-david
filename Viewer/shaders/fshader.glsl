@@ -1,6 +1,6 @@
 #version 330 core
  in vec3 norm;
-
+ in vec3 pos;
 uniform vec3 am_color;
 uniform vec3 dif_color;
 uniform vec3 spec_color;
@@ -39,7 +39,7 @@ vec3 CalcDirLight(int place,vec3 ligt_direction)
 
 vec3 CalcPointLight(int place)
 {
-    vec3 lightDir = normalize(pos_dir[place] -vec3(gl_PointCoord.x,gl_PointCoord.y,gl_FragCoord.z));
+    vec3 lightDir = normalize(pos_dir[place] -vec3(pos));
     return  CalcDirLight(place,lightDir);
 }
 
@@ -62,7 +62,7 @@ void main()
 	}
 	else
 	{
-		FragColor=vec4(norm,1);
+		FragColor=vec4(norm,1.0);
 	}
 
 }
