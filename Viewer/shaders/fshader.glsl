@@ -76,6 +76,11 @@ void main()
 { 
 	//FragColor = norm; normal as color looks super cool 
 	//simple testing
+
+	vec4 transNorm = vec4(n, 0.0);
+	transNorm = NormMatrix * transNorm; //transform the normal! >:(
+	norm = vec3(transNorm.x, transNorm.y, transNorm.z);
+
 	int i=0;
 	if(! norm_as_color)
 	{
