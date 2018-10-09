@@ -58,7 +58,7 @@ vec3 CalcDirLight(int place)
 	// diffuse shading
 	float diff = min(max(dot(norm, lightDir), 0.0),1.0);
 	// specular shading
-	vec3 reflectDir = reflect(-lightDir, norm);
+	vec3 reflectDir = reflect(lightDir, norm);
 	float spec = min(pow(max(dot(view_dir,reflectDir), 0.0), exp),1.0);
 	// combine results
 	vec3 ambient = vec3(0, 0, 0);
@@ -77,9 +77,7 @@ void main()
 	//FragColor = norm; normal as color looks super cool 
 	//simple testing
 
-	vec4 transNorm = vec4(n, 0.0);
-	transNorm = NormMatrix * transNorm; //transform the normal! >:(
-	norm = vec3(transNorm.x, transNorm.y, transNorm.z);
+
 
 	int i=0;
 	if(! norm_as_color)
