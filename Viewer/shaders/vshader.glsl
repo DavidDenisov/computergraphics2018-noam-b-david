@@ -1,7 +1,7 @@
 #version 330 core
 layout (location = 0) in vec4 aPos;
 layout (location = 1) in vec3 n;
-
+layout (location = 2) in vec2 aTexCoords;;
 
 uniform mat4 transformPos;
 uniform mat4 transformNorm;
@@ -25,6 +25,7 @@ uniform bool norm_as_color;
 out vec3 norm;
 out vec3 pos;
 out vec3 LightingColor;
+out vec2 TexCoords;
 vec3 CalcDirLight(int place,vec3 ligt_direction,vec3 norm_v)
 {
 	vec3 lightDir = ligt_direction;
@@ -73,4 +74,5 @@ void main()
 		else
 			LightingColor=norm;
 	}
+	 TexCoords=aTexCoords;
 }

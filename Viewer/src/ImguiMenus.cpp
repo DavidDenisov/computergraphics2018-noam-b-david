@@ -366,7 +366,7 @@ const glm::vec4& GetClearColor()
 void loadOBJ(Scene *scene)
 {
 	nfdchar_t *outPath = NULL;
-	nfdresult_t result = NFD_OpenDialog("obj;png,jpg", NULL, &outPath);
+	nfdresult_t result = NFD_OpenDialog("obj", NULL, &outPath);
 	if (result == NFD_OKAY) 
 	{
 		std::string filename(outPath);
@@ -381,6 +381,19 @@ void loadOBJ(Scene *scene)
 	cout << "why...?";
 	}
 	delete outPath;
+}
+void loadTEXTURE(Scene *scene, int place)
+{
+	nfdchar_t *outPath = NULL;
+	nfdresult_t result = NFD_OpenDialog("jpg", NULL, &outPath);
+	if (result == NFD_OKAY)
+	{
+		std::string filename(outPath);
+		std::cout << filename << std::endl;
+		//replace all '\' to '/' in the path
+		replace(filename.begin(), filename.end(), '\\', '/');
+		scene->LoadTexture(filename, place);
+	}
 }
 void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 {
@@ -669,11 +682,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		//changed the original code for texture. auto_color -> texture
 		//I think no need for the get call in my case.
 
-		//bool b = scene->get_auto_color();
-		bool b = scene->get_texture();
-		ImGui::Checkbox("add texture", &b);
-		//scene->set_auto_color(b);
-		scene->set_texture(b);
+
 
 
 
@@ -1185,7 +1194,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 							*/
 				ImGui::InputInt("Specularity exponent", &(scene->getModels()[i]->Specularity_exponent));
 				ImGui::Checkbox("norm_as_color", &(scene->getModels()[i]->norm_as_color));
-
+				if (ImGui::Button("add texture"))
+					loadTEXTURE(scene, i);
+				
 			}
 			ImGui::End();
 		}

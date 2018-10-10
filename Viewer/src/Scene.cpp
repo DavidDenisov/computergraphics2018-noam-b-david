@@ -458,3 +458,9 @@ const vector<Camera*> Scene::getCameras()
 {
 	return this->cameras;
 }
+
+void Scene::LoadTexture(string filename, int place)
+{
+	if (place < this->models.size())
+		models[place]->LoadTexture(filename);
+}

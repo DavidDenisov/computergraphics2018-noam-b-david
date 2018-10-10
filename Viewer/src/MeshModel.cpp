@@ -5,6 +5,9 @@
 #include <fstream>
 #include "Scene.h"
 #include <sstream>
+#include <lodepng.h>
+#define STB_IMAGE_IMPLEMENTATION
+//#include <stb>
 #define FACE_ELEMENTS 3
 
 
@@ -380,6 +383,31 @@ void MeshModel::LoadFile(const string& fileName)
 	load_normal_per_vertex();
 	
 }
+void MeshModel::LoadTexture(const string& fileName)
+{
+
+	this->TEXTURE = TRUE;
+	unsigned int texture;
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load and generate the texture
+	std::vector<unsigned char> image;
+	unsigned width, height;
+	lodepng::decode(image, width, height, fileName);
+	//if (image.size() == 0)
+		//return;
+	GLint sizeVertices = getVertexPosNum();
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * image.size(), &(image[0]), GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //normal per vertex attributes
+	glEnableVertexAttribArray(2);
+}
 void MeshModel::load_normal_per_vertex()
 {
 	normalPositions2=new glm::vec4[vertexPosNum];
@@ -587,9 +615,8 @@ void MeshModel::initVaoModel()
 	//  tex' coor buffer:
 	/*-----------------*/
 	//have to support text' in LoadFile for this code... :/
+
 	
-
-
 
 	//finally, unbind our vao & vbo, just incase.
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
