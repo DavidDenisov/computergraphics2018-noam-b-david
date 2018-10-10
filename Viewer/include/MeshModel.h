@@ -16,7 +16,6 @@ class MeshModel : public Model
 protected:
 	glm::vec4 *vertexPositions;
 	glm::vec4 *normalPositions; //normal per face per vertex
-	glm::vec4 *normalPositions2; //only normal per vertex - each vertex will have the same value for every face he appears in
 	glm::vec4 *faceNormals;
 	glm::vec4 *faceAvgs;
 	// Add more attributes.
@@ -46,8 +45,6 @@ public:
 	void initVaoModel(); //this will create our vao with all the vertex buffers
 	void bindVaoModel(); //this will just bind our vao :)
 	
-
-	void load_normal_per_vertex();
 	MeshModel();//for PrimMeshModel()
 	~MeshModel();
 	bool window_open = 0;
@@ -65,7 +62,6 @@ public:
 	int getVertexPosNum();
 	void transformModel(glm::mat4x4 transform);
 	void transformWorld(glm::mat4x4 transform);
-	glm::vec4* getNormalVertex2();
 	glm::vec4* Draw();
 	void DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, glm::mat4 cameraTrans, glm::mat4 camProject);
 	glm::vec4* GetVertex();

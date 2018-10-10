@@ -131,7 +131,6 @@ PrimMeshModel::PrimMeshModel() //primitive MeshModel - task2
 	willDrawBox = 0;
 	willDrawFaceNormal = 0;
 	willDrawFaceNormal = 0;
-	load_normal_per_vertex();
 
 
 
