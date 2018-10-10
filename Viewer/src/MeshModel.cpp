@@ -323,6 +323,7 @@ void MeshModel::LoadFile(const string& fileName)
 	this->normalPositions = new glm::vec4[FACE_ELEMENTS * faces.size()];
 	// iterate through all stored faces and create triangles
 	int k=0;
+	norm_num = 0;
 	glm::vec4 *avoidDeleting;
 	
 	for (vector<FaceIdx>::iterator it = faces.begin(); it != faces.end(); ++it)
@@ -335,7 +336,7 @@ void MeshModel::LoadFile(const string& fileName)
 			this->normalPositions[k] = normals[(*it).vn[i] - 1]; //**********
 
 			k++;
-
+			norm_num++;
 			//now each normal is in the same place of his vertex (k)
 
 		}
@@ -538,7 +539,7 @@ void MeshModel::initVaoModel()
 	//  normal buffer:
 	//-----------------
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * sizeVertices, &(this->normalPositions[0]), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * norm_num, &(this->normalPositions[0]), GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //normal per vertex attributes
 	glEnableVertexAttribArray(1); //#1 attribute
 	

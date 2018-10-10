@@ -14,6 +14,7 @@ using namespace std;
 class MeshModel : public Model
 {
 protected:
+	long norm_num;
 	glm::vec4 *vertexPositions;
 	glm::vec4 *normalPositions; //normal per face per vertex
 	glm::vec4 *faceNormals;
