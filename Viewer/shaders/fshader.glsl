@@ -1,6 +1,6 @@
 #version 330 core
- in vec3 norm;
- in vec3 pos;
+in vec3 norm123;
+in vec3 pos;
 uniform vec3 am_color;
 uniform vec3 dif_color;
 uniform vec3 spec_color;
@@ -24,9 +24,9 @@ vec3 CalcDirLight(int place,vec3 ligt_direction)
 {
 	vec3 lightDir = ligt_direction;
 	// diffuse shading
-	float diff = min(max(dot(norm, lightDir), 0.0),1.0);
+	float diff = min(max(dot(norm123, lightDir), 0.0),1.0);
 	// specular shading
-	vec3 reflectDir = reflect(-lightDir, norm);
+	vec3 reflectDir = reflect(-lightDir, norm123);
 	float spec = min(pow(max(dot(view_dir,reflectDir), 0.0), exp),1.0);
 	// combine results
 
@@ -46,7 +46,7 @@ vec3 CalcPointLight(int place)
 
 void main() 
 { 
-	//FragColor = norm; normal as color looks super cool 
+	//FragColor = norm123; normal as color looks super cool 
 	//simple testing
 	int i=0;
 	if(! norm_as_color)
@@ -62,7 +62,7 @@ void main()
 	}
 	else
 	{
-		FragColor=vec4(norm,1.0);
+		FragColor=vec4(norm123,1.0);
 	}
 
 }

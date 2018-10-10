@@ -16,7 +16,7 @@ class MeshModel : public Model
 protected:
 	glm::vec4 *vertexPositions;
 	glm::vec4 *normalPositions; //normal per face per vertex
-	vector<glm::vec4> normalPositions2; //only normal per vertex - each vertex will have the same value for every face he appears in
+	glm::vec4 *normalPositions2; //only normal per vertex - each vertex will have the same value for every face he appears in
 	glm::vec4 *faceNormals;
 	glm::vec4 *faceAvgs;
 	// Add more attributes.
@@ -65,7 +65,7 @@ public:
 	int getVertexPosNum();
 	void transformModel(glm::mat4x4 transform);
 	void transformWorld(glm::mat4x4 transform);
-	vector<glm::vec4> getNormalVertex2();
+	glm::vec4* getNormalVertex2();
 	glm::vec4* Draw();
 	void DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, glm::mat4 cameraTrans, glm::mat4 camProject);
 	glm::vec4* GetVertex();

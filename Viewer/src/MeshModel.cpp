@@ -19,7 +19,7 @@ int find(vector<glm::vec4> vec, glm::vec4 val)
 using namespace std;
 MeshModel::MeshModel()
 {
-	this->normalPositions2 = vector<glm::vec4>();
+	
 }
 void MeshModel::setModeltransform(glm::mat4x4 transform)
 {
@@ -118,7 +118,7 @@ glm::vec2 vec2fFromStream(std::istream& issLine)
 MeshModel::MeshModel(const string& fileName)
 {
 	//just to make sure, the vector is defined
-	this->normalPositions2 = vector<glm::vec4>();
+	
 
 	LoadFile(fileName);
 	setBound(); //bounding box
@@ -380,7 +380,7 @@ void MeshModel::LoadFile(const string& fileName)
 }
 void MeshModel::load_normal_per_vertex()
 {
-	normalPositions2.clear();
+	normalPositions2 = new glm::vec4[this->vertexPosNum];
 	vector<glm::vec4> norm_ver;
 	vector<glm::vec4> sum_ver;
 	vector<int> count_ver;
@@ -406,14 +406,14 @@ void MeshModel::load_normal_per_vertex()
 			glm::vec4 ver = vertexPositions[i];
 			int place = find(vertex, ver);
 			glm::vec4 norm = sum_ver[place] / float(count_ver[place]);
-			this->normalPositions2.push_back(norm);
+			this->normalPositions2[i] = norm;
 	}
 }
 glm::vec4* MeshModel::GetVertex()
 {
 	return vertexPositions;
 }
-vector<glm::vec4> MeshModel::getNormalVertex2()
+glm::vec4* MeshModel::getNormalVertex2()
 {
 	return this->normalPositions2;
 }
@@ -519,7 +519,7 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, 
 		{
 			pos_dir[i] =   glm::vec4(scene->lights[i]->direction, 0);
 			pos_dir[i] = glm::normalize(-pos_dir[i]);
-			std::cout << pos_dir[i].x  <<" "<<  pos_dir[i].y  << " " << pos_dir[i].z <<'\n';
+			//std::cout << pos_dir[i].x  <<" "<<  pos_dir[i].y  << " " << pos_dir[i].z <<'\n';
 		}
 		else
 			pos_dir[i] =glm::vec4(scene->lights[i]->getPosition(),1);
@@ -576,9 +576,15 @@ void MeshModel::initVaoModel()
 
 	//  normal buffer:
 	//-----------------
-	glBindBuffer(GL_VERTEX_ARRAY, buffers[1]);
-	glBufferData(GL_VERTEX_ARRAY, sizeof(glm::vec3) * (this->normalPositions2.size()), &(this->normalPositions2.at(0)), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //normal per vertex attributes
+	for (int i = 0; i < sizeVertices; i++)
+	{
+		std::cout << this->normalPositions2[i].x << ", "
+			<< this->normalPositions2[i].y << ", "
+			<< this->normalPositions2[i].z << "\n";
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * sizeVertices, &(this->normalPositions2[0]), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //normal per vertex attributes
 	glEnableVertexAttribArray(1); //#1 attribute
 	
 
