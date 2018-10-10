@@ -502,6 +502,11 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, 
 
 	uniformLoc = glGetUniformLocation(shaderProgram, "norm_as_color");
 	glUniform1i(uniformLoc,norm_as_color);
+
+	
+	glUniform1i(glGetUniformLocation(shaderProgram, "phong"),scene->type);
+	//glUniform1i(glGetUniformLocation(shaderProgram, "phong_f"), scene->type);
+
 	//we're ready. now call the shaders!!!
 	glBindVertexArray(VAO); //bind our vao
 	glDrawArrays(GL_TRIANGLES, 0, vertexPosNum);

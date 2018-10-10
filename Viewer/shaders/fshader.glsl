@@ -1,6 +1,8 @@
 #version 330 core
 in vec3 norm;
 in vec3 pos;
+in vec3 LightingColor;
+uniform int phong;
 uniform vec3 am_color;
 uniform vec3 dif_color;
 uniform vec3 spec_color;
@@ -18,7 +20,7 @@ uniform vec3 view_dir;
 //uniform int quadratic[15];
 //uniform bool auto_textur;
 uniform bool norm_as_color;
-out vec4 FragColor;
+
 
 vec3 CalcDirLight(int place,vec3 ligt_direction)
 {
@@ -30,10 +32,9 @@ vec3 CalcDirLight(int place,vec3 ligt_direction)
 	float spec = min(pow(max(dot(view_dir,reflectDir), 0.0), exp),1.0);
 	// combine results
 
-	vec3 ambient = am_ligth * am_color;
 	vec3 diffuse = dif_ligth[place] * dif_color*diff;
 	vec3 specular = spec_ligth[place] * spec_color * spec;
-	return (ambient + diffuse + specular);
+	return (diffuse + specular);
 }
 
 
@@ -49,21 +50,27 @@ void main()
 	//FragColor = norm; normal as color looks super cool 
 	//simple testing
 	int i=0;
-	if(! norm_as_color)
+	if(phong==1)
 	{
-		FragColor =vec4(0.0,0.0,0.0,1.0);
-		for(i=0;i<active_ligths_arry_size;i++)
-		{
-		if(ligth_type[i])
-		   FragColor=FragColor+vec4( CalcDirLight(i,normalize(pos_dir[i])),0.0);
-	    else
-		  FragColor=FragColor+vec4(CalcPointLight(i),0.0);
-		}
+		if(!norm_as_color)
+			{
+			vec4 FragColor =vec4(am_ligth * am_color,1.0);
+			for(i=0;i<active_ligths_arry_size;i++)
+				{
+				if(ligth_type[i])
+					FragColor=FragColor+vec4(CalcDirLight(i,normalize(pos_dir[i])),0.0);
+				else
+					FragColor=FragColor+vec4(CalcPointLight(i),0.0);
+				}
+			gl_FragColor=FragColor;
+			}
+		else
+				gl_FragColor=vec4(norm,1.0);	
 	}
 	else
-	{
-		FragColor=vec4(norm,1.0);
-	}
+		gl_FragColor = vec4(LightingColor,1.0);
+		
+	
 
 }
 

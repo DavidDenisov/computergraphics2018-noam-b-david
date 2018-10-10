@@ -76,7 +76,7 @@ vector<glm::vec3> transformLIST_cam;
 vector<glm::vec3> rotation;
 vector<glm::vec3> scale;
 vector<glm::vec3> transformLIST;
-bool flat = TRUE,  Phong = FALSE, Gouraud = FALSE;
+bool flat = FALSE,  Phong = FALSE, Gouraud =   TRUE;
 glm::vec4 clearColor = glm::vec4(0.4f, 0.55f, 0.60f, 1.00f);
 
 glm::vec3 Color = glm::vec4(0.0f, 0.0f, 0.f, 1.00f);
@@ -640,16 +640,14 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 		ImGui::ColorEdit3("ambient ligth", (float*)&scene->ambient);
 		ImGui::SliderFloat("ambient strength", &scene->strengte_ambient, 0.0f, 1);
 
-		ImGui::Text("flat :");
-		ImGui::Checkbox("flat", &flat);
-		if (flat)
-			Gouraud = Phong = FALSE, scene->type = 0;
+		ImGui::Text("shading :");
+
 		ImGui::Checkbox("Gouraud ", &Gouraud);
 		if (Gouraud)
-			flat = Phong = FALSE, scene->type = 1;
+			Phong = FALSE, scene->type = 0;
 		ImGui::Checkbox("Phong", &Phong);
 		if (Phong)
-			flat = Gouraud = FALSE, scene->type = 2;
+			Gouraud = FALSE, scene->type = 1;
 
 		if (ImGui::Button("ADD Point Light"))
 			addLigth(scene,false);
