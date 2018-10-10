@@ -133,7 +133,7 @@ PrimMeshModel::PrimMeshModel() //primitive MeshModel - task2
 	willDrawFaceNormal = 0;
 
 
-
+	load_normal_per_vertex();
 
 
 	//first it was on the MeshModel() constructor, but we should do it after the initilizations of the prim!

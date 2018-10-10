@@ -9,6 +9,13 @@
 
 
 #include <glm/gtc/type_ptr.hpp> //for uniform setting
+int find(vector<glm::vec4> vec, glm::vec4 val)
+{
+	for (int i = 0; i < vec.size(); i++)
+		if (vec[i] == val)
+			return i;
+	return -1;
+}
 using namespace std;
 MeshModel::MeshModel()
 {
@@ -370,7 +377,39 @@ void MeshModel::LoadFile(const string& fileName)
 		0.0f, 0.0f, 0.0f, 0.0f
 	);
 	
+	load_normal_per_vertex();
 	
+}
+void MeshModel::load_normal_per_vertex()
+{
+	normalPositions2=new glm::vec4[vertexPosNum];
+	vector<glm::vec4> norm_ver;
+	vector<glm::vec4> sum_ver;
+	vector<int> count_ver;
+	vector<glm::vec4> vertex;
+	for (int i = 0; i < this->vertexPosNum; i++)
+	{
+		//now each normal is in the same place of his vertex (k)
+		glm::vec4 norm = normalPositions[i];
+		glm::vec4 ver = vertexPositions[i];
+		int place = find(vertex, ver);
+		if (place >= 0)
+			sum_ver[place] += norm, count_ver[place]++;
+		else
+		{
+			vertex.push_back(ver);
+			sum_ver.push_back(norm);
+			count_ver.push_back(1);
+		}
+	}
+
+	for (int i = 0; i < this->vertexPosNum; i++)
+	{
+		glm::vec4 ver = vertexPositions[i];
+		int place = find(vertex, ver);
+		glm::vec4 norm = sum_ver[place] / float(count_ver[place]);
+		this->normalPositions2[i]=norm;
+	}
 }
 glm::vec4* MeshModel::GetVertex()
 {
@@ -506,6 +545,7 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, 
 
 	
 	glUniform1i(glGetUniformLocation(shaderProgram, "phong"),scene->type);
+	glUniform1i(glGetUniformLocation(shaderProgram, "auto_texture"), this->TEXTURE);
 	//glUniform1i(glGetUniformLocation(shaderProgram, "phong_f"), scene->type);
 
 	//we're ready. now call the shaders!!!
@@ -539,7 +579,7 @@ void MeshModel::initVaoModel()
 	//  normal buffer:
 	//-----------------
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * norm_num, &(this->normalPositions[0]), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * sizeVertices, &(this->normalPositions2[0]), GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //normal per vertex attributes
 	glEnableVertexAttribArray(1); //#1 attribute
 	

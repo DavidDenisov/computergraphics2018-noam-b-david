@@ -18,19 +18,20 @@ uniform int exp;
 uniform int active_ligths_arry_size;
 uniform vec3 pos_dir[15];
 uniform bool ligth_type[15];
+uniform bool auto_textur;
 uniform vec3 view_dir;
 uniform bool norm_as_color;
 
 out vec3 norm;
 out vec3 pos;
 out vec3 LightingColor;
-vec3 CalcDirLight(int place,vec3 ligt_direction,vec3 norm)
+vec3 CalcDirLight(int place,vec3 ligt_direction,vec3 norm_v)
 {
 	vec3 lightDir = ligt_direction;
 	// diffuse shading
-	float diff = min(max(dot(norm, lightDir), 0.0),1.0);
+	float diff = min(max(dot(norm_v, lightDir), 0.0),1.0);
 	// specular shading
-	vec3 reflectDir = reflect(-lightDir, norm);
+	vec3 reflectDir = reflect(-lightDir, norm_v);
 	float spec = min(pow(max(dot(view_dir,reflectDir), 0.0), exp),1.0);
 	// combine results
 
@@ -40,10 +41,10 @@ vec3 CalcDirLight(int place,vec3 ligt_direction,vec3 norm)
 }
 
 
-vec3 CalcPointLight(int place,vec3 norm)
+vec3 CalcPointLight(int place,vec3 norm_v)
 {
     vec3 lightDir = normalize(pos_dir[place] -vec3(pos));
-    return  CalcDirLight(place,lightDir,norm);
+    return  CalcDirLight(place,lightDir,norm_v);
 }
 
 void main()
