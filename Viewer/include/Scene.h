@@ -87,6 +87,7 @@ public:
 
 	void DrawOpenGL(unsigned int shaderProgram);
 
+	void LoadTexture(string filename, int place);
 
 
 	void drawf();

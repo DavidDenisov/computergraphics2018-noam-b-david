@@ -43,6 +43,7 @@ protected:
 
 	void load_normal_per_vertex();
 public:
+	void MeshModel::LoadTexture(const string& fileName);
 	//openGL help functions
 	void initVaoModel(); //this will create our vao with all the vertex buffers
 	void bindVaoModel(); //this will just bind our vao :)
