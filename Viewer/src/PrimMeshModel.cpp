@@ -90,6 +90,23 @@ PrimMeshModel::PrimMeshModel() //primitive MeshModel - task2
 
 
 	this->normalPositions = norm;
+
+
+	this->textCoords = new glm::vec2[36];
+
+	glm::vec2 first = glm::vec2(0.0f, 0.0f);
+	glm::vec2 second = glm::vec2(1.0f, 0.0f);
+	glm::vec2 third = glm::vec2(0.0f, 1.0f);
+
+	for (int i = 0; i < this->vertexPosNum; i += 3)
+	{
+		textCoords[i] = first;
+		textCoords[i+1] = second;
+		textCoords[i+2] = third;
+	}
+
+
+
 	//object in the center of the world, identity trans
 	this->modelTransform = glm::mat4x4
 	(
@@ -115,6 +132,8 @@ PrimMeshModel::PrimMeshModel() //primitive MeshModel - task2
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
+
+	
 
 
 

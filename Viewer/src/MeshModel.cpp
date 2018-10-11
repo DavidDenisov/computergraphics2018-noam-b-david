@@ -265,8 +265,11 @@ void MeshModel::LoadFile(const string& fileName)
 {
 	ifstream ifile(fileName.c_str());
 	vector<FaceIdx> faces;
-	vector<glm::vec4> vertices;
-	vector<glm::vec4> normals;
+	vector<glm::vec4> vertices; //necessary
+	vector<glm::vec4> normals; //necessary
+
+	vector<glm::vec2> textures; //optional
+	bool hasTexture = false;
 	//trying to memory problems around stack
 	string lineType;
 	istringstream* issLine;
@@ -303,6 +306,13 @@ void MeshModel::LoadFile(const string& fileName)
 			//should have w = 0?
 			normals.push_back( glm::vec4(vec3fFromStream(*issLine), 1.0f) );
 		}
+		else if (lineType == "vt")
+		{
+			textures.push_back( glm::vec2(vec2fFromStream(*issLine)) );
+			hasTexture = true; //now can safely load to texture attribute
+		}
+
+
 		else if (lineType == "f") /*BUG*/ //--changed to "f" because it's a face
 		{
 			faces.push_back(*issLine); //creates faceIdx object and then pushes it
@@ -331,6 +341,7 @@ void MeshModel::LoadFile(const string& fileName)
 	this->vertexPosNum = FACE_ELEMENTS * faces.size();
 	this->vertexPositions = new glm::vec4[FACE_ELEMENTS * faces.size()]; /*BUG*/ //--changed array size
 	this->normalPositions = new glm::vec4[FACE_ELEMENTS * faces.size()];
+	this->textCoords = new glm::vec2[FACE_ELEMENTS * faces.size()];
 	// iterate through all stored faces and create triangles
 	int k=0;
 	norm_num = 0;
@@ -344,6 +355,10 @@ void MeshModel::LoadFile(const string& fileName)
 			this->vertexPositions[k] = vertices[(*it).v[i] - 1]; /*BUG*/ //fixed?
 			//--get  normals[  face's normal's index minus 1 ]
 			this->normalPositions[k] = normals[(*it).vn[i] - 1]; //**********
+			//--get textures[ face's vertex's index minus 1]
+			if(hasTexture) //optional
+				this->textCoords[k] = textures[(*it).vt[i] - 1];
+
 
 			k++;
 			norm_num++;
@@ -383,30 +398,28 @@ void MeshModel::LoadFile(const string& fileName)
 	load_normal_per_vertex();
 	
 }
-void MeshModel::LoadTexture(const string& fileName)
+void MeshModel::LoadTexture(const string& fileName, GLFWwindow* window)
 {
 
 	this->TEXTURE = TRUE;
-	unsigned int texture;
-
-	glGenTextures(1, &texture);
+	glGenTextures(1,& texture);
+	glActiveTexture(texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	// set the texture wrapping/filtering options (on the currently bound texture object)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// load and generate the texture
 	std::vector<unsigned char> image;
 	unsigned width, height;
-	lodepng::decode(image, width, height, fileName);
-	//if (image.size() == 0)
-		//return;
-	GLint sizeVertices = getVertexPosNum();
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * image.size(), &(image[0]), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //normal per vertex attributes
-	glEnableVertexAttribArray(2);
+	unsigned error = lodepng::decode(image, width, height, fileName);
+	//if there's an error, display it
+	if (error)
+		std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.data());
+	glGenerateMipmap(GL_TEXTURE_2D);
 }
 void MeshModel::load_normal_per_vertex()
 {
@@ -577,6 +590,7 @@ void MeshModel::DrawOpenGL(unsigned int shaderProgram, int index, Scene* scene, 
 	//glUniform1i(glGetUniformLocation(shaderProgram, "phong_f"), scene->type);
 
 	//we're ready. now call the shaders!!!
+	glBindTexture(GL_TEXTURE_2D, texture);
 	glBindVertexArray(VAO); //bind our vao
 	glDrawArrays(GL_TRIANGLES, 0, vertexPosNum);
 	glBindVertexArray(0); //unbind our vao
@@ -614,6 +628,10 @@ void MeshModel::initVaoModel()
 
 	//  tex' coor buffer:
 	/*-----------------*/
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * sizeVertices, &(this->textCoords[0]), GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0); //normal per vertex attributes
+	glEnableVertexAttribArray(2); //#2 attribute
 	//have to support text' in LoadFile for this code... :/
 
 	

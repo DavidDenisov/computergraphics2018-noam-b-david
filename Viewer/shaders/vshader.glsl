@@ -1,7 +1,8 @@
 #version 330 core
 layout (location = 0) in vec4 aPos;
 layout (location = 1) in vec3 n;
-layout (location = 2) in vec2 aTexCoords;;
+layout (location = 2) in vec2 aTexCoords;
+
 
 uniform mat4 transformPos;
 uniform mat4 transformNorm;
@@ -21,6 +22,9 @@ uniform bool ligth_type[15];
 uniform bool auto_textur;
 uniform vec3 view_dir;
 uniform bool norm_as_color;
+
+uniform sampler2D ourTexture;
+
 
 out vec3 norm;
 out vec3 pos;

@@ -2,6 +2,7 @@
 in vec3 norm;
 in vec3 pos;
 in vec3 LightingColor;
+in vec2 TexCoords;
 uniform int phong;
 uniform vec3 am_color;
 uniform vec3 dif_color;
@@ -21,6 +22,7 @@ uniform vec3 view_dir;
 uniform bool auto_texture;
 uniform bool norm_as_color;
 
+uniform sampler2D ourTexture;
 
 vec3 CalcDirLight(int place,vec3 ligt_direction)
 {
@@ -57,32 +59,7 @@ vec3 CalcPointLight(int place)
 
 void main() 
 { 
-	//FragColor = norm; normal as color looks super cool 
-	//simple testing
-	int i=0;
-	if(phong==1)
-	{
-		if(!norm_as_color)
-			{
-				vec4 FragColor =vec4(am_ligth * am_color,1.0);
-				for(i=0;i<active_ligths_arry_size;i++)
-					{
-					if(ligth_type[i])
-						FragColor=FragColor+vec4(CalcDirLight(i,normalize(pos_dir[i])),0.0);
-					else
-						FragColor=FragColor+vec4(CalcPointLight(i),0.0);
-					}
-				gl_FragColor=FragColor;
-				
-			}
-		else
-				gl_FragColor=vec4(norm,1.0);	
-	}
-	else
-		gl_FragColor = vec4(LightingColor,1.0);
-		
-	
-
+		gl_FragColor = texture(ourTexture, TexCoords);
 }
 
 

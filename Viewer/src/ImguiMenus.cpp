@@ -382,17 +382,17 @@ void loadOBJ(Scene *scene)
 	}
 	delete outPath;
 }
-void loadTEXTURE(Scene *scene, int place)
+void loadTEXTURE(Scene *scene, int place, GLFWwindow* window)
 {
 	nfdchar_t *outPath = NULL;
-	nfdresult_t result = NFD_OpenDialog("jpg", NULL, &outPath);
+	nfdresult_t result = NFD_OpenDialog("png", NULL, &outPath);
 	if (result == NFD_OKAY)
 	{
 		std::string filename(outPath);
 		std::cout << filename << std::endl;
 		//replace all '\' to '/' in the path
 		replace(filename.begin(), filename.end(), '\\', '/');
-		scene->LoadTexture(filename, place);
+		scene->LoadTexture(filename, place, window);
 	}
 }
 void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
@@ -1195,7 +1195,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene* scene, GLFWwindow* window)
 				ImGui::InputInt("Specularity exponent", &(scene->getModels()[i]->Specularity_exponent));
 				ImGui::Checkbox("norm_as_color", &(scene->getModels()[i]->norm_as_color));
 				if (ImGui::Button("add texture"))
-					loadTEXTURE(scene, i);
+					loadTEXTURE(scene, i, window);
 				
 			}
 			ImGui::End();

@@ -20,6 +20,7 @@ protected:
 	glm::vec4 *normalPositions2; //normal per per vertex
 	glm::vec4 *faceNormals;
 	glm::vec4 *faceAvgs;
+	glm::vec2 *textCoords; //texture coordinates
 	// Add more attributes.
 	int vertexPosNum; // 3 * #vertices
 	
@@ -39,11 +40,11 @@ protected:
 	//(and not normal per face per vertex)
 	//buffers[2] - textureCoordinates
 	unsigned int buffers[3];
-	//* I don't think it should be save as an attribute, but learn openGL does it...
-
+	//* I don't think it should be save as an attribute, but learn openGL does it... (to buffer[3])
+	unsigned int texture;
 	void load_normal_per_vertex();
 public:
-	void MeshModel::LoadTexture(const string& fileName);
+	void MeshModel::LoadTexture(const string& fileName, GLFWwindow* window);
 	//openGL help functions
 	void initVaoModel(); //this will create our vao with all the vertex buffers
 	void bindVaoModel(); //this will just bind our vao :)

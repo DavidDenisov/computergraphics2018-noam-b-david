@@ -459,8 +459,8 @@ const vector<Camera*> Scene::getCameras()
 	return this->cameras;
 }
 
-void Scene::LoadTexture(string filename, int place)
+void Scene::LoadTexture(string filename, int place, GLFWwindow* window)
 {
 	if (place < this->models.size())
-		models[place]->LoadTexture(filename);
+		models[place]->LoadTexture(filename, window);
 }
